@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "keskireste"
+version = "0.1.0"
+description = ""
+authors = ["Saucisse à roulettes <gaelmonach123@live.fr>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fire = "^0.5.0"
+pandas = "^1.5.3"
+nicegui = "^1.1.11"
+black = "^23.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
