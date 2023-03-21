@@ -9,8 +9,8 @@ class HistoryCreator:
     def create(self, path: str) -> None:
         history = History(
             path=path,
-            monthly_incomes=set(),
-            monthly_expenses=set(),
+            recurrent_incomes=set(),
+            recurrent_expenses=set(),
             operations=set(),
             filtered_operations=set(),
         )

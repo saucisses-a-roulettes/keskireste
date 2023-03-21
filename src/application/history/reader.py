@@ -6,8 +6,8 @@ from src.application.history.repository import HistoryRepository
 @dataclass(frozen=True)
 class History:
     path: str
-    monthly_incomes: set[RecurrentOperation]
-    monthly_expenses: set[RecurrentOperation]
+    recurrent_incomes: set[RecurrentOperation]
+    recurrent_expenses: set[RecurrentOperation]
     operations: set[Operation]
     filtered_operations: set[str]
 
@@ -21,8 +21,8 @@ class HistoryReader:
 
         return History(
             path=history.path,
-            monthly_incomes=history.monthly_incomes,
-            monthly_expenses=history.monthly_expenses,
+            recurrent_incomes=history.recurrent_incomes,
+            recurrent_expenses=history.recurrent_expenses,
             operations=history.operations,
             filtered_operations=history.filtered_operations,
         )
