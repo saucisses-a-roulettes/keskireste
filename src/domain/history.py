@@ -1,6 +1,16 @@
-import datetime
 import pathlib
-from dataclasses import Field, dataclass, field
+from dataclasses import dataclass
+from src.domain.entity import Id
+
+
+class RecurrentOperationAlreadyExist(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__(f"Recurrent operation `{name}` already exists")
+
+
+class RecurrentOperationNotFound(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__(f"Recurrent operation `{name}` not found")
 
 
 class Path:
@@ -23,76 +33,77 @@ class Path:
 
 @dataclass(frozen=True)
 class RecurrentOperation:
-    year: int = field(hash=True)
-    month: int = field(hash=True)
-    name: str = field(hash=True)
-    value: float = field(hash=False)
+    name: str
+    value: float
+
+    def __hash__(self):
+        return hash(self.name)
 
 
 @dataclass(frozen=True)
 class Operation:
-    date: datetime.datetime
+    id: str
+    day: int
     name: str
     value: float
+
+    def __post_init__(self):
+        if self.day < 0 or self.day > 31:
+            raise ValueError(f"Day `{self.day}` is invalid")
+
+
+@dataclass(frozen=True)
+class Date:
+    year: int
+    month: int
+
+    def __post_init__(self):
+        if self.year < 0:
+            raise ValueError(f"Year {self.year} cannot be negative")
+        if self.month < 1 or self.month > 12:
+            raise ValueError(f"Month `{self.month}` is invalid")
 
 
 class History:
     def __init__(
-        self,
-        path: str,
-        recurrent_incomes: set[RecurrentOperation],
-        recurrent_expenses: set[RecurrentOperation],
-        operations: set[Operation],
-        filtered_operations: set[str],
+        self, id_: Id, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
     ) -> None:
-        self._path = str(Path(path))
-        self._monthly_incomes = recurrent_incomes
-        self._monthly_expenses = recurrent_expenses
+        self._id = id_
+        self._date = date
+        self._recurrent_operations = recurrent_operations
         self._operations = operations
-        self._filtered_operations = filtered_operations
+
+    def __hash__(self):
+        return hash(self._id)
 
     @property
-    def path(self) -> str:
-        return self._path
+    def id(self) -> Id:
+        return self._id
 
     @property
-    def recurrent_incomes(self) -> set[RecurrentOperation]:
-        return self._monthly_incomes
+    def date(self) -> Date:
+        return self._date
 
     @property
-    def recurrent_expenses(self) -> set[RecurrentOperation]:
-        return self._monthly_expenses
+    def recurrent_operations(self) -> set[RecurrentOperation]:
+        return self._recurrent_operations
 
     @property
     def operations(self) -> set[Operation]:
         return self._operations
 
-    def _update_filtered_operations(self) -> None:
-        self._filtered_operations = {ri.name for ri in self._monthly_incomes} | {
-            re.name for re in self._monthly_expenses
-        }
-        self._operations = {
-            op for op in self._operations if not any(op.name.startswith(f) for f in self._filtered_operations)
-        }
-
     def add_recurrent_operation(self, op: RecurrentOperation) -> None:
-        if op.value > 0:
-            self._monthly_incomes.add(op)
-        elif op.value < 0:
-            self._monthly_expenses.add(op)
-        self._update_filtered_operations()
+        if op in self._recurrent_operations:
+            raise RecurrentOperationAlreadyExist(op.name)
+        self._recurrent_operations.add(op)
 
-    def remove_recurrent_operation(self, op: RecurrentOperation) -> None:
-        if op.value > 0:
-            self._monthly_incomes.remove(op)
-        elif op.value < 0:
-            self._monthly_expenses.remove(op)
-        self._update_filtered_operations()
+    def remove_recurrent_operation(self, name: str) -> None:
+        try:
+            op = next(o for o in self._recurrent_operations if o.name == name)
+        except StopIteration as err:
+            raise RecurrentOperationNotFound(name) from err
+        self._recurrent_operations.remove(op)
 
     def add_operation(self, op: Operation) -> None:
-        if all(not op.name.startswith(f) for f in self._filtered_operations):
+        if not any(op.name.startswith(r_op.name) for r_op in self._recurrent_operations):
             self._operations.add(op)
-
-    @property
-    def filtered_operations(self) -> set[str]:
-        return self._filtered_operations
