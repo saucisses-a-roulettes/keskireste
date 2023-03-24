@@ -1,35 +1,60 @@
 import contextlib
 import dataclasses
 import pickle
+from typing import Self
 from src.application.budget.history.repository import HistoryRepository
 from src.domain.entity import Id
-from src.domain.history import History
-from src.infrastructure.budget.repository.model import BudgetPickleModel
+from src.domain.history import Date, History
+from src.infrastructure.budget.repository.model import BudgetPath, BudgetPickleModel
 
 
-class HistoryPickleRepository(HistoryRepository):
-    def __init__(self, path_separator: str) -> None:
-        self._path_separator = path_separator
+class HistoryId(Id):
+    def __init__(self, budget_path: BudgetPath, date: Date):
+        self._budget_path = budget_path
+        self._date = date
 
-    def retrieve(self, id_: Id) -> History:
-        with open(str(id_), "rb") as f:
+    @property
+    def budget_path(self) -> BudgetPath:
+        return self._budget_path
+
+    @property
+    def date(self) -> Date:
+        return self._date
+
+    def __str__(self) -> str:
+        return f"{self.date.year}/{self.date.month}"
+
+    def __hash__(self):
+        return hash(self._date)
+
+    def __eq__(self, other: Self) -> bool:
+        return self.date == other.date
+
+
+class HistoryPickleRepository(HistoryRepository[HistoryId]):
+    def retrieve(self, id_: HistoryId) -> History:
+        with open(str(id_.budget_path), "rb") as f:
             model: BudgetPickleModel = pickle.load(f)
+
+        print(id_.date)
+
+        print([h.id.date for h in model.histories])
 
         return next(h for h in model.histories if h.id == id_)
 
-    def create(self, history: History) -> None:
-        path = str(history.id).split(self._path_separator)[0]
+    def create(self, history: History[HistoryId]) -> None:
+        path = str(history.id.budget_path)
         with open(path, "rb") as f:
             model: BudgetPickleModel = pickle.load(f)
-
         new_histories = set(model.histories)
         new_histories.add(history)
-        dataclasses.replace(model, histories=frozenset(new_histories))
+        model = dataclasses.replace(model, histories=frozenset(new_histories))
+        print(model.histories)
         with open(path, "wb") as f:
             pickle.dump(model, f)
 
-    def update(self, history: History) -> None:
-        path = str(history.id).split(self._path_separator)[0]
+    def update(self, history: History[HistoryId]) -> None:
+        path = str(history.id.budget_path)
         with open(path, "rb") as f:
             model: BudgetPickleModel = pickle.load(f)
 

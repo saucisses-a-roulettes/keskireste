@@ -1,13 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Self
+from typing import TypeVar
 
 
 class Id(ABC):
-    @classmethod
-    @abstractmethod
-    def from_string(cls, s: str) -> Self:
-        pass
-
     @abstractmethod
     def __str__(self) -> str:
         pass
@@ -15,3 +10,6 @@ class Id(ABC):
     @abstractmethod
     def __hash__(self):
         pass
+
+
+TId = TypeVar("TId", bound=Id)

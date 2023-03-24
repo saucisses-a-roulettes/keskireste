@@ -1,6 +1,7 @@
 import pathlib
 from dataclasses import dataclass
-from src.domain.entity import Id
+from typing import Generic
+from src.domain.entity import Id, TId
 
 
 class RecurrentOperationAlreadyExist(Exception):
@@ -64,9 +65,9 @@ class Date:
             raise ValueError(f"Month `{self.month}` is invalid")
 
 
-class History:
+class History(Generic[TId]):
     def __init__(
-        self, id_: Id, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
+        self, id_: TId, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
     ) -> None:
         self._id = id_
         self._date = date
@@ -77,7 +78,7 @@ class History:
         return hash(self._id)
 
     @property
-    def id(self) -> Id:
+    def id(self) -> TId:
         return self._id
 
     @property
