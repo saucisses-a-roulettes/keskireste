@@ -1,0 +1,103 @@
+* {
+    font-family: Arial;
+}
+
+QMainWindow {
+    background-color: #EFEFEF;
+}
+
+QLabel {
+    font-size: 18px;
+}
+
+QTableWidget {
+    background-color: #F7F7F7;
+    border: 1px solid #CCCCCC;
+    selection-background-color: #DDDDDD;
+}
+
+QHeaderView {
+    background-color: #F7F7F7;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    height: 40px;
+    qproperty-defaultAlignment: AlignLeft;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+QHeaderView::section:horizontal {
+    border-right: 1px solid #CCCCCC;
+    padding: 5px;
+}
+
+QPushButton {
+    background-color: #337AB7;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    padding: 5px 15px;
+}
+
+QPushButton:hover {
+    background-color: #286090;
+    cursor: pointer;
+}
+
+QComboBox {
+    background-color: #F7F7F7;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    font-size: 14px;
+    height: 30px;
+    padding: 5px;
+}
+
+QSpinBox, QDoubleSpinBox {
+    background-color: #F7F7F7;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    font-size: 14px;
+    height: 30px;
+    padding: 5px;
+    width: 70px;
+}
+
+QLineEdit {
+    background-color: #F7F7F7;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    font-size: 14px;
+    height: 30px;
+    padding: 5px;
+}
+
+QMenuBar {
+    background-color: #F7F7F7;
+    border: none;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 5px;
+}
+
+QMenuBar::item:selected {
+    background-color: #DDDDDD;
+}
+
+QMenu {
+    background-color: #F7F7F7;
+    border: 1px solid #CCCCCC;
+    padding: 5px;
+}
+
+QMenu::item:selected {
+    background-color: #DDDDDD;
+}
+
+QStatusBar {
+    background-color: #EFEFEF;
+    border-top: 1px solid #CCCCCC;
+    height: 30px;
+}

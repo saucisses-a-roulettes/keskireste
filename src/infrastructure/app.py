@@ -80,7 +80,7 @@ class DatePicker(QWidget):
         "December": 12,
     }
 
-    def __init__(self, parent: QWidget) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         layout = QHBoxLayout(self)
         self.year_selector = QComboBox(self)
@@ -109,7 +109,7 @@ class DatePicker(QWidget):
 
 
 class NoHistorySelectedWidget(QWidget):
-    def __init__(self, parent: QWidget) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.test = QLabel("Sélectionne un budget !", self)
 
@@ -148,13 +148,15 @@ class RecurrentOperationInputWidget(QWidget):
 
 
 class HistoryWidget(QWidget):
-    def __init__(self, parent: QWidget) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.budget_path: BudgetPath | None = None
 
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
         layout = QGridLayout(self)
 
-        self.date_picker = DatePicker(self)
+        self.date_picker = DatePicker()
         self.date_picker.year_selector.currentTextChanged.connect(self._refresh_ui)
         self.date_picker.month_selector.currentTextChanged.connect(self._refresh_ui)
         layout.addWidget(self.date_picker, 0, 0)
@@ -162,13 +164,14 @@ class HistoryWidget(QWidget):
         self.title = QLabel("", self)
         layout.addWidget(self.title, 1, 0)
 
-        self.recurrent_operation_table = QTableWidget(self)
+        self.recurrent_operation_table = QTableWidget()
         self.recurrent_operation_table.setColumnCount(2)
         self.recurrent_operation_table.setHorizontalHeaderLabels(["Label", "Amount"])
+        self.recurrent_operation_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.recurrent_operation_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.recurrent_operation_table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.recurrent_operation_table.setSortingEnabled(True)
-        self.recurrent_operation_table.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        self.recurrent_operation_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         layout.addWidget(self.recurrent_operation_table, 2, 0)
 
         self.recurrent_operation_input_widget = RecurrentOperationInputWidget(self)
@@ -176,16 +179,16 @@ class HistoryWidget(QWidget):
         self.recurrent_operation_input_widget.connect_delete(self._delete_recurrent_operation)
         layout.addWidget(self.recurrent_operation_input_widget, 2, 1)
 
-        self.operation_table = QTableWidget(self)
+        self.operation_table = QTableWidget()
         self.operation_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.operation_table.setColumnCount(3)
         self.operation_table.setHorizontalHeaderLabels(["Day", "Label", "Amount"])
         self.operation_table.setSortingEnabled(True)
-        self.operation_table.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        self.operation_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         layout.addWidget(self.operation_table, 3, 0)
 
         self.balance = QLabel("", self)
-        layout.addWidget(self.balance, 4, 0)
+        layout.addWidget(self.balance, 3, 1)
 
     def _refresh_ui(self) -> None:
         history_id = HistoryId(self.budget_path, self.date_picker.retrieve_date())
@@ -258,18 +261,22 @@ class HistoryWidget(QWidget):
 class MainWidget(QWidget):
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
+        layout = QHBoxLayout(self)
 
-        self.budget_stacked_widget = QStackedWidget(self)
-        self.no_history_selected_widget = NoHistorySelectedWidget(self)
-        self.budget_stacked_widget.addWidget(self.no_history_selected_widget)
-        self.history_widget = HistoryWidget(self)
-        self.budget_stacked_widget.addWidget(self.history_widget)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.history_stacked_widget = QStackedWidget()
+        layout.addWidget(self.history_stacked_widget)
+        self.history_stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.no_history_selected_widget = NoHistorySelectedWidget()
+        self.history_stacked_widget.addWidget(self.no_history_selected_widget)
+        self.history_widget = HistoryWidget()
+        self.history_stacked_widget.addWidget(self.history_widget)
 
         self.budget_layout = QGridLayout(self.history_widget)
 
     def refresh_history(self, budget_path: BudgetPath) -> None:
         self.history_widget.refresh_history(budget_path)
-        self.budget_stacked_widget.setCurrentWidget(self.history_widget)
+        self.history_stacked_widget.setCurrentWidget(self.history_widget)
 
 
 class MainWindow(QMainWindow):
@@ -299,6 +306,7 @@ class MainWindow(QMainWindow):
 
         # Central
         self.central_widget = MainWidget(self)
+        self.central_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setCentralWidget(self.central_widget)
 
     def create_budget(self):
@@ -347,6 +355,9 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication()
+    with open("src/infrastructure/style.qss", "r") as f:
+        _style = f.read()
+        app.setStyleSheet(_style)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

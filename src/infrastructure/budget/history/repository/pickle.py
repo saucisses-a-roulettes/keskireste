@@ -62,7 +62,6 @@ class HistoryPickleRepository(HistoryRepository[HistoryId]):
             with contextlib.suppress(KeyError):
                 new_histories.remove(history)
             new_histories.add(history)
-            # print(new_histories)
             model = dataclasses.replace(model, histories=frozenset(new_histories))
             with open(path, "wb") as f:
                 pickle.dump(model, f)
