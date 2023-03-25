@@ -11,6 +11,7 @@ fire = "^0.5.0"
 pandas = "^1.5.3"
 black = "^23.1.0"
 PySide6 = "^6.4.3"
+ofxparse = "^0.21"
 
 [build-system]
 requires = ["poetry-core"]

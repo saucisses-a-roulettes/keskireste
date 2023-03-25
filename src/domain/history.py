@@ -1,6 +1,6 @@
 import pathlib
 from dataclasses import dataclass
-from typing import Generic
+from typing import Generic, Self
 from src.domain.entity import Id, TId
 
 
@@ -40,6 +40,9 @@ class RecurrentOperation:
     def __hash__(self):
         return hash(self.name)
 
+    def __eq__(self, other: Self) -> bool:
+        return self.name == other.name
+
 
 @dataclass(frozen=True)
 class Operation:
@@ -76,6 +79,9 @@ class History(Generic[TId]):
 
     def __hash__(self):
         return hash(self._id)
+
+    def __eq__(self, o: Self) -> bool:
+        return self.id == o.id
 
     @property
     def id(self) -> TId:

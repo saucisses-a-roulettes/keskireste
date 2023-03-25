@@ -3,6 +3,7 @@ import dataclasses
 import pickle
 from typing import Self
 from src.application.budget.history.repository import HistoryRepository
+from src.application.repository import CannotRetrieveEntity
 from src.domain.entity import Id
 from src.domain.history import Date, History
 from src.infrastructure.budget.repository.model import BudgetPath, BudgetPickleModel
@@ -36,11 +37,10 @@ class HistoryPickleRepository(HistoryRepository[HistoryId]):
         with open(str(id_.budget_path), "rb") as f:
             model: BudgetPickleModel = pickle.load(f)
 
-        print(id_.date)
-
-        print([h.id.date for h in model.histories])
-
-        return next(h for h in model.histories if h.id == id_)
+        try:
+            return next(h for h in model.histories if h.id == id_)
+        except StopIteration as err:
+            raise CannotRetrieveEntity(id_) from err
 
     def create(self, history: History[HistoryId]) -> None:
         path = str(history.id.budget_path)
@@ -49,7 +49,6 @@ class HistoryPickleRepository(HistoryRepository[HistoryId]):
         new_histories = set(model.histories)
         new_histories.add(history)
         model = dataclasses.replace(model, histories=frozenset(new_histories))
-        print(model.histories)
         with open(path, "wb") as f:
             pickle.dump(model, f)
 
@@ -63,6 +62,7 @@ class HistoryPickleRepository(HistoryRepository[HistoryId]):
             with contextlib.suppress(KeyError):
                 new_histories.remove(history)
             new_histories.add(history)
-            dataclasses.replace(model, histories=frozenset(new_histories))
+            # print(new_histories)
+            model = dataclasses.replace(model, histories=frozenset(new_histories))
             with open(path, "wb") as f:
                 pickle.dump(model, f)
