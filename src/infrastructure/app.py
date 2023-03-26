@@ -20,6 +20,7 @@ import sys
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Self
+ from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt
 from PySide6.QtGui import QAction, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -30,6 +31,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QHeaderView,
+    QItemDelegate,
     QLabel,
     QLineEdit,
     QMainWindow,
@@ -39,6 +41,8 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSpinBox,
     QStackedWidget,
+    QStyleOptionViewItem,
+    QStyledItemDelegate,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -158,10 +162,100 @@ class RecurrentOperationInputWidget(QWidget):
     def connect_delete(self, f: Callable) -> None:
         self.delete_button.clicked.connect(f)
 
-    def get_recurrent_operation(self) -> RecurrentOperation | None:
+    def get_current_recurrent_operation(self) -> RecurrentOperation | None:
         name = self.label_input.text()
         age = self.amount_input.value()
         return RecurrentOperation(name, age) if name and age else None
+
+
+class OperationTableItemDelegate(QItemDelegate):
+    def createEditor(self, parent, option, index):
+        if index.column() in (2, 3):
+            return super().createEditor(parent, option, index)
+        return None
+
+
+class RecurrentOperationsWidget(QWidget):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        layout = QHBoxLayout(self)
+        self.recurrent_operation_table = QTableWidget()
+        self.recurrent_operation_table.setColumnCount(2)
+        self.recurrent_operation_table.setHorizontalHeaderLabels(["Label", "Amount"])
+        self.recurrent_operation_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.recurrent_operation_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.recurrent_operation_table.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.recurrent_operation_table.setSortingEnabled(True)
+        self.recurrent_operation_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.recurrent_operation_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        layout.addWidget(self.recurrent_operation_table)
+        self.recurrent_operation_input = RecurrentOperationInputWidget(self)
+        layout.addWidget(self.recurrent_operation_input)
+
+
+class HistoryOperationsManagerWidget(QWidget):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        layout = QVBoxLayout(self)
+
+        self._recurrent_operations = RecurrentOperationsWidget()
+        layout.addWidget(self._recurrent_operations)
+
+        self._operation_table = QTableWidget()
+        self._operation_table.setColumnCount(4)
+        self._operation_table.setHorizontalHeaderLabels(["Id", "Day", "Label", "Amount"])
+        self._operation_table.setSortingEnabled(True)
+        self._operation_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._operation_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self._operation_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        delegate = OperationTableItemDelegate()
+        self._operation_table.setItemDelegateForColumn(0, delegate)
+        self._operation_table.setItemDelegateForColumn(1, delegate)
+        self._operation_table.setItemDelegateForColumn(2, delegate)
+        self._operation_table.setItemDelegateForColumn(3, delegate)
+        layout.addWidget(self._operation_table)
+
+    def refresh(self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[Operation]) -> None:
+        self._recurrent_operations.recurrent_operation_table.setRowCount(0)
+        for op in recurrent_operations:
+            row_index = self._recurrent_operations.recurrent_operation_table.rowCount()
+            self._recurrent_operations.recurrent_operation_table.insertRow(row_index)
+            self._recurrent_operations.recurrent_operation_table.setItem(row_index, 0, QTableWidgetItem(op.name))
+            self._recurrent_operations.recurrent_operation_table.setItem(row_index, 1, QTableWidgetItem(str(op.value)))
+        self._operation_table.setRowCount(0)
+        for op in operations:
+            row_index = self._operation_table.rowCount()
+            self._operation_table.insertRow(row_index)
+            self._operation_table.setItem(row_index, 0, QTableWidgetItem(op.id))
+            self._operation_table.setItem(row_index, 1, QTableWidgetItem(str(op.day)))
+            self._operation_table.setItem(row_index, 2, QTableWidgetItem(op.name))
+            self._operation_table.setItem(row_index, 3, QTableWidgetItem(str(op.value)))
+
+    def connect_submit(self, f: Callable) -> None:
+        self._recurrent_operations.recurrent_operation_input.connect_submit(f)
+
+    def connect_delete(self, f: Callable) -> None:
+        self._recurrent_operations.recurrent_operation_input.connect_delete(f)
+
+    def get_recurrent_operation_input(self) -> RecurrentOperation | None:
+        return self._recurrent_operations.recurrent_operation_input.get_current_recurrent_operation()
+
+    def list_selected_recurrent_operations(self) -> set[RecurrentOperation]:
+        indexes = {
+            index.row()
+            for index in self._recurrent_operations.recurrent_operation_table.selectionModel().selectedRows()
+        }
+        return {
+            RecurrentOperation(
+                self._recurrent_operations.recurrent_operation_table.item(i, 0).text(),
+                float(self._recurrent_operations.recurrent_operation_table.item(i, 1).text()),
+            )
+            for i in indexes
+        }
 
 
 class HistoryWidget(QWidget):
@@ -171,72 +265,38 @@ class HistoryWidget(QWidget):
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        layout = QGridLayout(self)
+        layout = QVBoxLayout(self)
 
-        self.date_picker = DatePicker()
-        self.date_picker.year_selector.currentTextChanged.connect(self._refresh_ui)
-        self.date_picker.month_selector.currentTextChanged.connect(self._refresh_ui)
-        layout.addWidget(self.date_picker, 0, 0)
+        self._date_picker = DatePicker()
+        self._date_picker.year_selector.currentTextChanged.connect(self._refresh)
+        self._date_picker.month_selector.currentTextChanged.connect(self._refresh)
+        layout.addWidget(self._date_picker)
 
-        self.title = QLabel("", self)
-        layout.addWidget(self.title, 1, 0)
-
-        self.recurrent_operation_table = QTableWidget()
-        self.recurrent_operation_table.setColumnCount(2)
-        self.recurrent_operation_table.setHorizontalHeaderLabels(["Label", "Amount"])
-        self.recurrent_operation_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.recurrent_operation_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.recurrent_operation_table.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.recurrent_operation_table.setSortingEnabled(True)
-        self.recurrent_operation_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        layout.addWidget(self.recurrent_operation_table, 2, 0)
-
-        self.recurrent_operation_input_widget = RecurrentOperationInputWidget(self)
-        self.recurrent_operation_input_widget.connect_submit(self._add_recurrent_operation)
-        self.recurrent_operation_input_widget.connect_delete(self._delete_recurrent_operation)
-        layout.addWidget(self.recurrent_operation_input_widget, 2, 1)
-
-        self.operation_table = QTableWidget()
-        self.operation_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.operation_table.setColumnCount(3)
-        self.operation_table.setHorizontalHeaderLabels(["Day", "Label", "Amount"])
-        self.operation_table.setSortingEnabled(True)
-        self.operation_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        layout.addWidget(self.operation_table, 3, 0)
+        self._history_operations_manager = HistoryOperationsManagerWidget()
+        self._history_operations_manager.connect_submit(self._add_recurrent_operation)
+        self._history_operations_manager.connect_delete(self._delete_recurrent_operation)
+        layout.addWidget(self._history_operations_manager)
 
         self.balance = QLabel("", self)
-        layout.addWidget(self.balance, 3, 1)
+        # layout.addWidget(self.balance, 3, 1)
 
-    def _refresh_ui(self) -> None:
-        history_id = HistoryId(self.budget_path, self.date_picker.retrieve_date())
+    def _refresh(self) -> None:
+        history_id = HistoryId(self.budget_path, self._date_picker.retrieve_date())
         history = retrieve_or_create_history(history_id)
-        self.title.setText(str(history.date))
-        self.recurrent_operation_table.setRowCount(0)
-        for op in history.recurrent_operations:
-            row_index = self.recurrent_operation_table.rowCount()
-            self.recurrent_operation_table.insertRow(row_index)
-            self.recurrent_operation_table.setItem(row_index, 0, QTableWidgetItem(op.name))
-            self.recurrent_operation_table.setItem(row_index, 1, QTableWidgetItem(str(op.value)))
-        self.operation_table.setRowCount(0)
-        for op in history.operations:
-            row_index = self.operation_table.rowCount()
-            self.operation_table.insertRow(row_index)
-            self.operation_table.setItem(row_index, 0, QTableWidgetItem(str(op.day)))
-            self.operation_table.setItem(row_index, 1, QTableWidgetItem(op.name))
-            self.operation_table.setItem(row_index, 2, QTableWidgetItem(str(op.value)))
-        self.balance.setText(
-            f"Balance: {sum(op.value for op in history.recurrent_operations) + sum(op.value for op in history.operations):.2f}"
-        )
+        self._history_operations_manager.refresh(frozenset(history.recurrent_operations), frozenset(history.operations))
+        # self.balance.setText(
+        #     f"Balance: {sum(op.value for op in history.recurrent_operations) + sum(op.value for op in history.operations):.2f}"
+        # )
 
-    def refresh_history(self, budget_path: BudgetPath) -> None:
+    def refresh(self, budget_path: BudgetPath) -> None:
         self.budget_path = budget_path
-        self._refresh_ui()
+        self._refresh()
 
     def _add_recurrent_operation(self) -> None:
         reader = HistoryReader(repository=HistoryJsonRepository())
         updater = HistoryUpdater(repository=HistoryJsonRepository())
-        if op := self.recurrent_operation_input_widget.get_recurrent_operation():
-            history_id = HistoryId(self.budget_path, self.date_picker.retrieve_date())
+        if op := self._history_operations_manager.get_recurrent_operation_input():
+            history_id = HistoryId(self.budget_path, self._date_picker.retrieve_date())
             history = reader.retrieve(history_id)
             request = HistoryUpdateRequest(
                 id_=history_id,
@@ -247,20 +307,14 @@ class HistoryWidget(QWidget):
                 operations=history.operations,
             )
             updater.update(request)
-            self._refresh_ui()
+            self._refresh()
 
     def _delete_recurrent_operation(self) -> None:
         reader = HistoryReader(repository=HistoryJsonRepository())
         updater = HistoryUpdater(repository=HistoryJsonRepository())
-        if selected_rows := {index.row() for index in self.recurrent_operation_table.selectionModel().selectedRows()}:
-            history_id = HistoryId(self.budget_path, self.date_picker.retrieve_date())
+        if selected_recurrent_operations := self._history_operations_manager.list_selected_recurrent_operations():
+            history_id = HistoryId(self.budget_path, self._date_picker.retrieve_date())
             history_response = reader.retrieve(history_id)
-
-            selected_recurrent_operations: set[RecurrentOperation] = set()
-            for r in selected_rows:
-                name = self.recurrent_operation_table.item(r, 0).text()
-                amount = float(self.recurrent_operation_table.item(r, 1).text())
-                selected_recurrent_operations.add(RecurrentOperation(name, amount))
 
             request = HistoryUpdateRequest(
                 id_=history_id,
@@ -268,11 +322,12 @@ class HistoryWidget(QWidget):
                 operations=history_response.operations,
             )
             updater.update(request)
-            self._refresh_ui()
+            self._refresh()
 
-    def set_history(self, history_id: HistoryId) -> None:
-        self.date_picker.set_date(history_id.date)
-        self._refresh_ui()
+
+class HistoryDashboardWidget(QWidget):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
 
 
 class MainWidget(QWidget):
@@ -291,8 +346,8 @@ class MainWidget(QWidget):
 
         self.budget_layout = QGridLayout(self.history_widget)
 
-    def refresh_history(self, budget_path: BudgetPath) -> None:
-        self.history_widget.refresh_history(budget_path)
+    def refresh(self, budget_path: BudgetPath) -> None:
+        self.history_widget.refresh(budget_path)
         self.history_stacked_widget.setCurrentWidget(self.history_widget)
 
 
@@ -334,7 +389,7 @@ class MainWindow(QMainWindow):
         if file_path:
             creator.create(BudgetPath(file_path))
             self._budget = BudgetModel.from_application(reader.retrieve(BudgetPath(file_path)))
-            self.central_widget.refresh_history(self._budget.id)
+            self.central_widget.refresh(self._budget.id)
 
     def open_budget(self):
         reader = BudgetReader(repository=BudgetJsonRepository())
@@ -342,7 +397,7 @@ class MainWindow(QMainWindow):
 
         if file_path:
             self._budget = BudgetModel.from_application(reader.retrieve(BudgetPath(file_path)))
-            self.central_widget.refresh_history(self._budget.id)
+            self.central_widget.refresh(self._budget.id)
 
     def import_operations(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Operations File", "", "Tous les fichiers (*.ofx)")
@@ -367,7 +422,7 @@ class MainWindow(QMainWindow):
                     operations=history_response.operations | ops,
                 )
                 history_updater.update(request)
-            self.central_widget.refresh_history(self._budget.id)
+            self.central_widget.refresh(self._budget.id)
 
 
 if __name__ == "__main__":
