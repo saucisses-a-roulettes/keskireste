@@ -1,6 +1,5 @@
-from dataclasses import dataclass
+
 from src.domain.entity import Id
-from src.domain.history import History
 
 
 class BudgetPath(Id):
@@ -14,6 +13,3 @@ class BudgetPath(Id):
         return hash(self._value)
 
 
-@dataclass(frozen=True)
-class BudgetPickleModel:
-    histories: frozenset[History]

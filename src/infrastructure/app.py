@@ -3,7 +3,6 @@ import sys
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Self
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -36,14 +35,15 @@ from src.application.budget.history.updater import HistoryUpdateRequest, History
 from src.application.budget.reader import BudgetReader, BudgetResponse
 from src.application.exception import BadRequestException
 from src.domain.history import Date, Operation, RecurrentOperation
-from src.infrastructure.budget.history.repository.pickle import HistoryId, HistoryPickleRepository
+from src.infrastructure.budget.history.repository.json_ import HistoryJsonRepository
+from src.infrastructure.budget.history.repository.model import HistoryId
+from src.infrastructure.budget.repository.json_ import BudgetJsonRepository
 from src.infrastructure.budget.repository.model import BudgetPath
-from src.infrastructure.budget.repository.pickle import BudgetPickleRepository
 
 
 def retrieve_or_create_history(history_id: HistoryId) -> HistoryReadResponse:
-    reader = HistoryReader(repository=HistoryPickleRepository())
-    creator = HistoryCreator(repository=HistoryPickleRepository())
+    reader = HistoryReader(repository=HistoryJsonRepository())
+    creator = HistoryCreator(repository=HistoryJsonRepository())
     try:
         history = reader.retrieve(history_id)
     except BadRequestException:
@@ -216,8 +216,8 @@ class HistoryWidget(QWidget):
         self._refresh_ui()
 
     def _add_recurrent_operation(self) -> None:
-        reader = HistoryReader(repository=HistoryPickleRepository())
-        updater = HistoryUpdater(repository=HistoryPickleRepository())
+        reader = HistoryReader(repository=HistoryJsonRepository())
+        updater = HistoryUpdater(repository=HistoryJsonRepository())
         if op := self.recurrent_operation_input_widget.get_recurrent_operation():
             history_id = HistoryId(self.budget_path, self.date_picker.retrieve_date())
             history = reader.retrieve(history_id)
@@ -233,8 +233,8 @@ class HistoryWidget(QWidget):
             self._refresh_ui()
 
     def _delete_recurrent_operation(self) -> None:
-        reader = HistoryReader(repository=HistoryPickleRepository())
-        updater = HistoryUpdater(repository=HistoryPickleRepository())
+        reader = HistoryReader(repository=HistoryJsonRepository())
+        updater = HistoryUpdater(repository=HistoryJsonRepository())
         if selected_rows := {index.row() for index in self.recurrent_operation_table.selectionModel().selectedRows()}:
             history_id = HistoryId(self.budget_path, self.date_picker.retrieve_date())
             history_response = reader.retrieve(history_id)
@@ -310,8 +310,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
     def create_budget(self):
-        creator = BudgetCreator(repository=BudgetPickleRepository())
-        reader = BudgetReader(repository=BudgetPickleRepository())
+        creator = BudgetCreator(repository=BudgetJsonRepository())
+        reader = BudgetReader(repository=BudgetJsonRepository())
         file_path, _ = QFileDialog.getSaveFileName(self, "New file", "", "Every files (*)")
 
         if file_path:
@@ -320,7 +320,7 @@ class MainWindow(QMainWindow):
             self.central_widget.refresh_history(self._budget.id)
 
     def open_budget(self):
-        reader = BudgetReader(repository=BudgetPickleRepository())
+        reader = BudgetReader(repository=BudgetJsonRepository())
         file_path, _ = QFileDialog.getOpenFileName(self, "Open a file", "", "Every files (*)")
 
         if file_path:
@@ -329,7 +329,7 @@ class MainWindow(QMainWindow):
 
     def import_operations(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Operations File", "", "Tous les fichiers (*.ofx)")
-        history_updater = HistoryUpdater(repository=HistoryPickleRepository())
+        history_updater = HistoryUpdater(repository=HistoryJsonRepository())
         if file_path:
             with open(file_path, "rb") as f:
                 ofx = OfxParser.parse(f)
