@@ -19,6 +19,8 @@ from typing import Self
 from src.domain.entity import Id
 from src.domain.history import Date
 from src.infrastructure.budget.repository.model import BudgetPath
+
+
 class HistoryId(Id):
     def __init__(self, budget_path: BudgetPath, date: Date):
         self._budget_path = budget_path
@@ -31,6 +33,10 @@ class HistoryId(Id):
     @property
     def date(self) -> Date:
         return self._date
+
+    @property
+    def previous(self) -> Self:
+        return HistoryId(self.budget_path, self.date.previous)
 
     def __str__(self) -> str:
         return f"{self.date.year}/{self.date.month}"

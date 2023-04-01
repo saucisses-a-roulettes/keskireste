@@ -147,6 +147,7 @@ class NoHistorySelectedWidget(QWidget):
 class RecurrentOperationInputWidget(QWidget):
     add_operation_clicked = Signal(RecurrentOperation)
     delete_selected_clicked = Signal()
+    copy_operations_from_previous_month_clicked = Signal()
 
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
@@ -168,11 +169,15 @@ class RecurrentOperationInputWidget(QWidget):
         self._delete_button = QPushButton("Delete Selected", self)
         self.form.addRow(self._delete_button)
 
+        self._copy_operations_from_previous_month = QPushButton("Copy from Previous Month")
+        self.form.addRow(self._copy_operations_from_previous_month)
+
         self._connect_signals()
 
     def _connect_signals(self) -> None:
         self._submit_button.clicked.connect(self._on_add_operation_clicked)
         self._delete_button.clicked.connect(self._on_delete_selected_clicked)
+        self._copy_operations_from_previous_month.clicked.connect(self.copy_operations_from_previous_month_clicked.emit)
 
     def _on_add_operation_clicked(self) -> None:
         name = self.label_input.text()
@@ -241,6 +246,7 @@ class RecurrentOperationsTableWidget(QTableWidget):
 class RecurrentOperationsWidget(QWidget):
     add_operation_clicked = Signal(RecurrentOperation)
     delete_selected_operations_clicked = Signal(set)
+    copy_operations_from_previous_month_clicked = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -258,6 +264,9 @@ class RecurrentOperationsWidget(QWidget):
     def _connect_signals(self) -> None:
         self._recurrent_operation_input.add_operation_clicked.connect(lambda op: self.add_operation_clicked.emit(op))
         self._recurrent_operation_input.delete_selected_clicked.connect(self._on_delete_selected_clicked)
+        self._recurrent_operation_input.copy_operations_from_previous_month_clicked.connect(
+            self.copy_operations_from_previous_month_clicked.emit
+        )
 
     def _on_delete_selected_clicked(self) -> None:
         indexes = {index.row() for index in self._recurrent_operation_table.selectionModel().selectedRows()}
@@ -278,6 +287,7 @@ class HistoryOperationsManagerWidget(QWidget):
     show_dashboard_button_clicked = Signal()
     add_recurrent_operations_clicked = Signal(RecurrentOperation)
     delete_selected_recurrent_operations_clicked = Signal(set)
+    copy_operations_from_previous_month_clicked = Signal()
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -303,6 +313,9 @@ class HistoryOperationsManagerWidget(QWidget):
         )
         self._recurrent_operations.delete_selected_operations_clicked.connect(
             lambda ops: self.delete_selected_recurrent_operations_clicked.emit(ops)
+        )
+        self._recurrent_operations.copy_operations_from_previous_month_clicked.connect(
+            lambda: self.copy_operations_from_previous_month_clicked.emit()
         )
 
     def refresh(self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[Operation]) -> None:
@@ -370,6 +383,9 @@ class HistoryWidget(QWidget):
         self._history_operations_manager.delete_selected_recurrent_operations_clicked.connect(
             self._delete_recurrent_operation
         )
+        self._history_operations_manager.copy_operations_from_previous_month_clicked.connect(
+            self._copy_recurrent_operation_from_previous_month
+        )
 
     def _refresh(self) -> None:
         history_id = HistoryId(self.budget_path, self._date_picker.retrieve_current_date())
@@ -404,6 +420,22 @@ class HistoryWidget(QWidget):
             id_=history_id,
             recurrent_operations=history_response.recurrent_operations - ops,
             operations=history_response.operations,
+        )
+        updater.update(request)
+        self._refresh()
+
+    def _copy_recurrent_operation_from_previous_month(self) -> None:
+        print("LALALA")
+        reader = HistoryReader(repository=HistoryJsonRepository())
+        updater = HistoryUpdater(repository=HistoryJsonRepository())
+        history_id = HistoryId(self.budget_path, self._date_picker.retrieve_current_date())
+        last_history_response = reader.retrieve(history_id.previous)
+        current_history_response = reader.retrieve(history_id)
+        request = HistoryUpdateRequest(
+            id_=history_id,
+            recurrent_operations=current_history_response.recurrent_operations
+            | last_history_response.recurrent_operations,
+            operations=current_history_response.operations,
         )
         updater.update(request)
         self._refresh()

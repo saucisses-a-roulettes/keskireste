@@ -78,6 +78,15 @@ class Date:
     year: int
     month: int
 
+    @property
+    def previous(self) -> Self:
+        new_month = self.month - 1
+        new_year = self.year
+        if new_month < 1:
+            new_year = self.year - 1
+            new_month = 12
+        return Date(new_year, new_month)
+
     def __post_init__(self):
         if self.year < 0:
             raise ValueError(f"Year {self.year} cannot be negative")
