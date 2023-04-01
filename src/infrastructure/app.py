@@ -17,10 +17,10 @@
 
 import datetime
 import sys
-from collections.abc import Callable, Mapping, Set
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Self
-from PySide6.QtCore import QAbstractItemModel, QMetaObject, QModelIndex, Qt, Signal
+from PySide6.QtCore import QMetaObject, Signal
 from PySide6.QtGui import QAction, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -39,10 +39,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QPushButton,
     QSizePolicy,
-    QSpinBox,
     QStackedWidget,
-    QStyleOptionViewItem,
-    QStyledItemDelegate,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -278,6 +275,7 @@ class RecurrentOperationsWidget(QWidget):
 
 
 class HistoryOperationsManagerWidget(QWidget):
+    show_dashboard_button_clicked = Signal()
     add_recurrent_operations_clicked = Signal(RecurrentOperation)
     delete_selected_recurrent_operations_clicked = Signal(set)
 
@@ -286,6 +284,9 @@ class HistoryOperationsManagerWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         layout = QVBoxLayout(self)
+
+        self._show_dashboard_button = QPushButton("Show Dashboard", self)
+        layout.addWidget(self._show_dashboard_button)
 
         self._recurrent_operations = RecurrentOperationsWidget()
         layout.addWidget(self._recurrent_operations)
@@ -296,6 +297,7 @@ class HistoryOperationsManagerWidget(QWidget):
         self._connect_signals()
 
     def _connect_signals(self) -> None:
+        self._show_dashboard_button.clicked.connect(lambda: self.show_dashboard_button_clicked.emit())
         self._recurrent_operations.add_operation_clicked.connect(
             lambda op: self.add_recurrent_operations_clicked.emit(op)
         )
@@ -306,6 +308,31 @@ class HistoryOperationsManagerWidget(QWidget):
     def refresh(self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[Operation]) -> None:
         self._recurrent_operations.refresh(recurrent_operations)
         self._operation_table.refresh(operations)
+
+
+class HistoryDashboardWidget(QWidget):
+    manage_operations_button_clicked = Signal()
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        layout = QVBoxLayout(self)
+
+        self._manage_operations_button = QPushButton("Manage Operations", self)
+        layout.addWidget(self._manage_operations_button)
+
+        self._balance = QLabel("", self)
+        layout.addWidget(self._balance)
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        self._manage_operations_button.clicked.connect(lambda: self.manage_operations_button_clicked.emit())
+
+    def refresh(self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[Operation]) -> None:
+        self._balance.setText(
+            f"Balance: {sum(op.value for op in recurrent_operations) + sum(op.value for op in operations):.2f}"
+        )
 
 
 class HistoryWidget(QWidget):
@@ -322,15 +349,23 @@ class HistoryWidget(QWidget):
         self._date_picker = DatePicker()
         layout.addWidget(self._date_picker)
 
+        self._stacked_widget = QStackedWidget()
+        layout.addWidget(self._stacked_widget)
+        self._history_dashboard = HistoryDashboardWidget()
+        self._stacked_widget.addWidget(self._history_dashboard)
         self._history_operations_manager = HistoryOperationsManagerWidget()
-        layout.addWidget(self._history_operations_manager)
+        self._stacked_widget.addWidget(self._history_operations_manager)
 
-        # self.balance = QLabel("", self)
-        # layout.addWidget(self.balance, 3, 1)
         self._connect_signals()
 
     def _connect_signals(self) -> None:
         self._date_picker.date_changed.connect(self._refresh)
+        self._history_dashboard.manage_operations_button_clicked.connect(
+            lambda: self._stacked_widget.setCurrentWidget(self._history_operations_manager)
+        )
+        self._history_operations_manager.show_dashboard_button_clicked.connect(
+            lambda: self._stacked_widget.setCurrentWidget(self._history_dashboard)
+        )
         self._history_operations_manager.add_recurrent_operations_clicked.connect(self._add_recurrent_operation)
         self._history_operations_manager.delete_selected_recurrent_operations_clicked.connect(
             self._delete_recurrent_operation
@@ -339,10 +374,8 @@ class HistoryWidget(QWidget):
     def _refresh(self) -> None:
         history_id = HistoryId(self.budget_path, self._date_picker.retrieve_current_date())
         history = retrieve_or_create_history(history_id)
+        self._history_dashboard.refresh(frozenset(history.recurrent_operations), frozenset(history.operations))
         self._history_operations_manager.refresh(frozenset(history.recurrent_operations), frozenset(history.operations))
-        # self.balance.setText(
-        #     f"Balance: {sum(op.value for op in history.recurrent_operations) + sum(op.value for op in history.operations):.2f}"
-        # )
 
     def refresh(self, budget_path: BudgetPath) -> None:
         self.budget_path = budget_path
@@ -376,11 +409,6 @@ class HistoryWidget(QWidget):
         self._refresh()
 
 
-class HistoryDashboardWidget(QWidget):
-    def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__(parent)
-
-
 class MainWidget(QWidget):
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
@@ -394,8 +422,6 @@ class MainWidget(QWidget):
         self.history_stacked_widget.addWidget(self.no_history_selected_widget)
         self.history_widget = HistoryWidget()
         self.history_stacked_widget.addWidget(self.history_widget)
-
-        self.budget_layout = QGridLayout(self.history_widget)
 
     def refresh(self, budget_path: BudgetPath) -> None:
         self.history_widget.refresh(budget_path)
@@ -454,8 +480,8 @@ class MainWindow(QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(self, "Operations File", "", "Tous les fichiers (*.ofx)")
         history_updater = HistoryUpdater(repository=HistoryJsonRepository())
         if file_path:
-            with open(file_path, "rb") as f:
-                ofx = OfxParser.parse(f)
+            with open(file_path, "rb") as _f:
+                ofx = OfxParser.parse(_f)
             account = ofx.account
             operations: dict[Date, set[Operation]] = {}
             for t in account.statement.transactions:
