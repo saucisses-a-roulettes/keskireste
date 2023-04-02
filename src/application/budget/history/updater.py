@@ -44,7 +44,15 @@ class HistoryUpdater:
         for op in deleted_recurrent_operation:
             history.remove_recurrent_operation(op.name)
 
-        for op in request.operations:
+        new_operations = request.operations - history.operations
+        existing_operations = history.operations & request.operations
+        deleted_operations = history.operations - request.operations
+
+        for op in new_operations:
             history.add_operation(op)
+        for op in existing_operations:
+            history.update_operation(op)
+        for op in deleted_operations:
+            history.remove_operation(op)
 
         self._repository.update(history)

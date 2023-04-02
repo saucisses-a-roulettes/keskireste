@@ -72,6 +72,12 @@ class Operation:
         if self.day < 0 or self.day > 31:
             raise ValueError(f"Day `{self.day}` is invalid")
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other: Self) -> bool:
+        return other.id == self.id
+
 
 @dataclass(frozen=True)
 class Date:
@@ -129,6 +135,16 @@ class History(Generic[TId]):
         if op in self._recurrent_operations:
             raise RecurrentOperationAlreadyExist(op.name)
         self._recurrent_operations.add(op)
+        self._filter_operations()
+
+    @property
+    def _recurrent_operation_names(self) -> set[str]:
+        return {op.name for op in self._recurrent_operations}
+
+    def _filter_operations(self) -> None:
+        self._operations = {
+            op for op in self._operations if all(not op.name.startswith(n) for n in self._recurrent_operation_names)
+        }
 
     def remove_recurrent_operation(self, name: str) -> None:
         try:
@@ -138,5 +154,17 @@ class History(Generic[TId]):
         self._recurrent_operations.remove(op)
 
     def add_operation(self, op: Operation) -> None:
-        if not any(op.name.startswith(r_op.name) for r_op in self._recurrent_operations):
-            self._operations.add(op)
+        self._operations.add(op)
+        self._filter_operations()
+
+    def update_operation(self, op: Operation) -> None:
+        if op not in self._operations:
+            raise ValueError(f"Operation `{op.id}` does not exists")
+        self._operations.remove(op)
+        self._operations.add(op)
+        self._filter_operations()
+
+    def remove_operation(self, op: Operation) -> None:
+        if op not in self.operations:
+            raise ValueError(f"Operation `{op.id}` does not exists")
+        self._operations.remove(op)

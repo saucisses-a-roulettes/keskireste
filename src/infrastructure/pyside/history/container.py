@@ -24,7 +24,7 @@ from src.application.budget.history.creator import HistoryCreationRequest, Histo
 from src.application.budget.history.reader import HistoryReadResponse, HistoryReader
 from src.application.budget.history.updater import HistoryUpdateRequest, HistoryUpdater
 from src.application.exception import BadRequestException
-from src.domain.history import Date, RecurrentOperation
+from src.domain.history import Date, Operation, RecurrentOperation
 from src.infrastructure.budget.history.repository.json_ import HistoryJsonRepository
 from src.infrastructure.budget.history.repository.model import HistoryId
 from src.infrastructure.budget.repository.model import BudgetPath
@@ -145,6 +145,8 @@ class HistoryWidget(QWidget):
         self._history_operations_manager.copy_operations_from_previous_month_clicked.connect(
             self._copy_recurrent_operation_from_previous_month
         )
+        self._history_operations_manager.operations_modified.connect(lambda ops: self._override_operations(ops))
+        self._history_operations_manager.operations_deleted.connect(lambda ops: self._delete_operations(ops))
 
     def _refresh(self) -> None:
         history_id = HistoryId(self.budget_path, self._date_picker.retrieve_current_date())
@@ -184,7 +186,6 @@ class HistoryWidget(QWidget):
         self._refresh()
 
     def _copy_recurrent_operation_from_previous_month(self) -> None:
-        print("LALALA")
         reader = HistoryReader(repository=HistoryJsonRepository())
         updater = HistoryUpdater(repository=HistoryJsonRepository())
         history_id = HistoryId(self.budget_path, self._date_picker.retrieve_current_date())
@@ -195,6 +196,33 @@ class HistoryWidget(QWidget):
             recurrent_operations=current_history_response.recurrent_operations
             | last_history_response.recurrent_operations,
             operations=current_history_response.operations,
+        )
+        updater.update(request)
+        self._refresh()
+
+    def _override_operations(self, ops: set[Operation]) -> None:
+        reader = HistoryReader(repository=HistoryJsonRepository())
+        updater = HistoryUpdater(repository=HistoryJsonRepository())
+        history_id = HistoryId(self.budget_path, self._date_picker.retrieve_current_date())
+        history_response = reader.retrieve(history_id)
+        request = HistoryUpdateRequest(
+            id_=history_id,
+            recurrent_operations=history_response.recurrent_operations,
+            operations=ops,
+        )
+        updater.update(request)
+        self._refresh()
+
+    def _delete_operations(self, ops: set[Operation]) -> None:
+        reader = HistoryReader(repository=HistoryJsonRepository())
+        updater = HistoryUpdater(repository=HistoryJsonRepository())
+        history_id = HistoryId(self.budget_path, self._date_picker.retrieve_current_date())
+        history_response = reader.retrieve(history_id)
+        new_operations = history_response.operations - ops
+        request = HistoryUpdateRequest(
+            id_=history_id,
+            recurrent_operations=history_response.recurrent_operations,
+            operations=new_operations,
         )
         updater.update(request)
         self._refresh()
