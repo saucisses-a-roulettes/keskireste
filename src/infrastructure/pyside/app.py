@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication()
-    with open("src/infrastructure/style.qss", "r") as f:
+    with open("src/infrastructure/pyside/style.qss", "r") as f:
         _style = f.read()
         app.setStyleSheet(_style)
     window = MainWindow()
