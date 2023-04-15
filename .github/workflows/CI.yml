@@ -3,8 +3,6 @@ name: Check Format and Typing
 on:
   workflow_dispatch:
   push:
-    branches-ignore:
-      - main
 
 jobs:
   check:
