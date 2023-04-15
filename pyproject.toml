@@ -16,6 +16,10 @@ ofxparse = "^0.21"
 black = { extras = ["d"], version = "^23.3.0" }
 mypy = "^1.2.0"
 
+
+[tool.poetry.group.build.dependencies]
+pyinstaller = "^5.10.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
