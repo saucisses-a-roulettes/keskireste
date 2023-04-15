@@ -1,0 +1,49 @@
+name: Check Format and Typing
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.local
+          key: check-poetry
+
+      - name: Install and configure Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+
+      - name: Load cached venv
+        id: cached-venv
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-
+
+      - name: Install dependencies
+        if: steps.cached-venv.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Check syntax
+        run: poetry run black src --check
+
+      - name: Check typing
+        run : poetry run mypy

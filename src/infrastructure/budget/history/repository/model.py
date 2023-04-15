@@ -16,6 +16,7 @@
 #   */
 
 from typing import Self
+
 from src.domain.entity import Id
 from src.domain.history import Date
 from src.infrastructure.budget.repository.model import BudgetPath
@@ -36,7 +37,7 @@ class HistoryId(Id):
 
     @property
     def previous(self) -> Self:
-        return HistoryId(self.budget_path, self.date.previous)
+        return self.__class__(self.budget_path, self.date.previous)
 
     def __str__(self) -> str:
         return f"{self.date.year}/{self.date.month}"
@@ -44,5 +45,5 @@ class HistoryId(Id):
     def __hash__(self):
         return hash(self._date)
 
-    def __eq__(self, other: Self) -> bool:
-        return self.date == other.date
+    def __eq__(self, other: object) -> bool:
+        return self.date == other.date if isinstance(other, HistoryId) else False

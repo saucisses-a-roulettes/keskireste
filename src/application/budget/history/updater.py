@@ -15,9 +15,9 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
 from src.application.budget.history.repository import HistoryRepository
-from src.application.budget.repository import BudgetRepository
 from src.domain.entity import Id
 from src.domain.history import Operation, RecurrentOperation
 
@@ -39,10 +39,10 @@ class HistoryUpdater:
         new_recurrent_operation = request.recurrent_operations - history.recurrent_operations
         deleted_recurrent_operation = history.recurrent_operations - request.recurrent_operations
 
-        for op in new_recurrent_operation:
-            history.add_recurrent_operation(op)
-        for op in deleted_recurrent_operation:
-            history.remove_recurrent_operation(op.name)
+        for r_op in new_recurrent_operation:
+            history.add_recurrent_operation(r_op)
+        for r_op in deleted_recurrent_operation:
+            history.remove_recurrent_operation(r_op.name)
 
         new_operations = request.operations - history.operations
         existing_operations = history.operations & request.operations

@@ -14,19 +14,20 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from typing import Generic
 
-from src.domain.entity import Id
+from src.domain.entity import TId
 
 
-class Budget:
-    def __init__(self, id_: Id, histories_ids: frozenset[Id]) -> None:
+class Budget(Generic[TId]):
+    def __init__(self, id_: TId, histories_ids: frozenset[TId]) -> None:
         self._id = id_
         self._histories_ids = histories_ids
 
     @property
-    def id(self) -> Id:
+    def id(self) -> TId:
         return self._id
 
     @property
-    def histories_ids(self) -> frozenset[Id]:
+    def histories_ids(self) -> frozenset[TId]:
         return self._histories_ids

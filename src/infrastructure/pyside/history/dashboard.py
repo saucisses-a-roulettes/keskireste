@@ -17,6 +17,7 @@
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget
+
 from src.domain.history import Operation, RecurrentOperation
 
 
@@ -25,7 +26,7 @@ class HistoryDashboardWidget(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
 
         layout = QVBoxLayout(self)
 

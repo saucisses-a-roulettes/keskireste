@@ -18,6 +18,7 @@
 import sys
 from dataclasses import dataclass
 from typing import Self
+
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
@@ -25,11 +26,12 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QFileDialog,
-    QSizePolicy,
     QStackedWidget,
     QWidget,
+    QSizePolicy,
 )
-from ofxparse import OfxParser
+from ofxparse import OfxParser  # type: ignore
+
 from src.application.budget.creator import BudgetCreator
 from src.application.budget.history.updater import HistoryUpdateRequest, HistoryUpdater
 from src.application.budget.reader import BudgetReader, BudgetResponse
@@ -60,10 +62,10 @@ class MainWidget(QWidget):
         super().__init__(parent)
         layout = QHBoxLayout(self)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
         self.history_stacked_widget = QStackedWidget()
         layout.addWidget(self.history_stacked_widget)
-        self.history_stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.history_stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
         self.no_history_selected_widget = NoHistorySelectedWidget()
         self.history_stacked_widget.addWidget(self.no_history_selected_widget)
         self.history_widget = HistoryWidget()
@@ -75,7 +77,7 @@ class MainWidget(QWidget):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.setWindowTitle("KeskiReste")
@@ -101,7 +103,7 @@ class MainWindow(QMainWindow):
 
         # Central
         self.central_widget = MainWidget(self)
-        self.central_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.central_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
         self.setCentralWidget(self.central_widget)
 
     def create_budget(self):
@@ -122,30 +124,31 @@ class MainWindow(QMainWindow):
             self._budget = BudgetModel.from_application(reader.retrieve(BudgetPath(file_path)))
             self.central_widget.refresh(self._budget.id)
 
-    def import_operations(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Operations File", "", "Tous les fichiers (*.ofx)")
-        history_updater = HistoryUpdater(repository=HistoryJsonRepository())
-        if file_path:
-            with open(file_path, "rb") as _f:
-                ofx = OfxParser.parse(_f)
-            account = ofx.account
-            operations: dict[Date, set[Operation]] = {}
-            for t in account.statement.transactions:
-                date = Date(t.date.year, t.date.month)
-                operations[date] = operations.get(date, set()) | {
-                    Operation(id=t.id, name=t.payee, value=float(t.amount), day=t.date.day),
-                }
-            for date, ops in operations.items():
-                history_id = HistoryId(self._budget.id, date)
-                history_response = retrieve_or_create_history(history_id)
+    def import_operations(self) -> None:
+        if self._budget:
+            file_path, _ = QFileDialog.getOpenFileName(self, "Operations File", "", "Tous les fichiers (*.ofx)")
+            history_updater = HistoryUpdater(repository=HistoryJsonRepository())
+            if file_path:
+                with open(file_path, "rb") as _f:
+                    ofx = OfxParser.parse(_f)
+                account = ofx.account
+                operations: dict[Date, set[Operation]] = {}
+                for t in account.statement.transactions:
+                    date = Date(t.date.year, t.date.month)
+                    operations[date] = operations.get(date, set()) | {
+                        Operation(id=t.id, name=t.payee, value=float(t.amount), day=t.date.day),
+                    }
+                for date, ops in operations.items():
+                    history_id = HistoryId(self._budget.id, date)
+                    history_response = retrieve_or_create_history(history_id)
 
-                request = HistoryUpdateRequest(
-                    id_=history_id,
-                    recurrent_operations=history_response.recurrent_operations,
-                    operations=history_response.operations | ops,
-                )
-                history_updater.update(request)
-            self.central_widget.refresh(self._budget.id)
+                    request = HistoryUpdateRequest(
+                        id_=history_id,
+                        recurrent_operations=history_response.recurrent_operations,
+                        operations=history_response.operations | ops,
+                    )
+                    history_updater.update(request)
+                self.central_widget.refresh(self._budget.id)
 
 
 if __name__ == "__main__":

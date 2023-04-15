@@ -16,7 +16,7 @@
 #   */
 from typing import cast
 
-from PySide6.QtCore import QModelIndex, Signal, Qt
+from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QDoubleSpinBox,
@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
 from src.domain.history import Operation, RecurrentOperation
 
 
@@ -118,9 +119,9 @@ class OperationsTableWidget(QTableWidget):
         self.setColumnCount(4)
         self.setHorizontalHeaderLabels(["Id", "Day", "Label", "Amount"])
         self.setSortingEnabled(True)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # type: ignore
+        self.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)  # type: ignore
         self._delegate = OperationTableItemDelegate()
         self.setItemDelegateForColumn(0, self._delegate)
         self.setItemDelegateForColumn(1, self._delegate)
@@ -151,11 +152,11 @@ class OperationsTableWidget(QTableWidget):
             self.insertRow(row_index)
             self.setItem(row_index, 0, QTableWidgetItem(op.id))
             day = QTableWidgetItem()
-            day.setData(Qt.DisplayRole, op.day)
+            day.setData(Qt.DisplayRole, op.day)  # type: ignore
             self.setItem(row_index, 1, day)
             self.setItem(row_index, 2, QTableWidgetItem(op.name))
             value = QTableWidgetItem()
-            value.setData(Qt.DisplayRole, op.value)
+            value.setData(Qt.DisplayRole, op.value)  # type: ignore
             self.setItem(row_index, 3, value)
         self.setSortingEnabled(True)
 
@@ -166,7 +167,7 @@ class OperationsWidget(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
 
         layout = QHBoxLayout(self)
         self._operation_table = OperationsTableWidget()
@@ -203,12 +204,12 @@ class RecurrentOperationsTableWidget(QTableWidget):
         super().__init__(parent)
         self.setColumnCount(2)
         self.setHorizontalHeaderLabels(["Label", "Amount"])
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.setSelectionBehavior(QTableWidget.SelectRows)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # type: ignore
+        self.setSelectionBehavior(QTableWidget.SelectRows)  # type: ignore
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)  # type: ignore
         self.setSortingEnabled(True)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
+        self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
 
     def refresh(self, operations: frozenset[RecurrentOperation]) -> None:
         self.setRowCount(0)
@@ -217,7 +218,7 @@ class RecurrentOperationsTableWidget(QTableWidget):
             self.insertRow(row_index)
             self.setItem(row_index, 0, QTableWidgetItem(op.name))
             value = QTableWidgetItem()
-            value.setData(Qt.DisplayRole, op.value)
+            value.setData(Qt.DisplayRole, op.value)  # type: ignore
             self.setItem(row_index, 1, value)
 
 
@@ -228,7 +229,7 @@ class RecurrentOperationsWidget(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
 
         layout = QHBoxLayout(self)
         self._recurrent_operation_table = RecurrentOperationsTableWidget()
@@ -271,7 +272,7 @@ class HistoryOperationsManagerWidget(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
 
         layout = QVBoxLayout(self)
 

@@ -14,11 +14,12 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-
+import dataclasses
 import pathlib
 from dataclasses import dataclass
 from typing import Generic, Self
-from src.domain.entity import Id, TId
+
+from src.domain.entity import TId
 
 
 class RecurrentOperationAlreadyExist(Exception):
@@ -57,8 +58,10 @@ class RecurrentOperation:
     def __hash__(self):
         return hash(self.name)
 
-    def __eq__(self, other: Self) -> bool:
-        return self.name == other.name
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, RecurrentOperation):
+            return self.name == other.name
+        return False
 
 
 @dataclass(frozen=True)
@@ -75,8 +78,8 @@ class Operation:
     def __hash__(self):
         return hash(self.id)
 
-    def __eq__(self, other: Self) -> bool:
-        return other.id == self.id
+    def __eq__(self, other: object) -> bool:
+        return other.id == self.id if isinstance(other, Operation) else False
 
 
 @dataclass(frozen=True)
@@ -91,7 +94,7 @@ class Date:
         if new_month < 1:
             new_year = self.year - 1
             new_month = 12
-        return Date(new_year, new_month)
+        return dataclasses.replace(self, year=new_year, month=new_month)
 
     def __post_init__(self):
         if self.year < 0:
@@ -112,8 +115,8 @@ class History(Generic[TId]):
     def __hash__(self):
         return hash(self._id)
 
-    def __eq__(self, o: Self) -> bool:
-        return self.id == o.id
+    def __eq__(self, o: object) -> bool:
+        return self.id == o.id if isinstance(o, History) else False
 
     @property
     def id(self) -> TId:
