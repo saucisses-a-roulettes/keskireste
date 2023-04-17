@@ -37,10 +37,13 @@ class HistoryUpdater:
         history = self._repository.retrieve(request.id_)
 
         new_recurrent_operation = request.recurrent_operations - history.recurrent_operations
+        existing_recurrent_operations = history.recurrent_operations & request.recurrent_operations
         deleted_recurrent_operation = history.recurrent_operations - request.recurrent_operations
 
         for r_op in new_recurrent_operation:
             history.add_recurrent_operation(r_op)
+        for r_op in existing_recurrent_operations:
+            history.update_recurrent_operation(r_op)
         for r_op in deleted_recurrent_operation:
             history.remove_recurrent_operation(r_op.name)
 
