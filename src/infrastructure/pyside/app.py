@@ -107,7 +107,6 @@ class MainWindow(QMainWindow):
         self, history_creator: HistoryCreator, history_reader: HistoryReader, history_updater: HistoryUpdater
     ) -> None:
         self.setWindowTitle("KeskiReste")
-
         # Menu
         menu_bar = self.menuBar()
         file_menu = QMenu("Files", self)

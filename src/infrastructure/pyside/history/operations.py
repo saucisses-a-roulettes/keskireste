@@ -212,6 +212,7 @@ class RecurrentOperationsTableWidget(QTableWidget):
         self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
 
     def refresh(self, operations: frozenset[RecurrentOperation]) -> None:
+        self.setSortingEnabled(False)
         self.setRowCount(0)
         for op in operations:
             row_index = self.rowCount()
@@ -220,6 +221,7 @@ class RecurrentOperationsTableWidget(QTableWidget):
             value = QTableWidgetItem()
             value.setData(Qt.DisplayRole, op.value)  # type: ignore
             self.setItem(row_index, 1, value)
+        self.setSortingEnabled(True)
 
 
 class RecurrentOperationsWidget(QWidget):
