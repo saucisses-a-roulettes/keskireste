@@ -16,9 +16,7 @@ This project is built using Python, Pyside6, and Poetry.
 
 KeskiReste provides a PKGBUILD file, allowing you to easily install the project using `makepkg`. Follow the steps below to install KeskiReste:
 
-1. Install Python 3.11+
-
-2. Run this commands :
+1. Run this commands :
 ```shell
 git clone https://github.com/saucisses-a-roulettes/keskireste.git
 cd KeskiReste
