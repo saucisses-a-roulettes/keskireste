@@ -18,7 +18,6 @@ from typing import cast
 
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import (
-    QAbstractItemView,
     QDoubleSpinBox,
     QFormLayout,
     QHBoxLayout,
@@ -201,17 +200,46 @@ class OperationsWidget(QWidget):
         self._operation_table.refresh(operations)
 
 
+class RecurrentOperationTableItemDelegate(QItemDelegate):
+    editor_closed = Signal()
+
+    def createEditor(self, parent, option, index):
+        if index.column() in (0, 1):
+            editor = cast(QLineEdit, super().createEditor(parent, option, index))
+            editor.editingFinished.connect(self.editor_closed.emit)
+            return editor
+        return None
+
+
 class RecurrentOperationsTableWidget(QTableWidget):
+    operations_modified = Signal(set)
+
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setColumnCount(2)
         self.setHorizontalHeaderLabels(["Label", "Amount"])
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # type: ignore
-        self.setSelectionBehavior(QTableWidget.SelectRows)  # type: ignore
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)  # type: ignore
-        self.setSortingEnabled(True)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
-        self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
+        self._delegate = RecurrentOperationTableItemDelegate()
+        self.setItemDelegateForColumn(0, self._delegate)
+        self.setItemDelegateForColumn(1, self._delegate)
+        self.setItemDelegateForColumn(2, self._delegate)
+        self.setItemDelegateForColumn(3, self._delegate)
+
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        self._delegate.editor_closed.connect(lambda: self.operations_modified.emit(self.operations))
+
+    @property
+    def operations(self) -> set[RecurrentOperation]:
+        return {
+            RecurrentOperation(
+                name=self.item(row_index, 0).text(),
+                value=float(self.item(row_index, 1).text()),
+            )
+            for row_index in range(self.rowCount())
+        }
 
     def refresh(self, operations: frozenset[RecurrentOperation]) -> None:
         self.setSortingEnabled(False)
@@ -230,6 +258,7 @@ class RecurrentOperationsWidget(QWidget):
     add_operation_clicked = Signal(RecurrentOperation)
     delete_selected_operations_clicked = Signal(set)
     copy_operations_from_previous_month_clicked = Signal()
+    operations_modified = Signal(set)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -251,6 +280,7 @@ class RecurrentOperationsWidget(QWidget):
         self._recurrent_operation_input.copy_operations_from_previous_month_clicked.connect(
             self.copy_operations_from_previous_month_clicked.emit
         )
+        self._recurrent_operation_table.operations_modified.connect(lambda ops: self.operations_modified.emit(ops))
 
     def _on_delete_selected_clicked(self) -> None:
         indexes = {index.row() for index in self._recurrent_operation_table.selectionModel().selectedRows()}
@@ -272,6 +302,7 @@ class HistoryOperationsManagerWidget(QWidget):
     add_recurrent_operations_clicked = Signal(RecurrentOperation)
     delete_selected_recurrent_operations_clicked = Signal(set)
     copy_operations_from_previous_month_clicked = Signal()
+    recurrent_operations_modified = Signal(set)
     operations_modified = Signal(set)
     operations_deleted = Signal(set)
 
@@ -307,8 +338,10 @@ class HistoryOperationsManagerWidget(QWidget):
         self._recurrent_operations.copy_operations_from_previous_month_clicked.connect(
             lambda: self.copy_operations_from_previous_month_clicked.emit()
         )
+        self._recurrent_operations.operations_modified.connect(lambda ops: self.recurrent_operations_modified.emit(ops))
         self._operations.operations_modified.connect(lambda ops: self.operations_modified.emit(ops))
         self._operations.operations_deleted.connect(lambda ops: self.operations_deleted.emit(ops))
+        self._operations.operations_modified.connect(lambda ops: self.operations_modified.emit(ops))
 
     def refresh(self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[Operation]) -> None:
         self._recurrent_operations.refresh(recurrent_operations)
