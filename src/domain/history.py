@@ -140,6 +140,13 @@ class History(Generic[TId]):
         self._recurrent_operations.add(op)
         self._filter_operations()
 
+    def update_recurrent_operation(self, op: RecurrentOperation) -> None:
+        if op not in self._recurrent_operations:
+            raise ValueError(f"Recurrent operation `{op.name}` does not exists")
+        self._recurrent_operations.remove(op)
+        self._recurrent_operations.add(op)
+        self._filter_operations()
+
     @property
     def _recurrent_operation_names(self) -> set[str]:
         return {op.name for op in self._recurrent_operations}

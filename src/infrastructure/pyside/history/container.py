@@ -151,6 +151,9 @@ class HistoryWidget(QWidget):
             lambda: self._stacked_widget.setCurrentWidget(self._history_dashboard)
         )
         self._history_operations_manager.add_recurrent_operations_clicked.connect(self._add_recurrent_operation)
+        self._history_operations_manager.recurrent_operations_modified.connect(
+            lambda ops: self._override_recurrent_operations(ops)
+        )
         self._history_operations_manager.delete_selected_recurrent_operations_clicked.connect(
             self._delete_recurrent_operation
         )
@@ -220,6 +223,18 @@ class HistoryWidget(QWidget):
                 id_=history_id,
                 recurrent_operations=history_response.recurrent_operations,
                 operations=ops,
+            )
+            self._history_updater.update(request)
+            self._refresh()
+
+    def _override_recurrent_operations(self, ops: set[RecurrentOperation]) -> None:
+        if self._budget_path:
+            history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
+            history_response = self._history_reader.retrieve(history_id)
+            request = HistoryUpdateRequest(
+                id_=history_id,
+                recurrent_operations=ops,
+                operations=history_response.operations,
             )
             self._history_updater.update(request)
             self._refresh()
