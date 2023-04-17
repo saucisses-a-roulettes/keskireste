@@ -1,8 +1,8 @@
 name: Check Format and Typing
 
 on:
-  workflow_dispatch:
-  push:
+  workflow_dispatch
+  push
 
 jobs:
   check:
