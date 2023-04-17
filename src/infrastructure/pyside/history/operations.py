@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QVBoxLayout,
     QWidget,
+    QLabel,
 )
 
 from src.domain.history import Operation, RecurrentOperation
@@ -170,6 +171,7 @@ class OperationsWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
 
         layout = QHBoxLayout(self)
+
         self._operation_table = OperationsTableWidget()
         layout.addWidget(self._operation_table)
 
@@ -234,6 +236,7 @@ class RecurrentOperationsWidget(QWidget):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
 
         layout = QHBoxLayout(self)
+
         self._recurrent_operation_table = RecurrentOperationsTableWidget()
         layout.addWidget(self._recurrent_operation_table)
 
@@ -281,9 +284,13 @@ class HistoryOperationsManagerWidget(QWidget):
         self._show_dashboard_button = QPushButton("Show Dashboard", self)
         layout.addWidget(self._show_dashboard_button)
 
+        self._recurrent_operations_label = QLabel("Recurrent Operations:")
+        layout.addWidget(self._recurrent_operations_label)
         self._recurrent_operations = RecurrentOperationsWidget()
         layout.addWidget(self._recurrent_operations)
 
+        self._operations_label = QLabel("Operations of the months:")
+        layout.addWidget(self._operations_label)
         self._operations = OperationsWidget()
         layout.addWidget(self._operations)
 
