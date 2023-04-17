@@ -5,10 +5,10 @@ pkgdesc="KeskiReste is a lightweight budget management application that allows y
 arch=('x86_64')
 url="https://github.com/saucisses-a-roulettes/keskireste"
 license=('GPL')
+makedepends=('python-poetry')
 
 build() {
   cd "$srcdir/.."
-  curl -sSL https://install.python-poetry.org | python3.11 -
   poetry install --with=build
   pyinstaller --onefile --windowed --clean src/infrastructure/pyside/app.py
 }
