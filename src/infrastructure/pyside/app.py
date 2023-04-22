@@ -70,17 +70,17 @@ class MainWidget(QWidget):
         layout = QHBoxLayout(self)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
-        self.history_stacked_widget = QStackedWidget()
-        layout.addWidget(self.history_stacked_widget)
-        self.history_stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
-        self.no_history_selected_widget = NoHistorySelectedWidget()
-        self.history_stacked_widget.addWidget(self.no_history_selected_widget)
-        self.history_widget = HistoryWidget(history_creator, history_reader, history_updater)
-        self.history_stacked_widget.addWidget(self.history_widget)
+        self._history_stacked_widget = QStackedWidget()
+        layout.addWidget(self._history_stacked_widget)
+        self._history_stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
+        self._no_history_selected_widget = NoHistorySelectedWidget()
+        self._history_stacked_widget.addWidget(self._no_history_selected_widget)
+        self._history_widget = HistoryWidget(history_creator, history_reader, history_updater)
+        self._history_stacked_widget.addWidget(self._history_widget)
 
     def refresh(self, budget_path: BudgetPath) -> None:
-        self.history_widget.refresh(budget_path)
-        self.history_stacked_widget.setCurrentWidget(self.history_widget)
+        self._history_widget.refresh(budget_path)
+        self._history_stacked_widget.setCurrentWidget(self._history_widget)
 
 
 class MainWindow(QMainWindow):
