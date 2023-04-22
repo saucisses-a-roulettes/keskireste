@@ -142,6 +142,10 @@ class History(Generic[TId]):
     def operations(self) -> set[Operation]:
         return self._operations
 
+    @property
+    def balance(self) -> float:
+        return sum(op.value for op in self._recurrent_operations) + sum(op.value for op in self._operations)
+
     def add_recurrent_operation(self, op: RecurrentOperation) -> None:
         if op in self._recurrent_operations:
             raise RecurrentOperationAlreadyExist(op.name)
