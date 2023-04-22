@@ -41,9 +41,10 @@ from src.infrastructure.budget.history.repository.json_ import HistoryJsonReposi
 from src.infrastructure.budget.history.repository.model import HistoryId
 from src.infrastructure.budget.repository.json_ import BudgetJsonRepository
 from src.infrastructure.budget.repository.model import BudgetPath
+from src.infrastructure.pyside.dashboard import BudgetDashboardWidget
 from src.infrastructure.pyside.history.container import (
     HistoryWidget,
-    NoHistorySelectedWidget,
+    NoBudgetSelectedWidget,
     retrieve_or_create_history,
 )
 
@@ -61,6 +62,7 @@ class BudgetModel:
 class MainWidget(QWidget):
     def __init__(
         self,
+        budget_reader: BudgetReader,
         history_creator: HistoryCreator,
         history_reader: HistoryReader,
         history_updater: HistoryUpdater,
@@ -70,17 +72,20 @@ class MainWidget(QWidget):
         layout = QHBoxLayout(self)
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
-        self._history_stacked_widget = QStackedWidget()
-        layout.addWidget(self._history_stacked_widget)
-        self._history_stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
-        self._no_history_selected_widget = NoHistorySelectedWidget()
-        self._history_stacked_widget.addWidget(self._no_history_selected_widget)
+        self._stacked_widget = QStackedWidget()
+        layout.addWidget(self._stacked_widget)
+        self._stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
+        self._no_history_selected_widget = NoBudgetSelectedWidget()
+        self._stacked_widget.addWidget(self._no_history_selected_widget)
+        self._budget_dashboard_widget = BudgetDashboardWidget(budget_reader, history_reader)
+        self._stacked_widget.addWidget(self._budget_dashboard_widget)
         self._history_widget = HistoryWidget(history_creator, history_reader, history_updater)
-        self._history_stacked_widget.addWidget(self._history_widget)
+        self._stacked_widget.addWidget(self._history_widget)
 
     def refresh(self, budget_path: BudgetPath) -> None:
         self._history_widget.refresh(budget_path)
-        self._history_stacked_widget.setCurrentWidget(self._history_widget)
+        self._budget_dashboard_widget.refresh(budget_path)
+        self._stacked_widget.setCurrentWidget(self._budget_dashboard_widget)
 
 
 class MainWindow(QMainWindow):
@@ -101,13 +106,10 @@ class MainWindow(QMainWindow):
         self._history_updater = history_updater
         self._budget: BudgetModel | None = None
 
-        self._ui(history_creator, history_reader, history_updater)
+        self._ui()
 
-    def _ui(
-        self, history_creator: HistoryCreator, history_reader: HistoryReader, history_updater: HistoryUpdater
-    ) -> None:
+    def _ui(self) -> None:
         self.setWindowTitle("KeskiReste")
-        # Menu
         menu_bar = self.menuBar()
         file_menu = QMenu("Files", self)
         menu_bar.addMenu(file_menu)
@@ -124,8 +126,9 @@ class MainWindow(QMainWindow):
         import_operations_action.triggered.connect(self._import_operations)
         data_menu.addAction(import_operations_action)
 
-        # Central
-        self.central_widget = MainWidget(history_creator, history_reader, history_updater, self)
+        self.central_widget = MainWidget(
+            self._budget_reader, self._history_creator, self._history_reader, self._history_updater, self
+        )
         self.central_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
         self.setCentralWidget(self.central_widget)
 

@@ -18,9 +18,9 @@ import dataclasses
 import pathlib
 from dataclasses import dataclass
 from functools import total_ordering
-from typing import Generic, Self
+from typing import Generic, Self, TypeVar
 
-from src.domain.entity import TId
+from src.domain.entity import Id
 
 
 class RecurrentOperationAlreadyExist(Exception):
@@ -111,9 +111,12 @@ class Date:
         return (self.year, self.month) < (other.year, other.month) if isinstance(other, Date) else NotImplemented
 
 
-class History(Generic[TId]):
+THistoryId = TypeVar("THistoryId", bound=Id)
+
+
+class History(Generic[THistoryId]):
     def __init__(
-        self, id_: TId, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
+        self, id_: THistoryId, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
     ) -> None:
         self._id = id_
         self._date = date
@@ -127,7 +130,7 @@ class History(Generic[TId]):
         return self.id == o.id if isinstance(o, History) else False
 
     @property
-    def id(self) -> TId:
+    def id(self) -> THistoryId:
         return self._id
 
     @property

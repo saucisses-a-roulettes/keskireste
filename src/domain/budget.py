@@ -14,20 +14,22 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from typing import Generic
+from typing import Generic, TypeVar
 
-from src.domain.entity import TId
+from src.domain.entity import Id
+
+TBudgetId = TypeVar("TBudgetId", bound=Id)
 
 
-class Budget(Generic[TId]):
-    def __init__(self, id_: TId, histories_ids: frozenset[TId]) -> None:
+class Budget(Generic[TBudgetId]):
+    def __init__(self, id_: TBudgetId, histories_ids: frozenset[TBudgetId]) -> None:
         self._id = id_
         self._histories_ids = histories_ids
 
     @property
-    def id(self) -> TId:
+    def id(self) -> TBudgetId:
         return self._id
 
     @property
-    def histories_ids(self) -> frozenset[TId]:
+    def histories_ids(self) -> frozenset[TBudgetId]:
         return self._histories_ids

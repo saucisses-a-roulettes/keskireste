@@ -17,19 +17,24 @@
 
 from abc import ABC, abstractmethod
 from typing import Generic
-from src.domain.entity import TId
-from src.domain.history import History
+
+from src.domain.budget import TBudgetId
+from src.domain.history import History, THistoryId
 
 
-class HistoryRepository(ABC, Generic[TId]):
+class HistoryRepository(ABC, Generic[TBudgetId, THistoryId]):
     @abstractmethod
-    def retrieve(self, id_: TId) -> History[TId]:
+    def retrieve(self, id_: THistoryId) -> History[THistoryId]:
         pass
 
     @abstractmethod
-    def create(self, history: History[TId]) -> None:
+    def list_by_budget(self, budget_id: TBudgetId) -> frozenset[History]:
         pass
 
     @abstractmethod
-    def update(self, history: History[TId]) -> None:
+    def create(self, history: History[THistoryId]) -> None:
+        pass
+
+    @abstractmethod
+    def update(self, history: History[THistoryId]) -> None:
         pass

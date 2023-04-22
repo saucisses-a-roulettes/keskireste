@@ -102,7 +102,7 @@ class DatePicker(QWidget):
         return Date(int(self.year_selector.currentText()), self.MONTHS[self.month_selector.currentText()])
 
 
-class NoHistorySelectedWidget(QWidget):
+class NoBudgetSelectedWidget(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.test = QLabel("Sélectionne un budget !", self)
