@@ -17,6 +17,7 @@
 import dataclasses
 import pathlib
 from dataclasses import dataclass
+from functools import total_ordering
 from typing import Generic, Self
 
 from src.domain.entity import TId
@@ -82,6 +83,7 @@ class Operation:
         return other.id == self.id if isinstance(other, Operation) else False
 
 
+@total_ordering
 @dataclass(frozen=True)
 class Date:
     year: int
@@ -101,6 +103,12 @@ class Date:
             raise ValueError(f"Year {self.year} cannot be negative")
         if self.month < 1 or self.month > 12:
             raise ValueError(f"Month `{self.month}` is invalid")
+
+    def __eq__(self, other: object) -> bool:
+        return (self.year, self.month) == (other.year, other.month) if isinstance(other, Date) else NotImplemented
+
+    def __lt__(self, other: object) -> bool:
+        return (self.year, self.month) < (other.year, other.month) if isinstance(other, Date) else NotImplemented
 
 
 class History(Generic[TId]):
