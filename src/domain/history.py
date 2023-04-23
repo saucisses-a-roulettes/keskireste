@@ -17,9 +17,10 @@
 import dataclasses
 import pathlib
 from dataclasses import dataclass
-from typing import Generic, Self
+from functools import total_ordering
+from typing import Generic, Self, TypeVar
 
-from src.domain.entity import TId
+from src.domain.entity import Id
 
 
 class RecurrentOperationAlreadyExist(Exception):
@@ -82,6 +83,7 @@ class Operation:
         return other.id == self.id if isinstance(other, Operation) else False
 
 
+@total_ordering
 @dataclass(frozen=True)
 class Date:
     year: int
@@ -102,10 +104,19 @@ class Date:
         if self.month < 1 or self.month > 12:
             raise ValueError(f"Month `{self.month}` is invalid")
 
+    def __eq__(self, other: object) -> bool:
+        return (self.year, self.month) == (other.year, other.month) if isinstance(other, Date) else False
 
-class History(Generic[TId]):
+    def __lt__(self, other: object) -> bool:
+        return (self.year, self.month) < (other.year, other.month) if isinstance(other, Date) else False
+
+
+THistoryId = TypeVar("THistoryId", bound=Id)
+
+
+class History(Generic[THistoryId]):
     def __init__(
-        self, id_: TId, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
+        self, id_: THistoryId, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
     ) -> None:
         self._id = id_
         self._date = date
@@ -119,7 +130,7 @@ class History(Generic[TId]):
         return self.id == o.id if isinstance(o, History) else False
 
     @property
-    def id(self) -> TId:
+    def id(self) -> THistoryId:
         return self._id
 
     @property
@@ -133,6 +144,10 @@ class History(Generic[TId]):
     @property
     def operations(self) -> set[Operation]:
         return self._operations
+
+    @property
+    def balance(self) -> float:
+        return sum(op.value for op in self._recurrent_operations) + sum(op.value for op in self._operations)
 
     def add_recurrent_operation(self, op: RecurrentOperation) -> None:
         if op in self._recurrent_operations:

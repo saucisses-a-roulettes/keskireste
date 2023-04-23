@@ -17,21 +17,23 @@
 
 from dataclasses import dataclass
 from typing import Generic
+
 from src.application.budget.repository import BudgetRepository
-from src.domain.entity import Id, TId
+from src.domain.budget import TBudgetId
+from src.domain.history import THistoryId
 
 
 @dataclass(frozen=True)
-class BudgetResponse(Generic[TId]):
-    id: Id
-    histories_ids: frozenset[TId]
+class BudgetResponse(Generic[TBudgetId, THistoryId]):
+    id: TBudgetId
+    histories_ids: frozenset[THistoryId]
 
 
-class BudgetReader(Generic[TId]):
+class BudgetReader(Generic[TBudgetId, THistoryId]):
     def __init__(self, repository: BudgetRepository) -> None:
         self._repository = repository
 
-    def retrieve(self, id_: TId) -> BudgetResponse[TId]:
+    def retrieve(self, id_: TBudgetId) -> BudgetResponse[TBudgetId, THistoryId]:
         budget = self._repository.retrieve(id_)
 
         return BudgetResponse(id=budget.id, histories_ids=budget.histories_ids)

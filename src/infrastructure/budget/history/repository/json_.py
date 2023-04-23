@@ -17,6 +17,7 @@
 
 import json
 from typing import cast
+
 from src.application.budget.history.repository import HistoryRepository
 from src.application.repository import CannotRetrieveEntity
 from src.domain.history import Date, History, Operation, RecurrentOperation
@@ -27,9 +28,10 @@ from src.infrastructure.budget.repository.json_ import (
     OperationDictModel,
     RecurrentOperationDictModel,
 )
+from src.infrastructure.budget.repository.model import BudgetPath
 
 
-class HistoryJsonRepository(HistoryRepository[HistoryId]):
+class HistoryJsonRepository(HistoryRepository[BudgetPath, HistoryId]):
     def retrieve(self, id_: HistoryId) -> History:
         path = str(id_.budget_path)
         with open(path, "r") as f:
@@ -50,6 +52,21 @@ class HistoryJsonRepository(HistoryRepository[HistoryId]):
             )
         except StopIteration as err:
             raise CannotRetrieveEntity(id_) from err
+
+    def list_by_budget(self, budget_id: BudgetPath) -> frozenset[History]:
+        path = str(budget_id)
+        with open(path, "r") as f:
+            model = cast(BudgetDictModel, json.load(f))
+
+        return frozenset(
+            History(
+                id_=HistoryId(budget_path=budget_id, date=Date(h["year"], h["month"])),
+                date=Date(h["year"], h["month"]),
+                recurrent_operations={RecurrentOperation(op["name"], op["value"]) for op in h["recurrent_operations"]},
+                operations={Operation(op["id"], op["day"], op["name"], op["value"]) for op in h["operations"]},
+            )
+            for h in model["histories"]
+        )
 
     def create(self, history: History[HistoryId]) -> None:
         path = str(history.id.budget_path)

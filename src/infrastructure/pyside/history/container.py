@@ -102,13 +102,15 @@ class DatePicker(QWidget):
         return Date(int(self.year_selector.currentText()), self.MONTHS[self.month_selector.currentText()])
 
 
-class NoHistorySelectedWidget(QWidget):
+class NoBudgetSelectedWidget(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.test = QLabel("Sélectionne un budget !", self)
 
 
 class HistoryWidget(QWidget):
+    history_changed = Signal(BudgetPath)
+
     def __init__(
         self,
         history_creator: HistoryCreator,
@@ -186,7 +188,7 @@ class HistoryWidget(QWidget):
                 operations=history.operations,
             )
             self._history_updater.update(request)
-            self._refresh()
+            self.history_changed.emit(history_id.budget_path)
 
     def _delete_recurrent_operation(self, ops: set[RecurrentOperation]) -> None:
         if self._budget_path:
@@ -199,7 +201,7 @@ class HistoryWidget(QWidget):
                 operations=history_response.operations,
             )
             self._history_updater.update(request)
-            self._refresh()
+            self.history_changed.emit(history_id.budget_path)
 
     def _copy_recurrent_operation_from_previous_month(self) -> None:
         if self._budget_path:
@@ -213,7 +215,7 @@ class HistoryWidget(QWidget):
                 operations=current_history_response.operations,
             )
             self._history_updater.update(request)
-            self._refresh()
+            self.history_changed.emit(history_id.budget_path)
 
     def _override_operations(self, ops: set[Operation]) -> None:
         if self._budget_path:
@@ -225,7 +227,7 @@ class HistoryWidget(QWidget):
                 operations=ops,
             )
             self._history_updater.update(request)
-            self._refresh()
+            self.history_changed.emit(history_id.budget_path)
 
     def _override_recurrent_operations(self, ops: set[RecurrentOperation]) -> None:
         if self._budget_path:
@@ -237,7 +239,7 @@ class HistoryWidget(QWidget):
                 operations=history_response.operations,
             )
             self._history_updater.update(request)
-            self._refresh()
+            self.history_changed.emit(history_id.budget_path)
 
     def _delete_operations(self, ops: set[Operation]) -> None:
         if self._budget_path:
@@ -250,4 +252,4 @@ class HistoryWidget(QWidget):
                 operations=new_operations,
             )
             self._history_updater.update(request)
-            self._refresh()
+            self.history_changed.emit(history_id.budget_path)

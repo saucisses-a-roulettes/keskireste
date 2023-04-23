@@ -16,11 +16,13 @@
 #   */
 
 from dataclasses import dataclass
+from typing import Generic
+
 from src.application.budget.history.repository import HistoryRepository
 from src.application.exception import BadRequestException
 from src.application.repository import CannotRetrieveEntity
-from src.domain.entity import Id
-from src.domain.history import Date, Operation, RecurrentOperation
+from src.domain.budget import TBudgetId
+from src.domain.history import Date, Operation, RecurrentOperation, THistoryId
 
 
 @dataclass(frozen=True)
@@ -28,13 +30,14 @@ class HistoryReadResponse:
     date: Date
     recurrent_operations: set[RecurrentOperation]
     operations: set[Operation]
+    balance: float
 
 
-class HistoryReader:
+class HistoryReader(Generic[TBudgetId, THistoryId]):
     def __init__(self, repository: HistoryRepository) -> None:
         self._repository = repository
 
-    def retrieve(self, id_: Id) -> HistoryReadResponse:
+    def retrieve(self, id_: THistoryId) -> HistoryReadResponse:
         try:
             history = self._repository.retrieve(id_)
         except CannotRetrieveEntity as err:
@@ -43,4 +46,18 @@ class HistoryReader:
             date=history.date,
             recurrent_operations=history.recurrent_operations,
             operations=history.operations,
+            balance=history.balance,
         )
+
+    def list_by_budget(self, id_: TBudgetId) -> list[HistoryReadResponse]:
+        histories = self._repository.list_by_budget(id_)
+
+        return [
+            HistoryReadResponse(
+                date=h.date,
+                recurrent_operations=h.recurrent_operations,
+                operations=h.operations,
+                balance=h.balance,
+            )
+            for h in histories
+        ]
