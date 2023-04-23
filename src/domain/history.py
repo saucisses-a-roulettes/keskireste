@@ -105,10 +105,10 @@ class Date:
             raise ValueError(f"Month `{self.month}` is invalid")
 
     def __eq__(self, other: object) -> bool:
-        return (self.year, self.month) == (other.year, other.month) if isinstance(other, Date) else NotImplemented
+        return (self.year, self.month) == (other.year, other.month) if isinstance(other, Date) else False
 
     def __lt__(self, other: object) -> bool:
-        return (self.year, self.month) < (other.year, other.month) if isinstance(other, Date) else NotImplemented
+        return (self.year, self.month) < (other.year, other.month) if isinstance(other, Date) else False
 
 
 THistoryId = TypeVar("THistoryId", bound=Id)

@@ -24,7 +24,6 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout
 
 from src.application.budget.history.reader import HistoryReader, HistoryReadResponse
 from src.application.budget.reader import BudgetReader
-from src.domain.history import History
 from src.infrastructure.budget.repository.model import BudgetPath
 
 
@@ -48,25 +47,25 @@ class BudgetChartView(QChartView):
         self._axis_x = QBarCategoryAxis()
         self._axis_x.append(categories)
         self._axis_x.setRange("1", "12")
-        self._chart.addAxis(self._axis_x, Qt.AlignBottom)
+        self._chart.addAxis(self._axis_x, Qt.AlignBottom)  # type: ignore
         self._bar_series.attachAxis(self._axis_x)
         self._line_series.attachAxis(self._axis_x)
 
         self._axis_y = QValueAxis()
         self._axis_y.setTickCount(20)
-        self._chart.addAxis(self._axis_y, Qt.AlignLeft)
+        self._chart.addAxis(self._axis_y, Qt.AlignLeft)  # type: ignore
         self._bar_series.attachAxis(self._axis_y)
         self._line_series.attachAxis(self._axis_y)
         self._chart.legend().setVisible(True)
-        self._chart.legend().setAlignment(Qt.AlignBottom)
+        self._chart.legend().setAlignment(Qt.AlignBottom)  # type: ignore
 
         self.setChart(self._chart)
-        self.setRenderHint(QPainter.Antialiasing)
+        self.setRenderHint(QPainter.Antialiasing)  # type: ignore
 
     def refresh(self, year: int, histories: list[HistoryReadResponse]) -> None:
         self._bar_series.clear()
 
-        month_history_mapping: Mapping[int, History | None] = {
+        month_history_mapping: Mapping[int, HistoryReadResponse | None] = {
             m: next((h for h in histories if h.date.year == year and h.date.month == m), None) for m in range(1, 13)
         }
 
