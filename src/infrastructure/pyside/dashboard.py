@@ -81,7 +81,6 @@ class BudgetChartView(QChartView):
         self._line_series.attachAxis(self._axis_x)
 
         self._axis_y = QValueAxis()
-        self._axis_y.setTickCount(20)
         self._chart.addAxis(self._axis_y, Qt.AlignLeft)  # type: ignore
         self._bar_series.attachAxis(self._axis_y)
         self._line_series.attachAxis(self._axis_y)
@@ -113,6 +112,8 @@ class BudgetChartView(QChartView):
             self._line_series.append(QPoint(i, int(v)))
 
         max_range = max(abs(v) for v in balances + economies)
+
+        max_range *= 1.05
 
         self._axis_y.setRange(-max_range, max_range)
         self._chart.update()
