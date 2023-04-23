@@ -14,6 +14,7 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+import datetime
 import sys
 from dataclasses import dataclass
 from typing import Self
@@ -82,7 +83,9 @@ class MainWidget(QWidget):
         self._tab_widget = QTabWidget()
         self._stacked_widget.addWidget(self._tab_widget)
 
-        self._budget_dashboard_widget = BudgetDashboardWidget(budget_reader, history_reader)
+        self._budget_dashboard_widget = BudgetDashboardWidget(
+            datetime.datetime.now().year, budget_reader, history_reader
+        )
         self._tab_widget.addTab(self._budget_dashboard_widget, "Dashboard")
         self._history_widget = HistoryWidget(history_creator, history_reader, history_updater)
         self._tab_widget.addTab(self._history_widget, "Manage")

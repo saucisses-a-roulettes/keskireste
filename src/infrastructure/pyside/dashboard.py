@@ -18,13 +18,42 @@ import datetime
 from collections.abc import Mapping
 
 from PySide6.QtCharts import QChart, QBarSet, QBarSeries, QChartView, QBarCategoryAxis, QValueAxis, QLineSeries
-from PySide6.QtCore import Qt, QPoint
-from PySide6.QtGui import QPainter
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtCore import Qt, QPoint, Signal
+from PySide6.QtGui import QPainter, QStandardItemModel, QStandardItem
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QComboBox
 
 from src.application.budget.history.reader import HistoryReader, HistoryReadResponse
 from src.application.budget.reader import BudgetReader
 from src.infrastructure.budget.repository.model import BudgetPath
+
+
+class DatePicker(QWidget):
+    date_changed = Signal()
+
+    def __init__(self, year: int, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        layout = QHBoxLayout(self)
+        self._year_selector = QComboBox(self)
+        model = QStandardItemModel()
+        current_year: int = datetime.datetime.now().year
+        for i in range(10):
+            model.appendRow(QStandardItem(str(current_year - i)))
+        self._year_selector.setModel(model)
+        layout.addWidget(self._year_selector)
+
+        self._year_selector.setCurrentText(str(year))
+
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        self._year_selector.currentTextChanged.connect(self._on_date_changed)
+
+    def _on_date_changed(self) -> None:
+        self.date_changed.emit()
+
+    @property
+    def current_year(self) -> int:
+        return int(self._year_selector.currentText())
 
 
 class BudgetChartView(QChartView):
@@ -91,21 +120,30 @@ class BudgetChartView(QChartView):
 
 class BudgetDashboardWidget(QWidget):
     def __init__(
-        self, budget_reader: BudgetReader, history_reader: HistoryReader, parent: QWidget | None = None
+        self, year: int, budget_reader: BudgetReader, history_reader: HistoryReader, parent: QWidget | None = None
     ) -> None:
         super().__init__(parent)
 
+        self._budget_path: BudgetPath | None = None
         self._budget_reader = budget_reader
         self._history_reader = history_reader
 
-        self._ui()
+        self._ui(year)
+        self._connect_signals()
 
-    def _ui(self) -> None:
+    def _ui(self, year: int) -> None:
         layout = QVBoxLayout(self)
+
+        self._date_picker = DatePicker(year)
+        layout.addWidget(self._date_picker)
 
         self._chart_view = BudgetChartView()
         layout.addWidget(self._chart_view)
 
+    def _connect_signals(self) -> None:
+        self._date_picker.date_changed.connect(lambda: self.refresh(self._budget_path))
+
     def refresh(self, budget_path: BudgetPath) -> None:
+        self._budget_path = budget_path
         histories = self._history_reader.list_by_budget(budget_path)
-        self._chart_view.refresh(datetime.datetime.now().year, histories)
+        self._chart_view.refresh(self._date_picker.current_year, histories)
