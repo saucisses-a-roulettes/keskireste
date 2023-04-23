@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QWidget,
     QSizePolicy,
+    QTabWidget,
 )
 from ofxparse import OfxParser  # type: ignore
 
@@ -77,15 +78,23 @@ class MainWidget(QWidget):
         self._stacked_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore
         self._no_history_selected_widget = NoBudgetSelectedWidget()
         self._stacked_widget.addWidget(self._no_history_selected_widget)
+
+        self._tab_widget = QTabWidget()
+        self._stacked_widget.addWidget(self._tab_widget)
+
         self._budget_dashboard_widget = BudgetDashboardWidget(budget_reader, history_reader)
-        self._stacked_widget.addWidget(self._budget_dashboard_widget)
+        self._tab_widget.addTab(self._budget_dashboard_widget, "Dashboard")
         self._history_widget = HistoryWidget(history_creator, history_reader, history_updater)
-        self._stacked_widget.addWidget(self._history_widget)
+        self._tab_widget.addTab(self._history_widget, "Manage")
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
+        self._history_widget.history_changed.connect(lambda budget_path: self.refresh(budget_path))
 
     def refresh(self, budget_path: BudgetPath) -> None:
         self._history_widget.refresh(budget_path)
         self._budget_dashboard_widget.refresh(budget_path)
-        self._stacked_widget.setCurrentWidget(self._budget_dashboard_widget)
+        self._stacked_widget.setCurrentWidget(self._tab_widget)
 
 
 class MainWindow(QMainWindow):
