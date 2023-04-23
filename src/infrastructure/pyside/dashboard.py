@@ -141,7 +141,11 @@ class BudgetDashboardWidget(QWidget):
         layout.addWidget(self._chart_view)
 
     def _connect_signals(self) -> None:
-        self._date_picker.date_changed.connect(lambda: self.refresh(self._budget_path))
+        self._date_picker.date_changed.connect(lambda: self._refresh_if_budget_loaded(self._budget_path))
+
+    def _refresh_if_budget_loaded(self, budget_path: BudgetPath | None) -> None:
+        if budget_path:
+            self.refresh(budget_path)
 
     def refresh(self, budget_path: BudgetPath) -> None:
         self._budget_path = budget_path
