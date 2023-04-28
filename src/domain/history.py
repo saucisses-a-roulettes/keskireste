@@ -65,16 +65,36 @@ class RecurrentOperation:
         return False
 
 
-@dataclass(frozen=True)
 class Operation:
-    id: str
-    day: int
-    name: str
-    value: float
+    def __init__(
+        self,
+        id_: str,
+        day: int,
+        name: str,
+        value: float,
+    ) -> None:
+        if day < 0 or day > 31:
+            raise ValueError(f"Day `{day}` is invalid")
+        self._id = id_
+        self._day = day
+        self._name = name
+        self._value = value
 
-    def __post_init__(self):
-        if self.day < 0 or self.day > 31:
-            raise ValueError(f"Day `{self.day}` is invalid")
+    @property
+    def id(self) -> str:
+        return self.id
+
+    @property
+    def day(self) -> int:
+        return self.day
+
+    @property
+    def name(self) -> str:
+        return self.name
+
+    @property
+    def value(self) -> float:
+        return self.value
 
     def __hash__(self):
         return hash(self.id)
