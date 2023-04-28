@@ -66,9 +66,28 @@ class RecurrentOperation:
         return False
 
 
-class Operation:
+@dataclass
+class SavingTransactionAspects:
+    saving_account_id: TSavingAccountId
+
+
+@dataclass
+class LoanTransactionAspects:
+    amount: float
+
+    def __post_init__(self) -> None:
+        if self.amount <= 0:
+            raise ValueError("Amount must be greater than 0")
+
+
+class Operation(Generic[TSavingAccountId]):
     def __init__(
-        self, id_: str, day: int, name: str, value: float, saving_account_id: TSavingAccountId | None = None
+        self,
+        id_: str,
+        day: int,
+        name: str,
+        value: float,
+        transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None,
     ) -> None:
         if day < 0 or day > 31:
             raise ValueError(f"Day `{day}` is invalid")
@@ -76,7 +95,7 @@ class Operation:
         self._day = day
         self._name = name
         self._value = value
-        self._saving_account_id = saving_account_id
+        self._transaction_aspects = transaction_aspects
 
     @property
     def id(self) -> str:
@@ -95,8 +114,8 @@ class Operation:
         return self.value
 
     @property
-    def saving_account_id(self) -> TSavingAccountId:
-        return self._saving_account_id
+    def transaction_aspects(self) -> SavingTransactionAspects | LoanTransactionAspects | None:
+        return self._transaction_aspects
 
     def __hash__(self):
         return hash(self.id)
@@ -104,11 +123,14 @@ class Operation:
     def __eq__(self, other: object) -> bool:
         return other.id == self.id if isinstance(other, Operation) else False
 
-    def categorize_as_saving_account_transaction(self, saving_account_id: TSavingAccountId) -> None:
-        self._saving_account_id = saving_account_id
+    def categorize_as_saving_account_transaction(self, transaction_aspects: SavingTransactionAspects) -> None:
+        self._transaction_aspects = transaction_aspects
 
-    def uncategorize_as_saving_account_transaction(self) -> None:
-        self._saving_account_id = None
+    def uncategorize_transaction(self) -> None:
+        self._transaction_aspects = None
+
+    def categorize_as_loan_transaction(self, transaction_aspects: LoanTransactionAspects) -> None:
+        self._transaction_aspects = transaction_aspects
 
 
 @total_ordering
