@@ -231,3 +231,19 @@ class History(Generic[THistoryId]):
         if op not in self.operations:
             raise ValueError(f"Operation `{op.id}` does not exists")
         self._operations.remove(op)
+
+    def _retrieve_operation(self, operation_id: str) -> Operation:
+        try:
+            return next(op for op in self._operations if op.id == operation_id)
+        except StopIteration as e:
+            raise OperationNotFound(operation_id) from e
+
+    def categorize_operation_as_saving_account_operation(
+        self, operation_id: str, saving_account_id: TSavingAccountId
+    ) -> None:
+        operation = self._retrieve_operation(operation_id)
+        operation.categorize_as_saving_account_operation(saving_account_id)
+
+    def uncategorize_operation_as_saving_account_operation(self, operation_id: str) -> None:
+        operation = self._retrieve_operation(operation_id)
+        operation.uncategorize_as_saving_account_operation()
