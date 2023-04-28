@@ -261,11 +261,15 @@ class History(Generic[THistoryId]):
             raise OperationNotFound(operation_id) from e
 
     def categorize_operation_as_saving_account_transaction(
-        self, operation_id: str, saving_account_id: TSavingAccountId
+        self, operation_id: str, transaction_aspects: SavingTransactionAspects
     ) -> None:
         operation = self._retrieve_operation(operation_id)
-        operation.categorize_as_saving_account_transaction(saving_account_id)
+        operation.categorize_as_saving_account_transaction(transaction_aspects)
 
     def uncategorize_operation_as_saving_account_transaction(self, operation_id: str) -> None:
         operation = self._retrieve_operation(operation_id)
-        operation.uncategorize_as_saving_account_transaction()
+        operation.uncategorize_transaction()
+
+    def categorize_as_loan_transaction(self, operation_id: str, transaction_aspects: LoanTransactionAspects) -> None:
+        operation = self._retrieve_operation(operation_id)
+        operation.categorize_as_loan_transaction(transaction_aspects)
