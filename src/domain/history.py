@@ -21,6 +21,7 @@ from functools import total_ordering
 from typing import Generic, Self, TypeVar
 
 from src.domain.entity import Id
+from src.domain.saving.account import TSavingAccountId
 
 
 class RecurrentOperationAlreadyExist(Exception):
