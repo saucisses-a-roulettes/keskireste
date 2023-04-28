@@ -67,11 +67,7 @@ class RecurrentOperation:
 
 class Operation:
     def __init__(
-        self,
-        id_: str,
-        day: int,
-        name: str,
-        value: float,
+        self, id_: str, day: int, name: str, value: float, saving_account_id: TSavingAccountId | None = None
     ) -> None:
         if day < 0 or day > 31:
             raise ValueError(f"Day `{day}` is invalid")
@@ -79,6 +75,7 @@ class Operation:
         self._day = day
         self._name = name
         self._value = value
+        self._saving_account_id = saving_account_id
 
     @property
     def id(self) -> str:
@@ -96,11 +93,21 @@ class Operation:
     def value(self) -> float:
         return self.value
 
+    @property
+    def saving_account_id(self) -> TSavingAccountId:
+        return self._saving_account_id
+
     def __hash__(self):
         return hash(self.id)
 
     def __eq__(self, other: object) -> bool:
         return other.id == self.id if isinstance(other, Operation) else False
+
+    def categorize_as_saving_deposit(self, saving_account_id: TSavingAccountId) -> None:
+        self._saving_account_id = saving_account_id
+
+    def uncategorize_as_saving_deposit(self) -> None:
+        self._saving_account_id = None
 
 
 @total_ordering
