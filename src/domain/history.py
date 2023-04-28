@@ -104,10 +104,10 @@ class Operation:
     def __eq__(self, other: object) -> bool:
         return other.id == self.id if isinstance(other, Operation) else False
 
-    def categorize_as_saving_account_operation(self, saving_account_id: TSavingAccountId) -> None:
+    def categorize_as_saving_account_transaction(self, saving_account_id: TSavingAccountId) -> None:
         self._saving_account_id = saving_account_id
 
-    def uncategorize_as_saving_account_operation(self) -> None:
+    def uncategorize_as_saving_account_transaction(self) -> None:
         self._saving_account_id = None
 
 
@@ -238,12 +238,12 @@ class History(Generic[THistoryId]):
         except StopIteration as e:
             raise OperationNotFound(operation_id) from e
 
-    def categorize_operation_as_saving_account_operation(
+    def categorize_operation_as_saving_account_transaction(
         self, operation_id: str, saving_account_id: TSavingAccountId
     ) -> None:
         operation = self._retrieve_operation(operation_id)
-        operation.categorize_as_saving_account_operation(saving_account_id)
+        operation.categorize_as_saving_account_transaction(saving_account_id)
 
-    def uncategorize_operation_as_saving_account_operation(self, operation_id: str) -> None:
+    def uncategorize_operation_as_saving_account_transaction(self, operation_id: str) -> None:
         operation = self._retrieve_operation(operation_id)
-        operation.uncategorize_as_saving_account_operation()
+        operation.uncategorize_as_saving_account_transaction()
