@@ -142,6 +142,16 @@ class Date:
 THistoryId = TypeVar("THistoryId", bound=Id)
 
 
+class OperationNotFound(Exception):
+    def __init__(self, operation_id: str) -> None:
+        super().__init__(f"Operation of id `{operation_id}` not found")
+        self._operation_id = operation_id
+
+    @property
+    def operation_id(self) -> str:
+        return self._operation_id
+
+
 class History(Generic[THistoryId]):
     def __init__(
         self, id_: THistoryId, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
