@@ -73,10 +73,10 @@ class SavingTransactionAspects:
 
 @dataclass
 class LoanTransactionAspects:
-    amount: float
+    amount: float | None
 
     def __post_init__(self) -> None:
-        if self.amount <= 0:
+        if self.amount is not None and self.amount <= 0:
             raise ValueError("Amount must be greater than 0")
 
 
@@ -208,6 +208,20 @@ class History(Generic[THistoryId]):
     @property
     def balance(self) -> float:
         return sum(op.value for op in self._recurrent_operations) + sum(op.value for op in self._operations)
+
+    @property
+    def saving_balance(self) -> float:
+        return sum(op.value for op in self._operations if type(op.transaction_aspects) == SavingTransactionAspects)
+
+    @property
+    def loan_balance(self) -> float:
+        return sum(
+            (op.transaction_aspects.amount * (op.value / op.value))
+            if op.transaction_aspects.amount is not None
+            else op.value
+            for op in self._operations
+            if type(op.transaction_aspects) == LoanTransactionAspects
+        )
 
     def add_recurrent_operation(self, op: RecurrentOperation) -> None:
         if op in self._recurrent_operations:
