@@ -104,10 +104,10 @@ class Operation:
     def __eq__(self, other: object) -> bool:
         return other.id == self.id if isinstance(other, Operation) else False
 
-    def categorize_as_saving_deposit(self, saving_account_id: TSavingAccountId) -> None:
+    def categorize_as_saving_account_operation(self, saving_account_id: TSavingAccountId) -> None:
         self._saving_account_id = saving_account_id
 
-    def uncategorize_as_saving_deposit(self) -> None:
+    def uncategorize_as_saving_account_operation(self) -> None:
         self._saving_account_id = None
 
 
