@@ -36,9 +36,8 @@ from ofxparse import OfxParser  # type: ignore
 from src.application.budget.creator import BudgetCreator
 from src.application.budget.history.creator import HistoryCreator
 from src.application.budget.history.reader import HistoryReader
-from src.application.budget.history.updater import HistoryUpdateRequest, HistoryUpdater
+from src.application.budget.history.updater import HistoryUpdater
 from src.application.budget.reader import BudgetReader, BudgetResponse
-from src.domain.history import Date, Operation
 from src.infrastructure.budget.history.repository.json_ import HistoryJsonRepository
 from src.infrastructure.budget.history.repository.model import HistoryId
 from src.infrastructure.budget.repository.json_ import BudgetJsonRepository
@@ -47,7 +46,6 @@ from src.infrastructure.pyside.dashboard import BudgetDashboardWidget
 from src.infrastructure.pyside.history.container import (
     HistoryWidget,
     NoBudgetSelectedWidget,
-    retrieve_or_create_history,
 )
 
 
@@ -93,6 +91,9 @@ class MainWidget(QWidget):
 
     def _connect_signals(self) -> None:
         self._history_widget.history_changed.connect(lambda budget_path: self.refresh(budget_path))
+
+    def import_operations_from_ofx(self, file_path: str) -> None:
+        self._history_widget.import_operations_from_ofx(file_path)
 
     def refresh(self, budget_path: BudgetPath) -> None:
         self._history_widget.refresh(budget_path)
@@ -163,31 +164,7 @@ class MainWindow(QMainWindow):
     def _import_operations(self) -> None:
         file_path, _ = QFileDialog.getOpenFileName(self, "Operations File", "", "Tous les fichiers (*.ofx)")
         if file_path:
-            self._import_operations_from_file(file_path)
-
-    def _import_operations_from_file(self, file_path: str) -> None:
-        if not self._budget:
-            return
-        with open(file_path, "rb") as _f:
-            ofx = OfxParser.parse(_f)
-        account = ofx.account
-        operations: dict[Date, set[Operation]] = {}
-        for t in account.statement.transactions:
-            date = Date(t.date.year, t.date.month)
-            operations[date] = operations.get(date, set()) | {
-                Operation(id=t.id, name=t.payee, value=float(t.amount), day=t.date.day),
-            }
-        for date, ops in operations.items():
-            history_id = HistoryId(self._budget.id, date)
-            history_response = retrieve_or_create_history(history_id, self._history_creator, self._history_reader)
-            request = HistoryUpdateRequest(
-                id_=history_id,
-                recurrent_operations=history_response.recurrent_operations,
-                operations=history_response.operations | ops,
-            )
-            self._history_updater.update(request)
-
-        self.central_widget.refresh(self._budget.id)
+            self.central_widget.import_operations_from_ofx(file_path)
 
 
 if __name__ == "__main__":

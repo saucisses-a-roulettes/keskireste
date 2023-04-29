@@ -21,6 +21,7 @@ from typing import Mapping
 from PySide6.QtCore import QMetaObject, Signal
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QSizePolicy, QStackedWidget, QVBoxLayout, QWidget
+from ofxparse import OfxParser  # type: ignore
 
 from src.application.budget.history.creator import HistoryCreationRequest, HistoryCreator
 from src.application.budget.history.reader import HistoryReadResponse, HistoryReader
@@ -186,7 +187,9 @@ class HistoryWidget(QWidget):
             history = retrieve_or_create_history(history_id, self._history_creator, self._history_reader)
             self._history_dashboard.refresh(frozenset(history.recurrent_operations), frozenset(history.operations))
             self._history_operations_manager.refresh(
-                frozenset(history.recurrent_operations),
+                frozenset(
+                    DomainRecurrentOperation(name=op.name, value=op.value) for op in history.recurrent_operations
+                ),
                 frozenset(
                     Operation(
                         id=op.id, day=op.day, name=op.name, amount=op.amount, transaction_aspects=op.transaction_aspects
@@ -198,6 +201,38 @@ class HistoryWidget(QWidget):
     def refresh(self, budget_path: BudgetPath) -> None:
         self._budget_path = budget_path
         self._refresh()
+
+    def import_operations_from_ofx(self, file_path: str) -> None:
+        if not self._budget_path:
+            return None
+        with open(file_path, "rb") as _f:
+            ofx = OfxParser.parse(_f)
+        account = ofx.account
+        operations: dict[Date, set[Operation]] = {}
+        for t in account.statement.transactions:
+            date = Date(t.date.year, t.date.month)
+            operations[date] = operations.get(date, set()) | {
+                OperationUpdateRequest(id=t.id, name=t.payee, amount=float(t.amount), day=t.date.day),
+            }
+        for date, ops in operations.items():
+            history_id = HistoryId(self._budget_path, date)
+            history_response = retrieve_or_create_history(history_id, self._history_creator, self._history_reader)
+            self._override_operations(
+                {
+                    OperationUpdateRequest(
+                        id=op.id,
+                        day=op.day,
+                        name=op.name,
+                        amount=op.amount,
+                        transaction_aspects=op.transaction_aspects,
+                    )
+                    for op in history_response.operations
+                }
+                | ops,
+                date=date,
+            )
+
+        self.refresh(self._budget_path)
 
     def _copy_recurrent_operation_from_previous_month(self) -> None:
         if self._budget_path:
@@ -218,9 +253,9 @@ class HistoryWidget(QWidget):
             self._history_updater.update_recurrent_operations(request)
             self.history_changed.emit(history_id.budget_path)
 
-    def _override_operations(self, ops: set[OperationUpdateRequest]) -> None:
+    def _override_operations(self, ops: set[OperationUpdateRequest], date: Date | None = None) -> None:
         if self._budget_path:
-            history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
+            history_id = HistoryId(self._budget_path, date or self._date_picker.retrieve_current_date())
             request = OperationsUpdateRequest(history_id=history_id, operations=ops)
             self._history_updater.update_operations(request)
             self.history_changed.emit(history_id.budget_path)
