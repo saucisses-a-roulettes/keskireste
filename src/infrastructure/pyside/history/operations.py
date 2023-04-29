@@ -17,7 +17,8 @@
 from dataclasses import dataclass
 from typing import cast
 
-from PySide6.QtCore import Signal, Qt
+from PySide6.QtCore import Signal, Qt, QModelIndex, QPersistentModelIndex, QObject
+from PySide6.QtGui import QColor, QPen
 from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFormLayout,
@@ -32,6 +33,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QLabel,
+    QStyledItemDelegate,
 )
 
 from src.domain.history import SavingTransactionAspects, LoanTransactionAspects
@@ -127,8 +129,20 @@ class OperationControlWidget(QWidget):
         self.delete_selected_clicked.emit()
 
 
-class OperationTableItemDelegate(QItemDelegate):
+class OperationTableItemDelegate(QStyledItemDelegate):
+    def __init__(self, border_color: QColor | None = None, parent: QObject | None = None) -> None:
+        super().__init__(parent)
+        self._border_color = border_color
+
     editor_closed = Signal()
+
+    def paint(self, painter, option, index: QModelIndex | QPersistentModelIndex):
+        super().paint(painter, option, index)
+
+        if self._border_color:
+            pen = QPen(self._border_color, 1, Qt.SolidLine)
+            painter.setPen(pen)
+            painter.drawRect(option.rect)
 
     def createEditor(self, parent, option, index):
         if index.column() in (2, 3):
@@ -150,6 +164,7 @@ class OperationsTableWidget(QTableWidget):
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # type: ignore
         self.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)  # type: ignore
         self._delegate = OperationTableItemDelegate()
+        self._saving_operation_delegate = OperationTableItemDelegate(QColor(Qt.yellow))
         self.setItemDelegateForColumn(0, self._delegate)
         self.setItemDelegateForColumn(1, self._delegate)
         self.setItemDelegateForColumn(2, self._delegate)
@@ -185,6 +200,10 @@ class OperationsTableWidget(QTableWidget):
             value = QTableWidgetItem()
             value.setData(Qt.DisplayRole, op.amount)  # type: ignore
             self.setItem(row_index, 3, value)
+            if isinstance(op.transaction_aspects, SavingTransactionAspects):
+                self.setItemDelegateForRow(row_index, self._saving_operation_delegate)
+            else:
+                self.setItemDelegateForRow(row_index, self._delegate)
         self.setSortingEnabled(True)
 
 
