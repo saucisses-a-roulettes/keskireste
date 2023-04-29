@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 
-from src.domain.history import Operation, SavingTransactionAspects, LoanTransactionAspects
+from src.domain.history import SavingTransactionAspects, LoanTransactionAspects
 
 
 @dataclass(frozen=True)

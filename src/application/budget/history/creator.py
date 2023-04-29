@@ -34,7 +34,7 @@ class OperationCreationRequest:
     id: str
     day: int
     name: str
-    value: float
+    amount: float
     transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None
 
 
@@ -61,7 +61,7 @@ class HistoryCreator:
                         id_=op.id,
                         day=op.day,
                         name=op.name,
-                        value=op.value,
+                        amount=op.amount,
                         transaction_aspects=op.transaction_aspects,
                     )
                     for op in request.operations

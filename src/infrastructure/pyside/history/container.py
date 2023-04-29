@@ -36,7 +36,11 @@ from src.domain.history import Date, RecurrentOperation as DomainRecurrentOperat
 from src.infrastructure.budget.history.repository.model import HistoryId
 from src.infrastructure.budget.repository.model import BudgetPath
 from src.infrastructure.pyside.history.dashboard import HistoryDashboardWidget
-from src.infrastructure.pyside.history.operations import HistoryOperationsManagementWidget, Operation
+from src.infrastructure.pyside.history.operations import (
+    HistoryOperationsManagementWidget,
+    Operation,
+    RecurrentOperation,
+)
 
 
 def retrieve_or_create_history(
@@ -187,9 +191,7 @@ class HistoryWidget(QWidget):
             history = retrieve_or_create_history(history_id, self._history_creator, self._history_reader)
             self._history_dashboard.refresh(frozenset(history.recurrent_operations), frozenset(history.operations))
             self._history_operations_manager.refresh(
-                frozenset(
-                    DomainRecurrentOperation(name=op.name, value=op.value) for op in history.recurrent_operations
-                ),
+                frozenset(RecurrentOperation(name=op.name, value=op.value) for op in history.recurrent_operations),
                 frozenset(
                     Operation(
                         id=op.id, day=op.day, name=op.name, amount=op.amount, transaction_aspects=op.transaction_aspects
@@ -208,7 +210,7 @@ class HistoryWidget(QWidget):
         with open(file_path, "rb") as _f:
             ofx = OfxParser.parse(_f)
         account = ofx.account
-        operations: dict[Date, set[Operation]] = {}
+        operations: dict[Date, set[OperationUpdateRequest]] = {}
         for t in account.statement.transactions:
             date = Date(t.date.year, t.date.month)
             operations[date] = operations.get(date, set()) | {
