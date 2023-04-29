@@ -16,10 +16,16 @@
 #   */
 
 from dataclasses import dataclass
+from typing import Generic
 
 from src.application.budget.history.repository import HistoryRepository
-from src.domain.entity import Id
-from src.domain.history import RecurrentOperation, SavingTransactionAspects, LoanTransactionAspects
+from src.domain.history import RecurrentOperation, SavingTransactionAspects, LoanTransactionAspects, THistoryId
+
+
+@dataclass(frozen=True)
+class RecurrentOperationsUpdateRequest(Generic[THistoryId]):
+    history_id: THistoryId
+    operations: set[RecurrentOperation]
 
 
 @dataclass(frozen=True)
@@ -32,9 +38,8 @@ class OperationUpdateRequest:
 
 
 @dataclass(frozen=True)
-class HistoryUpdateRequest:
-    id_: Id
-    recurrent_operations: set[RecurrentOperation]
+class OperationsUpdateRequest(Generic[THistoryId]):
+    history_id: THistoryId
     operations: set[OperationUpdateRequest]
 
 
@@ -42,12 +47,12 @@ class HistoryUpdater:
     def __init__(self, repository: HistoryRepository) -> None:
         self._repository = repository
 
-    def update(self, request: HistoryUpdateRequest) -> None:
-        history = self._repository.retrieve(request.id_)
+    def update_recurrent_operations(self, request: RecurrentOperationsUpdateRequest) -> None:
+        history = self._repository.retrieve(request.history_id)
 
-        new_recurrent_operation = request.recurrent_operations - history.recurrent_operations
-        existing_recurrent_operations = history.recurrent_operations & request.recurrent_operations
-        deleted_recurrent_operation = history.recurrent_operations - request.recurrent_operations
+        new_recurrent_operation = request.operations - history.recurrent_operations
+        existing_recurrent_operations = history.recurrent_operations & request.operations
+        deleted_recurrent_operation = history.recurrent_operations - request.operations
 
         for r_op in new_recurrent_operation:
             history.add_recurrent_operation(r_op)
@@ -55,6 +60,11 @@ class HistoryUpdater:
             history.update_recurrent_operation(r_op)
         for r_op in deleted_recurrent_operation:
             history.remove_recurrent_operation(r_op.name)
+
+        self._repository.update(history)
+
+    def update_operations(self, request: OperationsUpdateRequest) -> None:
+        history = self._repository.retrieve(request.history_id)
 
         current_operation_ids = {op.id for op in history.operations}
         input_operation_ids = {op.id for op in request.operations}
