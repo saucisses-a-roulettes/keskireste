@@ -24,13 +24,18 @@ from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QSizePolicy, QStac
 
 from src.application.budget.history.creator import HistoryCreationRequest, HistoryCreator
 from src.application.budget.history.reader import HistoryReadResponse, HistoryReader
-from src.application.budget.history.updater import HistoryUpdateRequest, HistoryUpdater
+from src.application.budget.history.updater import (
+    HistoryUpdater,
+    OperationUpdateRequest,
+    OperationsUpdateRequest,
+    RecurrentOperationsUpdateRequest,
+)
 from src.application.exception import BadRequestException
-from src.domain.history import Date, Operation, RecurrentOperation
+from src.domain.history import Date, RecurrentOperation as DomainRecurrentOperation
 from src.infrastructure.budget.history.repository.model import HistoryId
 from src.infrastructure.budget.repository.model import BudgetPath
 from src.infrastructure.pyside.history.dashboard import HistoryDashboardWidget
-from src.infrastructure.pyside.history.operations import HistoryOperationsManagerWidget
+from src.infrastructure.pyside.history.operations import HistoryOperationsManagementWidget, Operation
 
 
 def retrieve_or_create_history(
@@ -140,7 +145,7 @@ class HistoryWidget(QWidget):
         layout.addWidget(self._stacked_widget)
         self._history_dashboard = HistoryDashboardWidget()
         self._stacked_widget.addWidget(self._history_dashboard)
-        self._history_operations_manager = HistoryOperationsManagerWidget()
+        self._history_operations_manager = HistoryOperationsManagementWidget()
         self._stacked_widget.addWidget(self._history_operations_manager)
         self._connect_signals()
 
@@ -152,18 +157,28 @@ class HistoryWidget(QWidget):
         self._history_operations_manager.show_dashboard_button_clicked.connect(
             lambda: self._stacked_widget.setCurrentWidget(self._history_dashboard)
         )
-        self._history_operations_manager.add_recurrent_operations_clicked.connect(self._add_recurrent_operation)
         self._history_operations_manager.recurrent_operations_modified.connect(
-            lambda ops: self._override_recurrent_operations(ops)
-        )
-        self._history_operations_manager.delete_selected_recurrent_operations_clicked.connect(
-            self._delete_recurrent_operation
+            lambda ops: self._override_recurrent_operations(
+                {DomainRecurrentOperation(name=op.name, value=op.value) for op in ops}
+            )
         )
         self._history_operations_manager.copy_operations_from_previous_month_clicked.connect(
             self._copy_recurrent_operation_from_previous_month
         )
-        self._history_operations_manager.operations_modified.connect(lambda ops: self._override_operations(ops))
-        self._history_operations_manager.operations_deleted.connect(lambda ops: self._delete_operations(ops))
+        self._history_operations_manager.operations_modified.connect(
+            lambda ops: self._override_operations(
+                {
+                    OperationUpdateRequest(
+                        id=op.id,
+                        day=op.day,
+                        name=op.name,
+                        amount=op.amount,
+                        transaction_aspects=op.transaction_aspects,
+                    )
+                    for op in ops
+                }
+            )
+        )
 
     def _refresh(self) -> None:
         if self._budget_path:
@@ -171,85 +186,41 @@ class HistoryWidget(QWidget):
             history = retrieve_or_create_history(history_id, self._history_creator, self._history_reader)
             self._history_dashboard.refresh(frozenset(history.recurrent_operations), frozenset(history.operations))
             self._history_operations_manager.refresh(
-                frozenset(history.recurrent_operations), frozenset(history.operations)
+                frozenset(history.recurrent_operations),
+                frozenset(
+                    Operation(
+                        id=op.id, day=op.day, name=op.name, amount=op.amount, transaction_aspects=op.transaction_aspects
+                    )
+                    for op in history.operations
+                ),
             )
 
     def refresh(self, budget_path: BudgetPath) -> None:
         self._budget_path = budget_path
         self._refresh()
 
-    def _add_recurrent_operation(self, op: RecurrentOperation) -> None:
-        if self._budget_path:
-            history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
-            history = self._history_reader.retrieve(history_id)
-            request = HistoryUpdateRequest(
-                id_=history_id,
-                recurrent_operations=history.recurrent_operations | {op},
-                operations=history.operations,
-            )
-            self._history_updater.update(request)
-            self.history_changed.emit(history_id.budget_path)
-
-    def _delete_recurrent_operation(self, ops: set[RecurrentOperation]) -> None:
-        if self._budget_path:
-            history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
-            history_response = self._history_reader.retrieve(history_id)
-
-            request = HistoryUpdateRequest(
-                id_=history_id,
-                recurrent_operations=history_response.recurrent_operations - ops,
-                operations=history_response.operations,
-            )
-            self._history_updater.update(request)
-            self.history_changed.emit(history_id.budget_path)
-
     def _copy_recurrent_operation_from_previous_month(self) -> None:
         if self._budget_path:
             history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
             last_history_response = self._history_reader.retrieve(history_id.previous)
             current_history_response = self._history_reader.retrieve(history_id)
-            request = HistoryUpdateRequest(
-                id_=history_id,
-                recurrent_operations=current_history_response.recurrent_operations
-                | last_history_response.recurrent_operations,
-                operations=current_history_response.operations,
+            request = RecurrentOperationsUpdateRequest(
+                history_id=history_id,
+                operations=current_history_response.recurrent_operations | last_history_response.recurrent_operations,
             )
-            self._history_updater.update(request)
+            self._history_updater.update_recurrent_operations(request)
             self.history_changed.emit(history_id.budget_path)
 
-    def _override_operations(self, ops: set[Operation]) -> None:
+    def _override_recurrent_operations(self, ops: set[DomainRecurrentOperation]) -> None:
         if self._budget_path:
             history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
-            history_response = self._history_reader.retrieve(history_id)
-            request = HistoryUpdateRequest(
-                id_=history_id,
-                recurrent_operations=history_response.recurrent_operations,
-                operations=ops,
-            )
-            self._history_updater.update(request)
+            request = RecurrentOperationsUpdateRequest(history_id=history_id, operations=ops)
+            self._history_updater.update_recurrent_operations(request)
             self.history_changed.emit(history_id.budget_path)
 
-    def _override_recurrent_operations(self, ops: set[RecurrentOperation]) -> None:
+    def _override_operations(self, ops: set[OperationUpdateRequest]) -> None:
         if self._budget_path:
             history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
-            history_response = self._history_reader.retrieve(history_id)
-            request = HistoryUpdateRequest(
-                id_=history_id,
-                recurrent_operations=ops,
-                operations=history_response.operations,
-            )
-            self._history_updater.update(request)
-            self.history_changed.emit(history_id.budget_path)
-
-    def _delete_operations(self, ops: set[Operation]) -> None:
-        if self._budget_path:
-            history_id = HistoryId(self._budget_path, self._date_picker.retrieve_current_date())
-            history_response = self._history_reader.retrieve(history_id)
-            new_operations = history_response.operations - ops
-            request = HistoryUpdateRequest(
-                id_=history_id,
-                recurrent_operations=history_response.recurrent_operations,
-                operations=new_operations,
-            )
-            self._history_updater.update(request)
+            request = OperationsUpdateRequest(history_id=history_id, operations=ops)
+            self._history_updater.update_operations(request)
             self.history_changed.emit(history_id.budget_path)

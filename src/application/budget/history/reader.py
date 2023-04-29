@@ -36,8 +36,11 @@ class OperationReadResponse:
     id: str
     day: int
     name: str
-    value: float
+    amount: float
     transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None
+
+    def __hash__(self) -> int:
+        return hash(self.day)
 
 
 @dataclass(frozen=True)
@@ -65,7 +68,7 @@ class HistoryReader(Generic[TBudgetId, THistoryId]):
                     id=op.id,
                     day=op.day,
                     name=op.name,
-                    value=op.value,
+                    amount=op.value,
                     transaction_aspects=op.transaction_aspects,
                 )
                 for op in history.operations
@@ -85,7 +88,7 @@ class HistoryReader(Generic[TBudgetId, THistoryId]):
                         id=op.id,
                         day=op.day,
                         name=op.name,
-                        value=op.value,
+                        amount=op.value,
                         transaction_aspects=op.transaction_aspects,
                     )
                     for op in h.operations

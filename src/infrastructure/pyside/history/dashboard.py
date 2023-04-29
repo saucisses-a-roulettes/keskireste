@@ -18,7 +18,8 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 
-from src.domain.history import Operation, RecurrentOperation
+from src.application.budget.history.reader import OperationReadResponse
+from src.domain.history import RecurrentOperation
 
 
 class HistoryDashboardWidget(QWidget):
@@ -40,7 +41,9 @@ class HistoryDashboardWidget(QWidget):
     def _connect_signals(self) -> None:
         self._manage_operations_button.clicked.connect(lambda: self.manage_operations_button_clicked.emit())
 
-    def refresh(self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[Operation]) -> None:
+    def refresh(
+        self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[OperationReadResponse]
+    ) -> None:
         self._balance.setText(
-            f"Balance: {sum(op.value for op in recurrent_operations) + sum(op.value for op in operations):.2f}"
+            f"Balance: {sum(op.value for op in recurrent_operations) + sum(op.amount for op in operations):.2f}"
         )

@@ -14,6 +14,7 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from dataclasses import dataclass
 from typing import cast
 
 from PySide6.QtCore import Signal, Qt
@@ -33,7 +34,33 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 
-from src.domain.history import Operation, RecurrentOperation
+from src.domain.history import Operation, SavingTransactionAspects, LoanTransactionAspects
+
+
+@dataclass(frozen=True)
+class RecurrentOperation:
+    name: str
+    value: float
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, RecurrentOperation):
+            return self.name == other.name
+        return False
+
+
+@dataclass(frozen=True)
+class Operation:
+    id: str
+    day: int
+    name: str
+    amount: float
+    transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None
+
+    def __hash__(self) -> int:
+        return hash(self.day)
 
 
 class RecurrentOperationControlWidget(QWidget):
@@ -133,16 +160,16 @@ class OperationsTableWidget(QTableWidget):
         self._delegate.editor_closed.connect(lambda: self.operations_modified.emit(self.operations))
 
     @property
-    def operations(self) -> set[Operation]:
-        return {
+    def operations(self) -> frozenset[Operation]:
+        return frozenset(
             Operation(
                 id=self.item(row_index, 0).text(),
                 day=int(self.item(row_index, 1).text()),
                 name=self.item(row_index, 2).text(),
-                value=float(self.item(row_index, 3).text()),
+                amount=float(self.item(row_index, 3).text()),
             )
             for row_index in range(self.rowCount())
-        }
+        )
 
     def refresh(self, operations: frozenset[Operation]) -> None:
         self.setSortingEnabled(False)
@@ -162,7 +189,6 @@ class OperationsTableWidget(QTableWidget):
 
 
 class OperationsWidget(QWidget):
-    operations_deleted = Signal(set)
     operations_modified = Signal(set)
 
     def __init__(self, parent: QWidget | None = None) -> None:
@@ -185,19 +211,15 @@ class OperationsWidget(QWidget):
 
     def _on_delete_selected_clicked(self) -> None:
         indexes = {index.row() for index in self._operation_table.selectionModel().selectedRows()}
-        operations = {
-            Operation(
-                id=self._operation_table.item(row_index, 0).text(),
-                day=int(self._operation_table.item(row_index, 1).text()),
-                name=self._operation_table.item(row_index, 2).text(),
-                value=float(self._operation_table.item(row_index, 3).text()),
-            )
-            for row_index in indexes
-        }
-        self.operations_deleted.emit(operations)
+        deleted_ids = {self._operation_table.item(row_index, 0).text() for row_index in indexes}
+        self.operations_modified.emit(frozenset(op for op in self.operations if op.id not in deleted_ids))
 
     def refresh(self, operations: frozenset[Operation]) -> None:
         self._operation_table.refresh(operations)
+
+    @property
+    def operations(self) -> frozenset[Operation]:
+        return self._operation_table.operations
 
 
 class RecurrentOperationTableItemDelegate(QItemDelegate):
@@ -255,8 +277,7 @@ class RecurrentOperationsTableWidget(QTableWidget):
 
 
 class RecurrentOperationsWidget(QWidget):
-    add_operation_clicked = Signal(RecurrentOperation)
-    delete_selected_operations_clicked = Signal(set)
+    recurrent_operations_modified = Signal(set)
     copy_operations_from_previous_month_clicked = Signal()
     operations_modified = Signal(set)
 
@@ -275,36 +296,36 @@ class RecurrentOperationsWidget(QWidget):
         self._connect_signals()
 
     def _connect_signals(self) -> None:
-        self._recurrent_operation_input.add_operation_clicked.connect(lambda op: self.add_operation_clicked.emit(op))
+        self._recurrent_operation_input.add_operation_clicked.connect(lambda op: self._on_add_operation_clicked(op))
         self._recurrent_operation_input.delete_selected_clicked.connect(self._on_delete_selected_clicked)
         self._recurrent_operation_input.copy_operations_from_previous_month_clicked.connect(
             self.copy_operations_from_previous_month_clicked.emit
         )
         self._recurrent_operation_table.operations_modified.connect(lambda ops: self.operations_modified.emit(ops))
 
+    def _on_add_operation_clicked(self, new_operation: RecurrentOperation) -> None:
+        self.recurrent_operations_modified.emit(self._recurrent_operation_table.operations | {new_operation})
+
     def _on_delete_selected_clicked(self) -> None:
         indexes = {index.row() for index in self._recurrent_operation_table.selectionModel().selectedRows()}
-        recurrent_operations = {
-            RecurrentOperation(
-                self._recurrent_operation_table.item(i, 0).text(),
-                float(self._recurrent_operation_table.item(i, 1).text()),
-            )
-            for i in indexes
+        deleted_operation_names: set[str] = {
+            self._recurrent_operation_table.item(row_index, 0).text() for row_index in indexes
         }
-        self.delete_selected_operations_clicked.emit(recurrent_operations)
+        self.recurrent_operations_modified.emit(
+            ro for ro in self._recurrent_operation_table.operations if ro.name not in deleted_operation_names
+        )
 
     def refresh(self, recurrent_operations: frozenset[RecurrentOperation]) -> None:
         self._recurrent_operation_table.refresh(recurrent_operations)
 
 
-class HistoryOperationsManagerWidget(QWidget):
+class HistoryOperationsManagementWidget(QWidget):
     show_dashboard_button_clicked = Signal()
-    add_recurrent_operations_clicked = Signal(RecurrentOperation)
-    delete_selected_recurrent_operations_clicked = Signal(set)
-    copy_operations_from_previous_month_clicked = Signal()
+
     recurrent_operations_modified = Signal(set)
+
+    copy_operations_from_previous_month_clicked = Signal()
     operations_modified = Signal(set)
-    operations_deleted = Signal(set)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -317,32 +338,33 @@ class HistoryOperationsManagerWidget(QWidget):
 
         self._recurrent_operations_label = QLabel("Recurrent Operations:")
         layout.addWidget(self._recurrent_operations_label)
-        self._recurrent_operations = RecurrentOperationsWidget()
-        layout.addWidget(self._recurrent_operations)
+        self._recurrent_operations_widget = RecurrentOperationsWidget()
+        layout.addWidget(self._recurrent_operations_widget)
 
         self._operations_label = QLabel("Operations of the months:")
         layout.addWidget(self._operations_label)
-        self._operations = OperationsWidget()
-        layout.addWidget(self._operations)
+        self._operations_widget = OperationsWidget()
+        layout.addWidget(self._operations_widget)
 
         self._connect_signals()
 
     def _connect_signals(self) -> None:
         self._show_dashboard_button.clicked.connect(lambda: self.show_dashboard_button_clicked.emit())
-        self._recurrent_operations.add_operation_clicked.connect(
-            lambda op: self.add_recurrent_operations_clicked.emit(op)
+        self._recurrent_operations_widget.recurrent_operations_modified.connect(
+            lambda ops: self.recurrent_operations_modified.emit(ops)
         )
-        self._recurrent_operations.delete_selected_operations_clicked.connect(
-            lambda ops: self.delete_selected_recurrent_operations_clicked.emit(ops)
-        )
-        self._recurrent_operations.copy_operations_from_previous_month_clicked.connect(
+        self._recurrent_operations_widget.copy_operations_from_previous_month_clicked.connect(
             lambda: self.copy_operations_from_previous_month_clicked.emit()
         )
-        self._recurrent_operations.operations_modified.connect(lambda ops: self.recurrent_operations_modified.emit(ops))
-        self._operations.operations_modified.connect(lambda ops: self.operations_modified.emit(ops))
-        self._operations.operations_deleted.connect(lambda ops: self.operations_deleted.emit(ops))
-        self._operations.operations_modified.connect(lambda ops: self.operations_modified.emit(ops))
+        self._recurrent_operations_widget.operations_modified.connect(
+            lambda ops: self.recurrent_operations_modified.emit(ops)
+        )
+        self._operations_widget.operations_modified.connect(lambda ops: self.operations_modified.emit(ops))
 
     def refresh(self, recurrent_operations: frozenset[RecurrentOperation], operations: frozenset[Operation]) -> None:
-        self._recurrent_operations.refresh(recurrent_operations)
-        self._operations.refresh(operations)
+        self._recurrent_operations_widget.refresh(recurrent_operations)
+        self._operations_widget.refresh(operations)
+
+    @property
+    def operations(self) -> frozenset[Operation]:
+        return self._operations_widget.operations
