@@ -86,13 +86,13 @@ class Operation(Generic[TSavingAccountId]):
         id_: str,
         day: int,
         name: str,
-        value: float,
+        amount: float,
         transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None,
     ) -> None:
         self._id = id_
         self._day = day
         self._name = name
-        self._value = value
+        self._amount = amount
         self._transaction_aspects = transaction_aspects
         self._validate_data()
 
@@ -130,6 +130,9 @@ class Operation(Generic[TSavingAccountId]):
 
     def rename(self, name: str) -> None:
         self._name = name
+
+    def modify_amount(self, amount: float) -> None:
+        self._amount = amount
 
     def categorize_as_saving_account_transaction(self, transaction_aspects: SavingTransactionAspects) -> None:
         self._transaction_aspects = transaction_aspects
@@ -276,10 +279,16 @@ class History(Generic[THistoryId]):
         operation = self._retrieve_operation(operation_id)
         operation.uncategorize_transaction()
 
-    def categorize_as_loan_transaction(self, operation_id: str, transaction_aspects: LoanTransactionAspects) -> None:
+    def categorize_operation_as_loan_transaction(
+        self, operation_id: str, transaction_aspects: LoanTransactionAspects
+    ) -> None:
         operation = self._retrieve_operation(operation_id)
         operation.categorize_as_loan_transaction(transaction_aspects)
 
     def rename_operation(self, operation_id: str, name: str) -> None:
         operation = self._retrieve_operation(operation_id)
         operation.rename(name)
+
+    def modify_operation_amount(self, operation_id: str, amount: float) -> None:
+        operation = self._retrieve_operation(operation_id)
+        operation.modify_amount(amount)
