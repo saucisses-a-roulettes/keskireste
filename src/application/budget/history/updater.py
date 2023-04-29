@@ -19,14 +19,23 @@ from dataclasses import dataclass
 
 from src.application.budget.history.repository import HistoryRepository
 from src.domain.entity import Id
-from src.domain.history import Operation, RecurrentOperation
+from src.domain.history import RecurrentOperation, SavingTransactionAspects, LoanTransactionAspects
+
+
+@dataclass(frozen=True)
+class OperationUpdateRequest:
+    id: str
+    day: int
+    name: str
+    amount: float
+    transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None
 
 
 @dataclass(frozen=True)
 class HistoryUpdateRequest:
     id_: Id
     recurrent_operations: set[RecurrentOperation]
-    operations: set[Operation]
+    operations: set[OperationUpdateRequest]
 
 
 class HistoryUpdater:
@@ -47,14 +56,28 @@ class HistoryUpdater:
         for r_op in deleted_recurrent_operation:
             history.remove_recurrent_operation(r_op.name)
 
-        new_operations = request.operations - history.operations
-        existing_operations = history.operations & request.operations
-        deleted_operations = history.operations - request.operations
+        current_operation_ids = {op.id for op in history.operations}
+        input_operation_ids = {op.id for op in request.operations}
+
+        new_operations = {op for op in request.operations if op.id not in current_operation_ids}
+        existing_operations = {op for op in request.operations if op.id in current_operation_ids}
+        deleted_operations = {op for op in history.operations if op.id not in input_operation_ids}
 
         for op in new_operations:
             history.add_operation(op)
+
         for op in existing_operations:
-            history.update_operation(op)
+            history.rename_operation(op.id, op.name)
+            history.modify_operation_amount(op.id, op.value)
+
+            transaction_type = type(op.transaction_aspects)
+            if transaction_type == SavingTransactionAspects:
+                history.categorize_operation_as_saving_account_transaction(op.id, op.transaction_aspects)
+            elif transaction_type == LoanTransactionAspects:
+                history.categorize_operation_as_loan_transaction(op.id, op.transaction_aspects)
+            else:
+                history.uncategorize_operation_as_saving_account_transaction(op.id)
+
         for op in deleted_operations:
             history.remove_operation(op)
 
