@@ -95,7 +95,7 @@ class HistoryUpdater:
 
         for op in existing_operations:
             history.rename_operation(op.id, op.name)
-            history.modify_operation_amount(op.id, op.value)
+            history.modify_operation_amount(op.id, op.amount)
 
             if isinstance(op.transaction_aspects, SavingTransactionAspects):
                 history.categorize_operation_as_saving_account_transaction(op.id, op.transaction_aspects)

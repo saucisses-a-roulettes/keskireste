@@ -77,7 +77,8 @@ class HistoryJsonRepository(HistoryRepository[BudgetPath, HistoryId]):
                 RecurrentOperationDictModel(name=op.name, value=op.value) for op in history.recurrent_operations
             ],
             operations=[
-                OperationDictModel(id=str(op.id), day=op.day, name=op.name, value=op.value) for op in history.operations
+                OperationDictModel(id=str(op.id), day=op.day, name=op.name, value=op.amount)
+                for op in history.operations
             ],
         )
         with open(path, "r") as f:
@@ -97,7 +98,8 @@ class HistoryJsonRepository(HistoryRepository[BudgetPath, HistoryId]):
                 RecurrentOperationDictModel(name=op.name, value=op.value) for op in history.recurrent_operations
             ],
             operations=[
-                OperationDictModel(id=str(op.id), day=op.day, name=op.name, value=op.value) for op in history.operations
+                OperationDictModel(id=str(op.id), day=op.day, name=op.name, value=op.amount)
+                for op in history.operations
             ],
         )
         history_model_id = HistoryId(history.id.budget_path, Date(history_model["year"], history_model["month"]))

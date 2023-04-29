@@ -104,19 +104,19 @@ class Operation(Generic[TSavingAccountId]):
 
     @property
     def id(self) -> str:
-        return self.id
+        return self._id
 
     @property
     def day(self) -> int:
-        return self.day
+        return self._day
 
     @property
     def name(self) -> str:
-        return self.name
+        return self._name
 
     @property
-    def value(self) -> float:
-        return self.value
+    def amount(self) -> float:
+        return self._amount
 
     @property
     def transaction_aspects(self) -> SavingTransactionAspects | LoanTransactionAspects | None:
@@ -218,18 +218,18 @@ class History(Generic[THistoryId]):
 
     @property
     def balance(self) -> float:
-        return sum(op.value for op in self._recurrent_operations) + sum(op.value for op in self._operations)
+        return sum(op.value for op in self._recurrent_operations) + sum(op.amount for op in self._operations)
 
     @property
     def saving_balance(self) -> float:
-        return sum(op.value for op in self._operations if type(op.transaction_aspects) == SavingTransactionAspects)
+        return sum(op.amount for op in self._operations if type(op.transaction_aspects) == SavingTransactionAspects)
 
     @property
     def loan_balance(self) -> float:
         return sum(
-            (op.transaction_aspects.amount * (op.value / op.value))
+            (op.transaction_aspects.amount * (op.amount / op.amount))
             if op.transaction_aspects.amount is not None
-            else op.value
+            else op.amount
             for op in self._operations
             if type(op.transaction_aspects) == LoanTransactionAspects
         )
@@ -261,7 +261,7 @@ class History(Generic[THistoryId]):
 
     def remove_operation(self, operation_id: str) -> None:
         operation = self._retrieve_operation(operation_id)
-        self._operations = {op for op in self._operations if op.id == operation.id}
+        self._operations = {op for op in self._operations if op.id != operation.id}
 
     def _retrieve_operation(self, operation_id: str) -> Operation:
         try:

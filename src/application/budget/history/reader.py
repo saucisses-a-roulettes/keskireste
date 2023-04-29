@@ -68,7 +68,7 @@ class HistoryReader(Generic[TBudgetId, THistoryId]):
                     id=op.id,
                     day=op.day,
                     name=op.name,
-                    amount=op.value,
+                    amount=op.amount,
                     transaction_aspects=op.transaction_aspects,
                 )
                 for op in history.operations
@@ -88,7 +88,7 @@ class HistoryReader(Generic[TBudgetId, THistoryId]):
                         id=op.id,
                         day=op.day,
                         name=op.name,
-                        amount=op.value,
+                        amount=op.amount,
                         transaction_aspects=op.transaction_aspects,
                     )
                     for op in h.operations

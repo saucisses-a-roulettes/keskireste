@@ -183,7 +183,7 @@ class OperationsTableWidget(QTableWidget):
             self.setItem(row_index, 1, day)
             self.setItem(row_index, 2, QTableWidgetItem(op.name))
             value = QTableWidgetItem()
-            value.setData(Qt.DisplayRole, op.value)  # type: ignore
+            value.setData(Qt.DisplayRole, op.amount)  # type: ignore
             self.setItem(row_index, 3, value)
         self.setSortingEnabled(True)
 
