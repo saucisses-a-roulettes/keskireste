@@ -24,12 +24,12 @@ from src.domain.entity import Id
 from src.domain.saving.account import TSavingAccountId
 
 
-class RecurrentOperationAlreadyExist(Exception):
+class RecurrentOperationAlreadyExist(ValueError):
     def __init__(self, name: str) -> None:
         super().__init__(f"Recurrent operation `{name}` already exists")
 
 
-class RecurrentOperationNotFound(Exception):
+class RecurrentOperationNotFound(ValueError):
     def __init__(self, name: str) -> None:
         super().__init__(f"Recurrent operation `{name}` not found")
 
@@ -67,7 +67,7 @@ class RecurrentOperation:
 
 
 @dataclass
-class SavingTransactionAspects:
+class SavingTransactionAspects(Generic[TSavingAccountId]):
     saving_account_id: TSavingAccountId
 
 
@@ -89,13 +89,18 @@ class Operation(Generic[TSavingAccountId]):
         value: float,
         transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None,
     ) -> None:
-        if day < 0 or day > 31:
-            raise ValueError(f"Day `{day}` is invalid")
         self._id = id_
         self._day = day
         self._name = name
         self._value = value
         self._transaction_aspects = transaction_aspects
+        self._validate_data()
+
+    def _validate_data(self) -> None:
+        if self.day < 0 or self.day > 31:
+            raise ValueError(f"Day `{self.day}` is invalid")
+        if 128 < len(self.name) < 1:
+            raise ValueError(f"Name size `{len(self.name)}` is invalid")
 
     @property
     def id(self) -> str:
@@ -122,6 +127,9 @@ class Operation(Generic[TSavingAccountId]):
 
     def __eq__(self, other: object) -> bool:
         return other.id == self.id if isinstance(other, Operation) else False
+
+    def rename(self, name: str) -> None:
+        self._name = name
 
     def categorize_as_saving_account_transaction(self, transaction_aspects: SavingTransactionAspects) -> None:
         self._transaction_aspects = transaction_aspects
@@ -164,7 +172,7 @@ class Date:
 THistoryId = TypeVar("THistoryId", bound=Id)
 
 
-class OperationNotFound(Exception):
+class OperationNotFound(ValueError):
     def __init__(self, operation_id: str) -> None:
         super().__init__(f"Operation of id `{operation_id}` not found")
         self._operation_id = operation_id
@@ -227,23 +235,16 @@ class History(Generic[THistoryId]):
         if op in self._recurrent_operations:
             raise RecurrentOperationAlreadyExist(op.name)
         self._recurrent_operations.add(op)
-        self._filter_operations()
 
     def update_recurrent_operation(self, op: RecurrentOperation) -> None:
         if op not in self._recurrent_operations:
             raise ValueError(f"Recurrent operation `{op.name}` does not exists")
         self._recurrent_operations.remove(op)
         self._recurrent_operations.add(op)
-        self._filter_operations()
 
     @property
     def _recurrent_operation_names(self) -> set[str]:
         return {op.name for op in self._recurrent_operations}
-
-    def _filter_operations(self) -> None:
-        self._operations = {
-            op for op in self._operations if all(not op.name.startswith(n) for n in self._recurrent_operation_names)
-        }
 
     def remove_recurrent_operation(self, name: str) -> None:
         try:
@@ -254,19 +255,10 @@ class History(Generic[THistoryId]):
 
     def add_operation(self, op: Operation) -> None:
         self._operations.add(op)
-        self._filter_operations()
 
-    def update_operation(self, op: Operation) -> None:
-        if op not in self._operations:
-            raise ValueError(f"Operation `{op.id}` does not exists")
-        self._operations.remove(op)
-        self._operations.add(op)
-        self._filter_operations()
-
-    def remove_operation(self, op: Operation) -> None:
-        if op not in self.operations:
-            raise ValueError(f"Operation `{op.id}` does not exists")
-        self._operations.remove(op)
+    def remove_operation(self, operation_id: str) -> None:
+        operation = self._retrieve_operation(operation_id)
+        self._operations = {op for op in self._operations if op.id == operation.id}
 
     def _retrieve_operation(self, operation_id: str) -> Operation:
         try:
@@ -287,3 +279,7 @@ class History(Generic[THistoryId]):
     def categorize_as_loan_transaction(self, operation_id: str, transaction_aspects: LoanTransactionAspects) -> None:
         operation = self._retrieve_operation(operation_id)
         operation.categorize_as_loan_transaction(transaction_aspects)
+
+    def rename_operation(self, operation_id: str, name: str) -> None:
+        operation = self._retrieve_operation(operation_id)
+        operation.rename(name)

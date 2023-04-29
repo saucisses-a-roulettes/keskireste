@@ -16,9 +16,26 @@
 #   */
 
 from dataclasses import dataclass
+
 from src.application.budget.history.repository import HistoryRepository
 from src.domain.entity import Id
-from src.domain.history import Date, History as DHistory, History, Operation, RecurrentOperation
+from src.domain.history import (
+    Date,
+    History,
+    RecurrentOperation,
+    LoanTransactionAspects,
+    SavingTransactionAspects,
+    Operation,
+)
+
+
+@dataclass(frozen=True)
+class OperationCreationRequest:
+    id: str
+    day: int
+    name: str
+    value: float
+    transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None
 
 
 @dataclass(frozen=True)
@@ -26,7 +43,7 @@ class HistoryCreationRequest:
     id_: Id
     date: Date
     recurrent_operations: set[RecurrentOperation]
-    operations: set[Operation]
+    operations: set[OperationCreationRequest]
 
 
 class HistoryCreator:
@@ -39,6 +56,15 @@ class HistoryCreator:
                 id_=request.id_,
                 date=request.date,
                 recurrent_operations=request.recurrent_operations,
-                operations=request.operations,
+                operations={
+                    Operation(
+                        id_=op.id,
+                        day=op.day,
+                        name=op.name,
+                        value=op.value,
+                        transaction_aspects=op.transaction_aspects,
+                    )
+                    for op in request.operations
+                },
             )
         )

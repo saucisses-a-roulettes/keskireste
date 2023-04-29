@@ -22,14 +22,29 @@ from src.application.budget.history.repository import HistoryRepository
 from src.application.exception import BadRequestException
 from src.application.repository import CannotRetrieveEntity
 from src.domain.budget import TBudgetId
-from src.domain.history import Date, Operation, RecurrentOperation, THistoryId
+from src.domain.history import (
+    Date,
+    RecurrentOperation,
+    THistoryId,
+    LoanTransactionAspects,
+    SavingTransactionAspects,
+)
+
+
+@dataclass(frozen=True)
+class OperationReadResponse:
+    id: str
+    day: int
+    name: str
+    value: float
+    transaction_aspects: SavingTransactionAspects | LoanTransactionAspects | None = None
 
 
 @dataclass(frozen=True)
 class HistoryReadResponse:
     date: Date
     recurrent_operations: set[RecurrentOperation]
-    operations: set[Operation]
+    operations: set[OperationReadResponse]
     balance: float
 
 
@@ -45,7 +60,16 @@ class HistoryReader(Generic[TBudgetId, THistoryId]):
         return HistoryReadResponse(
             date=history.date,
             recurrent_operations=history.recurrent_operations,
-            operations=history.operations,
+            operations={
+                OperationReadResponse(
+                    id=op.id,
+                    day=op.day,
+                    name=op.name,
+                    value=op.value,
+                    transaction_aspects=op.transaction_aspects,
+                )
+                for op in history.operations
+            },
             balance=history.balance,
         )
 
@@ -56,7 +80,16 @@ class HistoryReader(Generic[TBudgetId, THistoryId]):
             HistoryReadResponse(
                 date=h.date,
                 recurrent_operations=h.recurrent_operations,
-                operations=h.operations,
+                operations={
+                    OperationReadResponse(
+                        id=op.id,
+                        day=op.day,
+                        name=op.name,
+                        value=op.value,
+                        transaction_aspects=op.transaction_aspects,
+                    )
+                    for op in h.operations
+                },
                 balance=h.balance,
             )
             for h in histories
