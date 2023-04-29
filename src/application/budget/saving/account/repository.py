@@ -14,3 +14,25 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from abc import abstractmethod, ABC
+from typing import Generic
+
+from src.domain.budget.saving.account import SavingAccount, TSavingAccountId
+
+
+class SavingAccountRepository(Generic[TSavingAccountId], ABC):
+    @abstractmethod
+    def retrieve(self, id_: TSavingAccountId) -> SavingAccount:
+        pass
+
+    @abstractmethod
+    def list_all(self) -> frozenset[SavingAccount]:
+        pass
+
+    @abstractmethod
+    def save(self, account: SavingAccount) -> None:
+        pass
+
+    @abstractmethod
+    def delete(self, id_: TSavingAccountId) -> None:
+        pass

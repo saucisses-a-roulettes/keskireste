@@ -18,8 +18,7 @@
 from dataclasses import dataclass
 
 from src.application.budget.history.repository import HistoryRepository
-from src.domain.entity import Id
-from src.domain.history import (
+from src.domain.budget.history import (
     Date,
     History,
     RecurrentOperation,
@@ -27,6 +26,7 @@ from src.domain.history import (
     SavingTransactionAspects,
     Operation,
 )
+from src.domain.entity import Id
 
 
 @dataclass(frozen=True)

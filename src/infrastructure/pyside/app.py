@@ -47,6 +47,7 @@ from src.infrastructure.pyside.history.container import (
     HistoryWidget,
     NoBudgetSelectedWidget,
 )
+from src.infrastructure.pyside.saving.management import SavingManagementWidget
 
 
 @dataclass
@@ -86,7 +87,9 @@ class MainWidget(QWidget):
         )
         self._tab_widget.addTab(self._budget_dashboard_widget, "Dashboard")
         self._history_widget = HistoryWidget(history_creator, history_reader, history_updater)
-        self._tab_widget.addTab(self._history_widget, "Manage")
+        self._tab_widget.addTab(self._history_widget, "History")
+        self._saving_management_widget = SavingManagementWidget()
+        self._tab_widget.addTab(self._saving_management_widget, "Saving")
         self._connect_signals()
 
     def _connect_signals(self) -> None:

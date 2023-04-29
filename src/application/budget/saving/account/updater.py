@@ -14,26 +14,32 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-
 from dataclasses import dataclass
 from typing import Generic
 
-from src.application.budget.repository import BudgetRepository
-from src.domain.budget.budget import TBudgetId
-from src.domain.budget.history import THistoryId
+from src.application.budget.saving.account.repository import SavingAccountRepository
+from src.domain.budget.saving.account import TSavingAccountId, BalanceReference
+from src.domain.entity import EntityNotFound
 
 
 @dataclass(frozen=True)
-class BudgetResponse(Generic[TBudgetId, THistoryId]):
-    id: TBudgetId
-    histories_ids: frozenset[THistoryId]
+class SavingAccountUpdateRequest(Generic[TSavingAccountId]):
+    id: TSavingAccountId
+    name: str
+    balance: BalanceReference | None = None
 
 
-class BudgetReader(Generic[TBudgetId, THistoryId]):
-    def __init__(self, repository: BudgetRepository) -> None:
+class SavingAccountUpdater:
+    def __init__(self, repository: SavingAccountRepository) -> None:
         self._repository = repository
 
-    def retrieve(self, id_: TBudgetId) -> BudgetResponse[TBudgetId, THistoryId]:
-        budget = self._repository.retrieve(id_)
+    def create(self, request: SavingAccountUpdateRequest) -> None:
+        try:
+            saving_account = self._repository.retrieve(request.id)
+        except EntityNotFound as e:
+            raise ValueError(str(e)) from e
 
-        return BudgetResponse(id=budget.id, histories_ids=budget.histories_ids)
+        saving_account.rename(request.name)
+        saving_account.update_balance_reference(request.balance)
+
+        self._repository.save(saving_account)

@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
     QStyledItemDelegate,
 )
 
-from src.domain.history import SavingTransactionAspects, LoanTransactionAspects
+from src.domain.budget.history import SavingTransactionAspects, LoanTransactionAspects
 
 
 @dataclass(frozen=True)

@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from typing import Generic
 
 from src.application.budget.history.repository import HistoryRepository
-from src.domain.history import (
+from src.domain.budget.history import (
     RecurrentOperation,
     SavingTransactionAspects,
     LoanTransactionAspects,

@@ -16,7 +16,7 @@
 #   */
 
 from abc import ABC, abstractmethod
-from typing import TypeVar
+from typing import TypeVar, Type
 
 
 class Id(ABC):
@@ -30,3 +30,18 @@ class Id(ABC):
 
 
 TId = TypeVar("TId", bound=Id)
+
+
+class EntityNotFound(Exception):
+    def __init__(self, entity_type: Type, entity_id: Id) -> None:
+        super().__init__(f"{entity_type} of id `{entity_id}` not found")
+        self._entity_id = entity_id
+        self._entity_type = entity_type
+
+    @property
+    def entity_type(self) -> Type:
+        return self._entity_type
+
+    @property
+    def entity_id(self) -> Id:
+        return self._entity_id

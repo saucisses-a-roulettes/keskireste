@@ -16,7 +16,8 @@
 #   */
 
 from abc import ABC, abstractmethod
-from src.domain.budget import Budget
+
+from src.domain.budget.budget import Budget
 from src.domain.entity import Id
 
 

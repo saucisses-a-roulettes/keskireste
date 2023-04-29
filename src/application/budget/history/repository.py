@@ -18,8 +18,8 @@
 from abc import ABC, abstractmethod
 from typing import Generic
 
-from src.domain.budget import TBudgetId
-from src.domain.history import History, THistoryId
+from src.domain.budget.budget import TBudgetId
+from src.domain.budget.history import History, THistoryId
 
 
 class HistoryRepository(ABC, Generic[TBudgetId, THistoryId]):

@@ -32,7 +32,7 @@ from src.application.budget.history.updater import (
     RecurrentOperationsUpdateRequest,
 )
 from src.application.exception import BadRequestException
-from src.domain.history import Date, RecurrentOperation as DomainRecurrentOperation
+from src.domain.budget.history import Date, RecurrentOperation as DomainRecurrentOperation
 from src.infrastructure.budget.history.repository.model import HistoryId
 from src.infrastructure.budget.repository.model import BudgetPath
 from src.infrastructure.pyside.history.dashboard import HistoryDashboardWidget

@@ -21,8 +21,8 @@ from typing import Generic
 from src.application.budget.history.repository import HistoryRepository
 from src.application.exception import BadRequestException
 from src.application.repository import CannotRetrieveEntity
-from src.domain.budget import TBudgetId
-from src.domain.history import (
+from src.domain.budget.budget import TBudgetId
+from src.domain.budget.history import (
     Date,
     RecurrentOperation,
     THistoryId,

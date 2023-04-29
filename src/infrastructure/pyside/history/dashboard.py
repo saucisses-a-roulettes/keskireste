@@ -19,7 +19,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 
 from src.application.budget.history.reader import OperationReadResponse
-from src.domain.history import RecurrentOperation
+from src.domain.budget.history import RecurrentOperation
 
 
 class HistoryDashboardWidget(QWidget):
