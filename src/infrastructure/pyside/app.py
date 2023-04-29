@@ -42,7 +42,7 @@ from src.infrastructure.budget.history.repository.json_ import HistoryJsonReposi
 from src.infrastructure.budget.history.repository.model import HistoryId
 from src.infrastructure.budget.repository.json_ import BudgetJsonRepository
 from src.infrastructure.budget.repository.model import BudgetPath
-from src.infrastructure.pyside.dashboard import BudgetDashboardWidget
+from src.infrastructure.pyside.budget.dashboard import BudgetDashboardWidget
 from src.infrastructure.pyside.history.container import (
     HistoryWidget,
     NoBudgetSelectedWidget,
