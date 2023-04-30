@@ -17,16 +17,17 @@
 from abc import abstractmethod, ABC
 from typing import Generic
 
+from src.domain.budget import TBudgetId
 from src.domain.budget.saving.account import SavingAccount, TSavingAccountId
 
 
-class SavingAccountRepository(Generic[TSavingAccountId], ABC):
+class SavingAccountRepository(Generic[TBudgetId, TSavingAccountId], ABC):
     @abstractmethod
     def retrieve(self, id_: TSavingAccountId) -> SavingAccount:
         pass
 
     @abstractmethod
-    def list_all(self) -> frozenset[SavingAccount]:
+    def list_by_budget(self, budget_id: TBudgetId) -> frozenset[SavingAccount]:
         pass
 
     @abstractmethod

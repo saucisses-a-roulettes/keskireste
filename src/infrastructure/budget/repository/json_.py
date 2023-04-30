@@ -45,8 +45,21 @@ class HistoryDictModel(TypedDict):
     operations: list[OperationDictModel]
 
 
+class BalanceReferenceDictModel(TypedDict):
+    balance: float
+    month: int
+    year: int
+
+
+class SavingAccountDictModel(TypedDict):
+    id: str
+    name: str
+    balance_reference: BalanceReferenceDictModel
+
+
 class BudgetDictModel(TypedDict):
     histories: list[HistoryDictModel]
+    saving_accounts: list[SavingAccountDictModel]
 
 
 class BudgetJsonRepository(BudgetRepository):

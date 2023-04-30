@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from typing import Generic
 
 from src.application.budget.saving.account.repository import SavingAccountRepository
+from src.application.repository import CannotRetrieveEntity
 from src.domain.budget.saving.account import TSavingAccountId, BalanceReference
-from src.domain.entity import EntityNotFound
 
 
 @dataclass(frozen=True)
@@ -36,7 +36,7 @@ class SavingAccountUpdater:
     def create(self, request: SavingAccountUpdateRequest) -> None:
         try:
             saving_account = self._repository.retrieve(request.id)
-        except EntityNotFound as e:
+        except CannotRetrieveEntity as e:
             raise ValueError(str(e)) from e
 
         saving_account.rename(request.name)

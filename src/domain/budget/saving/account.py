@@ -18,6 +18,7 @@ import datetime
 from dataclasses import dataclass
 from typing import TypeVar, Generic
 
+from src.domain.budget.history import Date
 from src.domain.entity import Id
 
 TSavingAccountId = TypeVar("TSavingAccountId", bound=Id)
@@ -26,17 +27,15 @@ TSavingAccountId = TypeVar("TSavingAccountId", bound=Id)
 @dataclass(frozen=True)
 class BalanceReference:
     balance: float
-    month: int
-
-    def __post_init__(self) -> None:
-        if 12 < self.month < 1:
-            raise ValueError(f"Month `{self.month}` should be between 1 and 12")
+    date: Date
 
 
 class SavingAccount(Generic[TSavingAccountId]):
     def __init__(self, id_: TSavingAccountId, name: str, balance: BalanceReference | None = None) -> None:
         self._id = id_
-        self._balance = balance or BalanceReference(0, datetime.datetime.now().month)
+        self._balance_reference = balance or BalanceReference(
+            0, Date(datetime.datetime.now().year, datetime.datetime.now().month)
+        )
         self._name = name
 
     @property
@@ -48,11 +47,11 @@ class SavingAccount(Generic[TSavingAccountId]):
         return self.name
 
     @property
-    def balance(self) -> BalanceReference:
-        return self.balance
+    def balance_reference(self) -> BalanceReference:
+        return self._balance_reference
 
     def rename(self, name: str) -> None:
         self._name = name
 
-    def update_balance_reference(self, balance: BalanceReference) -> None:
-        self._balance = balance
+    def update_balance_reference(self, balance_reference: BalanceReference) -> None:
+        self._balance_reference = balance_reference

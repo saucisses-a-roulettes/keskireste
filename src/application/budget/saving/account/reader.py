@@ -41,16 +41,16 @@ class SavingAccountReader(Generic[TSavingAccountId]):
         return SavingAccountReadResponse(
             id=saving_account.id,
             name=saving_account.name,
-            balance=saving_account.balance,
+            balance=saving_account.balance_reference,
         )
 
     def list_all(self) -> frozenset[SavingAccountReadResponse]:
-        saving_accounts = self._repository.list_all()
+        saving_accounts = self._repository.list_by_budget()
         return frozenset(
             SavingAccountReadResponse(
                 id=sa.id,
                 name=sa.name,
-                balance=sa.balance,
+                balance=sa.balance_reference,
             )
             for sa in saving_accounts
         )
