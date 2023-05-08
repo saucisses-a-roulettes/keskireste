@@ -16,24 +16,27 @@
 #   */
 from dataclasses import dataclass
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QTableWidget
 
 from src.application.budget.history.creator import HistoryCreator
 from src.application.budget.history.reader import HistoryReader
 from src.application.budget.history.updater import HistoryUpdater
+from src.domain.budget.saving.account import BalanceReference
+from src.infrastructure.budget.saving.account.repository.json_ import SavingAccountId
 
 
 @dataclass(frozen=True)
 class SavingAccount:
-    id: TSavingAccountId
+    id: SavingAccountId
     name: str
     balance: BalanceReference
 
 
 class SavingAccountControlWidget(QWidget):
     add_operation_clicked = Signal(SavingAccount)
-    delete_selected_clicked = Signal()
-    copy_operations_from_previous_month_clicked = Signal()
+    delete_selected_clicked = Signal(SavingAccount)
+    modify_selected_clicked = Signal(SavingAccount)
 
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)

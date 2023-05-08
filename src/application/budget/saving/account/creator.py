@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from typing import Generic
 
 from src.application.budget.saving.account.repository import SavingAccountRepository
+from src.application.repository import CannotRetrieveEntity
 from src.domain.budget.saving.account import TSavingAccountId, SavingAccount, BalanceReference
-from src.domain.entity import EntityNotFound
 
 
 @dataclass(frozen=True)
@@ -37,6 +37,6 @@ class SavingAccountCreator:
         try:
             self._repository.retrieve(request.id)
             raise ValueError("SavingAccount already exists")
-        except EntityNotFound:
+        except CannotRetrieveEntity:
             saving_account = SavingAccount(id_=request.id, name=request.name, balance=request.balance)
             self._repository.save(saving_account)
