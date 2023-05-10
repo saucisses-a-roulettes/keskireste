@@ -17,14 +17,14 @@
 from dataclasses import dataclass
 from typing import Generic
 
+from shared.application.repository import CannotRetrieveEntity
 from src.application.exception import BadRequestException
-from src.application.repository import CannotRetrieveEntity
 from src.application.user.repository import UserRepository
 from src.domain.user import TUserId, User
 
 
 @dataclass(frozen=True)
-class UserResponse:
+class UserResponse(Generic[TUserId]):
     id: TUserId
     email: str
 

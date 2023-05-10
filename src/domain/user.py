@@ -14,14 +14,14 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from typing import TypeVar
+from typing import TypeVar, Generic
 
-from src.domain.entity import Id
+from shared.domain.entity import Id
 
 TUserId = TypeVar("TUserId", bound=Id)
 
 
-class User:
+class User(Generic[TUserId]):
     def __init__(self, id_: TUserId, email: str) -> None:
         self._id = id_
         self._email = email
