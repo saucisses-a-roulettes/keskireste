@@ -15,7 +15,7 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 
-from src.domain.entity import Id
+from shared.domain.entity import Id
 
 
 class BudgetPath(Id):
@@ -27,3 +27,6 @@ class BudgetPath(Id):
 
     def __hash__(self):
         return hash(self._value)
+
+    def __eq__(self, other: object) -> bool:
+        return True

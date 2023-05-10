@@ -15,8 +15,8 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 
+from shared.domain.entity import Id
 from src.application.budget.repository import BudgetRepository
-from src.domain.entity import Id
 from src.domain.budget import Budget
 
 

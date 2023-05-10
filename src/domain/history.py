@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from functools import total_ordering
 from typing import Generic, Self, TypeVar
 
-from src.domain.entity import Id
+from shared.domain.entity import Id
 
 
 class RecurrentOperationAlreadyExist(Exception):

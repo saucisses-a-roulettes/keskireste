@@ -14,18 +14,3 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-
-from abc import ABC, abstractmethod
-
-from shared.domain.entity import Id
-from src.domain.budget import Budget
-
-
-class BudgetRepository(ABC):
-    @abstractmethod
-    def retrieve(self, id_: Id) -> Budget:
-        pass
-
-    @abstractmethod
-    def create(self, budget: Budget) -> None:
-        pass

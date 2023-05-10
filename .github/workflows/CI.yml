@@ -1,4 +1,4 @@
-name: Check Format and Typing
+name: Checks
 
 on:
   workflow_dispatch:
@@ -45,3 +45,6 @@ jobs:
 
       - name: Check typing
         run : poetry run mypy
+
+      - name: Run pytest
+        run: poetry run pytest
