@@ -16,9 +16,10 @@
 #   */
 
 from dataclasses import dataclass
+
+from shared.domain.entity import Id
 from src.application.budget.history.repository import HistoryRepository
-from src.domain.entity import Id
-from src.domain.history import Date, History as DHistory, History, Operation, RecurrentOperation
+from src.domain.history import Date, History, Operation, RecurrentOperation
 
 
 @dataclass(frozen=True)

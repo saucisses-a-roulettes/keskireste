@@ -17,8 +17,8 @@
 
 from dataclasses import dataclass
 
+from shared.domain.entity import Id
 from src.application.budget.history.repository import HistoryRepository
-from src.domain.entity import Id
 from src.domain.history import Operation, RecurrentOperation
 
 

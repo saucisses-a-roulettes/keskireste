@@ -2,18 +2,25 @@
 name = "keskireste"
 version = "0.1.0"
 description = ""
-authors = ["Saucisse à roulettes <gaelmonach123@live.fr>"]
+authors = ["Saucisse à roulettes <gael.monachon.dev@gmail.com>"]
+maintainers = ["Saucisse à roulettes <gael.monachon.dev@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "src" },
+    { include = "shared" },
+]
 
 [tool.poetry.dependencies]
 python = "~3.11"
 PySide6 = "^6.4.3"
 ofxparse = "^0.21"
+pytest = "^7.3.1"
 
 
 [tool.poetry.group.dev.dependencies]
 black = { extras = ["d"], version = "^23.3.0" }
 mypy = "^1.2.0"
+pytest = "^7.3.1"
 
 
 [tool.poetry.group.build.dependencies]
