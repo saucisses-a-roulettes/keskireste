@@ -9,6 +9,7 @@ readme = "README.md"
 python = "~3.11"
 PySide6 = "^6.4.3"
 ofxparse = "^0.21"
+pytest = "^7.3.1"
 
 
 [tool.poetry.group.dev.dependencies]
