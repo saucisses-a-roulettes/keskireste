@@ -18,8 +18,7 @@
 import json
 from typing import cast
 
-from shared.application.shared import CannotRetrieveEntity
-
+from shared.application.repository import CannotRetrieveEntity
 from src.application.budget.history.repository import HistoryRepository
 from src.domain.history import Date, History, Operation, RecurrentOperation
 from src.infrastructure.budget.history.repository.model import HistoryId

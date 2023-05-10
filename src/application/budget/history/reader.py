@@ -18,8 +18,7 @@
 from dataclasses import dataclass
 from typing import Generic
 
-from shared.application.shared import CannotRetrieveEntity
-
+from shared.application.repository import CannotRetrieveEntity
 from src.application.budget.history.repository import HistoryRepository
 from src.application.exception import BadRequestException
 from src.domain.budget import TBudgetId
