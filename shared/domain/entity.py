@@ -18,6 +18,8 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic
 
+from shared.domain.value_object import ValueObject
+
 
 class Id(ABC):
     @abstractmethod
@@ -34,6 +36,10 @@ class Id(ABC):
 
 
 TId = TypeVar("TId", bound=Id)
+
+
+class IdBase(Id, ValueObject, ABC):
+    pass
 
 
 class Entity(ABC, Generic[TId]):
