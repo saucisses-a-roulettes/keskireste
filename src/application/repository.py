@@ -15,7 +15,7 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 
-from src.domain.entity import Id
+from src.domain.shared.entity import Id
 
 
 class CannotRetrieveEntity(Exception):

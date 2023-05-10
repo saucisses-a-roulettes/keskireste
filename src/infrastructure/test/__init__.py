@@ -14,16 +14,3 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-
-from src.domain.shared.entity import Id
-
-
-class BudgetPath(Id):
-    def __init__(self, value: str) -> None:
-        self._value = value
-
-    def __str__(self) -> str:
-        return self._value
-
-    def __hash__(self):
-        return hash(self._value)

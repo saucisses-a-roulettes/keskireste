@@ -15,15 +15,48 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 
-from src.domain.shared.entity import Id
+from abc import ABC, abstractmethod
+from typing import TypeVar, Generic
 
 
-class BudgetPath(Id):
-    def __init__(self, value: str) -> None:
-        self._value = value
-
+class Id(ABC):
+    @abstractmethod
     def __str__(self) -> str:
-        return self._value
+        pass
 
+    @abstractmethod
     def __hash__(self):
-        return hash(self._value)
+        pass
+
+
+TId = TypeVar("TId", bound=Id)
+
+
+class Entity(ABC, Generic[TId]):
+    @property
+    @abstractmethod
+    def id(self) -> TId:
+        pass
+
+    @abstractmethod
+    def __hash__(self) -> int:
+        pass
+
+    @abstractmethod
+    def __eq__(self, other: object) -> bool:
+        pass
+
+
+class EntityBase(Entity[TId]):
+    def __init__(self, id_: TId):
+        self._id = id_
+
+    @property
+    def id(self) -> TId:
+        return self._id
+
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def __eq__(self, other: object) -> bool:
+        return other.id == self.id if isinstance(other, Entity) else False

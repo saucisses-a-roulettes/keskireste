@@ -16,8 +16,8 @@
 #   */
 
 from src.application.budget.repository import BudgetRepository
-from src.domain.entity import Id
 from src.domain.budget import Budget
+from src.domain.shared.entity import Id
 
 
 class BudgetCreator:

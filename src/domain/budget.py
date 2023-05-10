@@ -16,7 +16,7 @@
 #   */
 from typing import Generic, TypeVar
 
-from src.domain.entity import Id
+from src.domain.shared.entity import Id
 
 TBudgetId = TypeVar("TBudgetId", bound=Id)
 

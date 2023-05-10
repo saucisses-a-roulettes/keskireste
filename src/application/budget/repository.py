@@ -16,8 +16,9 @@
 #   */
 
 from abc import ABC, abstractmethod
+
 from src.domain.budget import Budget
-from src.domain.entity import Id
+from src.domain.shared.entity import Id
 
 
 class BudgetRepository(ABC):
