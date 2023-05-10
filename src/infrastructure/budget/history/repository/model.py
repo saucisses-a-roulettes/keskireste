@@ -17,8 +17,8 @@
 
 from typing import Self
 
+from shared.domain.entity import Id
 from src.domain.history import Date
-from src.domain.shared.entity import Id
 from src.infrastructure.budget.repository.model import BudgetPath
 
 

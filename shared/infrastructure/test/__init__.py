@@ -14,10 +14,3 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-
-from src.domain.shared.entity import Id
-
-
-class CannotRetrieveEntity(Exception):
-    def __init__(self, id_: Id) -> None:
-        super().__init__(f"Cannot retrieve entity `{id_}`")

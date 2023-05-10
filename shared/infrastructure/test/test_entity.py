@@ -14,7 +14,7 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from src.domain.shared.entity import EntityBase, Id
+from shared.domain.entity import EntityBase, Id
 
 
 class MockId(Id):
@@ -26,6 +26,9 @@ class MockId(Id):
 
     def __hash__(self):
         return hash(self.value)
+
+    def __eq__(self, other: object) -> bool:
+        return other.__hash__() == self.__hash__() if isinstance(other, Id) else False
 
 
 class MockEntity(EntityBase[MockId]):

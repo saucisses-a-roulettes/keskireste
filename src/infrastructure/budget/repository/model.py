@@ -15,7 +15,7 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 
-from src.domain.shared.entity import Id
+from shared.domain.entity import Id
 
 
 class BudgetPath(Id):

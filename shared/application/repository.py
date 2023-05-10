@@ -14,18 +14,39 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-
 from abc import ABC, abstractmethod
+from typing import Generic
 
-from shared.domain.entity import Id
-from src.domain.budget import Budget
+from shared.domain.entity import TEntity, Id
 
 
-class BudgetRepository(ABC):
+class CannotRetrieveEntity(Exception):
+    def __init__(self, id_: Id) -> None:
+        super().__init__(f"Cannot retrieve entity `{id_}`")
+
+
+class EntityAlreadyExists(Exception):
+    def __init__(self, id_: Id) -> None:
+        super().__init__(f"Entity `{id_}` already exists")
+
+
+class Repository(ABC, Generic[TEntity]):
     @abstractmethod
-    def retrieve(self, id_: Id) -> Budget:
+    def add(self, entity: TEntity) -> None:
         pass
 
     @abstractmethod
-    def create(self, budget: Budget) -> None:
+    def retrieve(self, id_: str) -> TEntity:
+        pass
+
+    @abstractmethod
+    def update(self, entity: TEntity) -> None:
+        pass
+
+    @abstractmethod
+    def delete(self, id_: str) -> None:
+        pass
+
+    @abstractmethod
+    def all(self) -> list[TEntity]:
         pass

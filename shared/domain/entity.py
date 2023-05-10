@@ -28,6 +28,10 @@ class Id(ABC):
     def __hash__(self):
         pass
 
+    @abstractmethod
+    def __eq__(self, other: object) -> bool:
+        pass
+
 
 TId = TypeVar("TId", bound=Id)
 
@@ -45,6 +49,9 @@ class Entity(ABC, Generic[TId]):
     @abstractmethod
     def __eq__(self, other: object) -> bool:
         pass
+
+
+TEntity = TypeVar("TEntity", bound=Entity)
 
 
 class EntityBase(Entity[TId]):
