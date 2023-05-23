@@ -15,30 +15,26 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 import re
-from dataclasses import dataclass
 from typing import Generic
 
 from src.shared.domain.email import EmailAddress
 from src.shared.domain.entity import EntityBase, TId
+from src.shared.domain.string import StringTooLong, StringTooShort, StringContainsInvalidCharacters
 from src.shared.domain.value_object import ValueObject
 
 
-@dataclass(frozen=True)
-class UserName(ValueObject, str):
-    value: str
-
+class UserName(ValueObject[str]):
     def __post_init__(self):
+        if len(self.value) < 4:
+            raise StringTooShort(self.value)
         if len(self.value) > 30:
-            raise ValueError("Username length exceeds the limit")
+            raise StringTooLong(self.value)
         if not re.match(r"^[a-zA-Z0-9_-]+$", self.value):
-            raise ValueError("Invalid characters in the username")
-
-    def __str__(self):
-        return self.value
+            raise StringContainsInvalidCharacters(self.value)
 
 
 class User(EntityBase, Generic[TId]):
-    def __init__(self, id_: TId, email: EmailAddress, username: str) -> None:
+    def __init__(self, id_: TId, email: EmailAddress, username: UserName) -> None:
         super().__init__(id_=id_)
         self._email = email
         self._username = username
@@ -46,7 +42,7 @@ class User(EntityBase, Generic[TId]):
     def email(self) -> EmailAddress:
         return self._email
 
-    def username(self) -> str:
+    def username(self) -> UserName:
         return self._username
 
     def change_email(self, new_email: EmailAddress) -> None:

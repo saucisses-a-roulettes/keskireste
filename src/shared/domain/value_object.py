@@ -15,11 +15,28 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from abc import ABC
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
 
 
-class ValueObject(ABC):
+class ValueObject(ABC, Generic[T]):
+    def __init__(self, value: T) -> None:
+        self._value = value
+        self.__post_init__()
+
+    def __post_init__(self) -> None:
+        pass
+
+    @property
+    def value(self) -> T:
+        return self._value
+
     def __eq__(self, other: object) -> bool:
         return self.__dict__ == other.__dict__ if isinstance(other, self.__class__) else False
 
     def __hash__(self) -> int:
         return hash(tuple(sorted(self.__dict__.items())))
+
+    def __str__(self) -> str:
+        return str(self._value)

@@ -15,22 +15,13 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 import re
-from dataclasses import dataclass
-from typing import NewType
 
+from src.shared.domain.string import StringContainsInvalidCharacters
 from src.shared.domain.value_object import ValueObject
 
-Email = NewType("Email", str)
 
-
-@dataclass(frozen=True)
-class EmailAddress(ValueObject):
-    value: Email
-
+class EmailAddress(ValueObject[str]):
     def __post_init__(self):
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(pattern, self.value):
-            raise ValueError("Invalid email address")
-
-    def __str__(self):
-        return self.value
+            raise StringContainsInvalidCharacters(self.value)

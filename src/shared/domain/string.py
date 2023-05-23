@@ -14,3 +14,18 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+
+
+class StringContainsInvalidCharacters(Exception):
+    def __init__(self, string: str) -> None:
+        super().__init__(f"`{string}` contains invalid characters")
+
+
+class StringTooLong(Exception):
+    def __init__(self, string: str) -> None:
+        super().__init__(f"`{string}` length is too long")
+
+
+class StringTooShort(Exception):
+    def __init__(self, string: str) -> None:
+        super().__init__(f"`{string}` length is too short")

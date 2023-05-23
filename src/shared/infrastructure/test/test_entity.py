@@ -14,15 +14,11 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from shared.domain.entity import EntityBase, IdBase
+from src.shared.domain.entity import EntityBase, IdBase
 
 
-class MockId(IdBase):
-    def __init__(self, value: str):
-        self.value = value
-
-    def __str__(self) -> str:
-        return self.value
+class MockId(IdBase[str]):
+    pass
 
 
 class MockEntity(EntityBase[MockId]):

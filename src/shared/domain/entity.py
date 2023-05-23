@@ -18,7 +18,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic
 
-from shared.domain.value_object import ValueObject
+from src.shared.domain.value_object import ValueObject, T
 
 
 class Id(ABC):
@@ -38,7 +38,7 @@ class Id(ABC):
 TId = TypeVar("TId", bound=Id)
 
 
-class IdBase(ValueObject, Id, ABC):
+class IdBase(ValueObject[T], Id, ABC):
     pass
 
 
