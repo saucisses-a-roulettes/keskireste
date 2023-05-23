@@ -14,3 +14,14 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+import re
+
+from src.shared.domain.string import StringContainsInvalidCharacters
+from src.shared.domain.value_object import ValueObject
+
+
+class EmailAddress(ValueObject[str]):
+    def __post_init__(self):
+        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if not re.match(pattern, self.value):
+            raise StringContainsInvalidCharacters(self.value)

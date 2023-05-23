@@ -14,26 +14,29 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from abc import ABC
+from typing import Generic, TypeVar
 
-from dataclasses import dataclass
-from typing import Generic
-
-from src.application.budget.repository import BudgetRepository
-from src.domain.budget import TBudgetId
-from src.domain.history import THistoryId
+T = TypeVar("T")
 
 
-@dataclass(frozen=True)
-class BudgetResponse(Generic[TBudgetId, THistoryId]):
-    id: TBudgetId
-    histories_ids: frozenset[THistoryId]
+class ValueObject(ABC, Generic[T]):
+    def __init__(self, value: T) -> None:
+        self._value = value
+        self.__post_init__()
 
+    def __post_init__(self) -> None:
+        pass
 
-class BudgetReader(Generic[TBudgetId, THistoryId]):
-    def __init__(self, repository: BudgetRepository) -> None:
-        self._repository = repository
+    @property
+    def value(self) -> T:
+        return self._value
 
-    def retrieve(self, id_: TBudgetId) -> BudgetResponse[TBudgetId, THistoryId]:
-        budget = self._repository.retrieve(id_)
+    def __eq__(self, other: object) -> bool:
+        return self.__dict__ == other.__dict__ if isinstance(other, self.__class__) else False
 
-        return BudgetResponse(id=budget.id, histories_ids=budget.histories_ids)
+    def __hash__(self) -> int:
+        return hash(tuple(sorted(self.__dict__.items())))
+
+    def __str__(self) -> str:
+        return str(self._value)

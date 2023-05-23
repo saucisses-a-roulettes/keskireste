@@ -6,8 +6,7 @@ authors = ["Saucisse à roulettes <gael.monachon.dev@gmail.com>"]
 maintainers = ["Saucisse à roulettes <gael.monachon.dev@gmail.com>"]
 readme = "README.md"
 packages = [
-    { include = "src" },
-    { include = "shared" },
+    { include = "src" }
 ]
 
 [tool.poetry.dependencies]

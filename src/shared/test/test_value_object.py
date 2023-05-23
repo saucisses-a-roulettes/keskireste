@@ -16,26 +16,22 @@
 #   */
 
 
-from shared.domain.value_object import ValueObject
+from src.shared.domain.value_object import ValueObject
 
 
-class MockValueObject(ValueObject):
-    def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
+class MockValueObject(ValueObject[int]):
+    pass
 
 
 class OtherValueObject(ValueObject):
-    def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y
+    pass
 
 
 def test_value_object_equality():
-    obj1 = MockValueObject(1, 2)
-    obj2 = MockValueObject(1, 2)
-    obj3 = MockValueObject(2, 3)
-    other_obj = OtherValueObject(1, 2)
+    obj1 = MockValueObject(1)
+    obj2 = MockValueObject(1)
+    obj3 = MockValueObject(2)
+    other_obj = OtherValueObject(1)
 
     assert obj1 == obj2
     assert obj1 != obj3
@@ -44,9 +40,9 @@ def test_value_object_equality():
 
 
 def test_value_object_hash():
-    obj1 = MockValueObject(1, 2)
-    obj2 = MockValueObject(1, 2)
-    obj3 = MockValueObject(2, 3)
+    obj1 = MockValueObject(1)
+    obj2 = MockValueObject(1)
+    obj3 = MockValueObject(2)
 
     assert hash(obj1) == hash(obj2)
     assert hash(obj1) != hash(obj3)
