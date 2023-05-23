@@ -38,7 +38,7 @@ class Id(ABC):
 TId = TypeVar("TId", bound=Id)
 
 
-class IdBase(Id, ValueObject, ABC):
+class IdBase(ValueObject, Id, ABC):
     pass
 
 
