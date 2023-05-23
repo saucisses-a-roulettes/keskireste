@@ -2,6 +2,9 @@
 
 KeskiReste is a lightweight budget management application that allows you to visualize the balance between your expenses and income each month. The application is designed with simplicity in mind and is easy to use for anyone looking to keep track of their personal finances.
 
+## Project
+- https://tree.taiga.io/project/saucisse_a_roulettes-keskireste/timeline
+
 ## Features
 
 - Easy-to-use interface
