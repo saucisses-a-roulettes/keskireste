@@ -39,9 +39,11 @@ class User(EntityBase, Generic[TId]):
         self._email = email
         self._username = username
 
+    @property
     def email(self) -> EmailAddress:
         return self._email
 
+    @property
     def username(self) -> UserName:
         return self._username
 

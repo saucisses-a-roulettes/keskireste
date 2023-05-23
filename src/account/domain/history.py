@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from functools import total_ordering
 from typing import Generic, Self, TypeVar
 
-from shared.domain.entity import Id
+from shared import Id, EntityBase
 
 
 class RecurrentOperationAlreadyExist(Exception):
@@ -114,24 +114,20 @@ class Date:
 THistoryId = TypeVar("THistoryId", bound=Id)
 
 
-class History(Generic[THistoryId]):
+class History(EntityBase, Generic[THistoryId]):
     def __init__(
         self, id_: THistoryId, date: Date, recurrent_operations: set[RecurrentOperation], operations: set[Operation]
     ) -> None:
-        self._id = id_
+        super().__init__(id_)
         self._date = date
         self._recurrent_operations = recurrent_operations
         self._operations = operations
 
     def __hash__(self):
-        return hash(self._id)
+        return hash(self.id)
 
     def __eq__(self, o: object) -> bool:
         return self.id == o.id if isinstance(o, History) else False
-
-    @property
-    def id(self) -> THistoryId:
-        return self._id
 
     @property
     def date(self) -> Date:

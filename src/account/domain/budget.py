@@ -14,26 +14,22 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from typing import Generic, TypeVar
 
-from dataclasses import dataclass
-from typing import Generic
+from shared import Id
 
-from src.application.budget.repository import BudgetRepository
-from src.domain.budget import TBudgetId
-from src.domain.history import THistoryId
+TBudgetId = TypeVar("TBudgetId", bound=Id)
 
 
-@dataclass(frozen=True)
-class BudgetResponse(Generic[TBudgetId, THistoryId]):
-    id: TBudgetId
-    histories_ids: frozenset[THistoryId]
+class Budget(Generic[TBudgetId]):
+    def __init__(self, id_: TBudgetId, histories_ids: frozenset[TBudgetId]) -> None:
+        self._id = id_
+        self._histories_ids = histories_ids
 
+    @property
+    def id(self) -> TBudgetId:
+        return self._id
 
-class BudgetReader(Generic[TBudgetId, THistoryId]):
-    def __init__(self, repository: BudgetRepository) -> None:
-        self._repository = repository
-
-    def retrieve(self, id_: TBudgetId) -> BudgetResponse[TBudgetId, THistoryId]:
-        budget = self._repository.retrieve(id_)
-
-        return BudgetResponse(id=budget.id, histories_ids=budget.histories_ids)
+    @property
+    def histories_ids(self) -> frozenset[TBudgetId]:
+        return self._histories_ids
