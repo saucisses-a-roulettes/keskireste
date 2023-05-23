@@ -14,3 +14,36 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from src.shared.domain.entity import EntityBase, IdBase
+
+
+class MockId(IdBase[str]):
+    pass
+
+
+class MockEntity(EntityBase[MockId]):
+    pass
+
+
+def test_entity_base_id():
+    mock_id = MockId("test_id")
+    entity = MockEntity(mock_id)
+    assert entity.id == mock_id
+
+
+def test_entity_base_hash():
+    mock_id = MockId("test_id")
+    entity = MockEntity(mock_id)
+    assert hash(entity) == hash(mock_id)
+
+
+def test_entity_base_eq():
+    mock_id1 = MockId("test_id1")
+    mock_id2 = MockId("test_id2")
+    entity1 = MockEntity(mock_id1)
+    entity2 = MockEntity(mock_id1)
+    entity3 = MockEntity(mock_id2)
+
+    assert entity1 == entity2
+    assert entity1 != entity3
+    assert entity1 != "not_an_entity"

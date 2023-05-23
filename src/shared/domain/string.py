@@ -14,12 +14,18 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from abc import ABC
 
 
-class ValueObject(ABC):
-    def __eq__(self, other: object) -> bool:
-        return self.__dict__ == other.__dict__ if isinstance(other, self.__class__) else False
+class StringContainsInvalidCharacters(Exception):
+    def __init__(self, string: str) -> None:
+        super().__init__(f"`{string}` contains invalid characters")
 
-    def __hash__(self) -> int:
-        return hash(tuple(sorted(self.__dict__.items())))
+
+class StringTooLong(Exception):
+    def __init__(self, string: str) -> None:
+        super().__init__(f"`{string}` length is too long")
+
+
+class StringTooShort(Exception):
+    def __init__(self, string: str) -> None:
+        super().__init__(f"`{string}` length is too short")
