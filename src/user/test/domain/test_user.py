@@ -16,10 +16,10 @@
 #   */
 
 import pytest
-from src.shared.infrastructure.test.test_entity import MockId
 
 from src.shared.domain.email import EmailAddress
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
+from src.shared.test.test_entity import MockId
 from src.user.domain.user import UserName, User
 
 
