@@ -33,7 +33,7 @@ class Transaction(EntityBase[TId]):
         return self._user_id
 
     @property
-    def date(self) -> datetime:
+    def date(self) -> datetime.date:
         return self._date
 
     @property
