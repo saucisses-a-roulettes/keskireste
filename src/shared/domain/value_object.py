@@ -40,3 +40,13 @@ class ValueObject(ABC, Generic[T]):
 
     def __str__(self) -> str:
         return str(self._value)
+
+
+class StringObject(ValueObject[str]):
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ValueObject):
+            return super().__eq__(other)
+        elif isinstance(other, str):
+            return self.value == other
+
+        return False
