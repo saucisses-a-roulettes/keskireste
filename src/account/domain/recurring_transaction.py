@@ -14,7 +14,6 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-import calendar
 import datetime
 import re
 from abc import ABC, abstractmethod
@@ -123,13 +122,15 @@ class YearlyFrequency(RecurringFrequency):
             date
             for year in range(start_date.year, end_date.year + 1)
             for date in self._list_every_year_dates(year)
-            if date and start_date <= date <= end_date
+            if date.day == self.day and date.month == self.month
         ]
 
-    def _list_every_year_dates(self, year: datetime.date.year) -> list[datetime.date]:
-        return [
-            datetime.date(year, self.month, self.day) if self.day <= calendar.monthrange(year, self.month)[1] else None
-        ]
+    @staticmethod
+    def _list_every_year_dates(year: int) -> list[datetime.date]:
+        start_date = datetime.date(year, 1, 1)
+        end_date = datetime.date(year, 12, 31)
+
+        return [date.date() for date in dateutil.rrule.rrule(dateutil.rrule.DAILY, dtstart=start_date, until=end_date)]
 
 
 class RecurringTransaction(EntityBase[RecurringTransactionId]):
