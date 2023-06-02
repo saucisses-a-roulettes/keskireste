@@ -17,16 +17,20 @@
 import re
 from abc import ABC
 
-from src.shared.domain.entity import TId, Id, EntityBase
+from src.shared.domain.entity import Id, EntityBase
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.shared.domain.value_object import ValueObject
+from src.shared.domain.value_object import StringObject
 
 
 class UserId(Id, ABC):
     pass
 
 
-class AccountName(ValueObject[str]):
+class AccountId(Id, ABC):
+    pass
+
+
+class AccountName(StringObject):
     def __post_init__(self):
         if len(self.value) < 4:
             raise StringTooShort(self.value)
@@ -36,8 +40,8 @@ class AccountName(ValueObject[str]):
             raise StringContainsInvalidCharacters(self.value)
 
 
-class Account(EntityBase[TId]):
-    def __init__(self, id_: TId, user_id: UserId, name: AccountName) -> None:
+class Account(EntityBase[AccountId]):
+    def __init__(self, id_: AccountId, user_id: UserId, name: AccountName) -> None:
         super().__init__(id_)
         self._user_id = user_id
         self._name = name
