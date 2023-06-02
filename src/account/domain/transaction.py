@@ -15,22 +15,27 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 import datetime
+from abc import ABC
 
-from src.account.domain.account import UserId
-from src.shared.domain.entity import EntityBase, TId
+from src.account.domain.account import AccountId
+from src.shared.domain.entity import EntityBase, TId, Id
+
+
+class TransactionId(Id, ABC):
+    pass
 
 
 class Transaction(EntityBase[TId]):
-    def __init__(self, id_: TId, user_id: UserId, date: datetime.date, label: str, amount: float) -> None:
+    def __init__(self, id_: TId, account_id: AccountId, date: datetime.date, label: str, amount: float) -> None:
         super().__init__(id_)
-        self._user_id = user_id
+        self._account_id = account_id
         self._date = date
         self._label = label
         self._amount = amount
 
     @property
-    def user_id(self) -> UserId:
-        return self._user_id
+    def account_id(self) -> AccountId:
+        return self._account_id
 
     @property
     def date(self) -> datetime.date:
