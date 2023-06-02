@@ -19,7 +19,7 @@ from abc import ABC
 
 from src.shared.domain.entity import Id, EntityBase
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.shared.domain.value_object import ValueObject
+from src.shared.domain.value_object import StringObject
 
 
 class UserId(Id, ABC):
@@ -30,7 +30,7 @@ class AccountId(Id, ABC):
     pass
 
 
-class AccountName(ValueObject[str]):
+class AccountName(StringObject):
     def __post_init__(self):
         if len(self.value) < 4:
             raise StringTooShort(self.value)
