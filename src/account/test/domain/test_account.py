@@ -17,18 +17,18 @@
 import pytest
 
 from src.account.domain.account import AccountName, Account
-from src.shared.domain.entity import IdBase
+from src.account.test.domain.mocks import MockUserId, MockAccountId
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.shared.test.test_entity import MockId
 
 
-class MockUserId(IdBase[str]):
-    pass
+@pytest.fixture()
+def sample_account():
+    return Account(MockAccountId("1"), MockUserId("1"), AccountName("my_account"))
 
 
 def test_valid_account_name():
     account_name = AccountName("my_account")
-    assert account_name.value == "my_account"
+    assert account_name == "my_account"
 
 
 def test_invalid_account_name_too_short():
@@ -46,24 +46,14 @@ def test_invalid_account_name_invalid_characters():
         AccountName("my_account!")
 
 
-def test_account_creation():
-    account_id = MockId("1")
-    user_id = MockUserId("1")
-    name = AccountName("my_account")
-    account = Account(account_id, user_id, name)
-
-    assert account.id == account_id
-    assert account.user_id == user_id
-    assert account.name == name
+def test_account_creation(sample_account: Account):
+    assert sample_account.id == MockAccountId("1")
+    assert sample_account.user_id == MockUserId("1")
+    assert sample_account.name == AccountName("my_account")
 
 
-def test_rename():
-    account_id = MockId("1")
-    user_id = MockUserId("1")
-    name = AccountName("my_account")
+def test_rename(sample_account: Account):
     new_name = AccountName("new_account")
-    account = Account(account_id, user_id, name)
+    sample_account.rename(new_name)
 
-    account.rename(new_name)
-
-    assert account.name == new_name
+    assert sample_account.name == new_name

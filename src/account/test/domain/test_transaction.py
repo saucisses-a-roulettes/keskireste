@@ -18,17 +18,8 @@ import datetime
 
 import pytest
 
-from src.account.domain.account import UserId
 from src.account.domain.transaction import Transaction
-from src.shared.domain.entity import IdBase
-
-
-class MockId(IdBase[str]):
-    pass
-
-
-class MockUserId(UserId, IdBase[str]):
-    pass
+from src.account.test.domain.mocks import MockId, MockUserId
 
 
 @pytest.fixture
