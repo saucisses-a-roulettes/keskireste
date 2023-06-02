@@ -19,21 +19,22 @@ import datetime
 import re
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
+from dataclasses import dataclass
 from enum import IntEnum
 
-import dateutil
+import dateutil.rrule
 
 from src.account.domain.account import AccountId
 from src.shared.domain.entity import EntityBase, Id
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.shared.domain.value_object import ValueObject
+from src.shared.domain.value_object import StringObject
 
 
 class RecurringTransactionId(Id, ABC):
     pass
 
 
-class RecurringTransactionName(ValueObject[str]):
+class RecurringTransactionName(StringObject):
     def __post_init__(self):
         if len(self.value) < 2:
             raise StringTooShort(self.value)
@@ -49,6 +50,7 @@ class RecurringFrequency(ABC):
         pass
 
 
+@dataclass(frozen=True)
 class DailyFrequency(RecurringFrequency):
     def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
         if end_date < start_date:
@@ -56,7 +58,7 @@ class DailyFrequency(RecurringFrequency):
         return [start_date + datetime.timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 
 
-class DayEnum(IntEnum):
+class Day(IntEnum):
     MONDAY = 0
     TUESDAY = 1
     WEDNESDAY = 2
@@ -66,9 +68,9 @@ class DayEnum(IntEnum):
     SUNDAY = 6
 
 
+@dataclass(frozen=True)
 class WeeklyFrequency(RecurringFrequency):
-    def __init__(self, day: DayEnum) -> None:
-        self._day = day
+    day: Day
 
     def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
         if end_date < start_date:
@@ -77,24 +79,24 @@ class WeeklyFrequency(RecurringFrequency):
         return [
             dt.date()
             for dt in dateutil.rrule.rrule(dateutil.rrule.DAILY, dtstart=start_date, until=end_date)
-            if dt.weekday() == self._day
+            if dt.weekday() == self.day
         ]
 
 
+@dataclass(frozen=True)
 class MonthlyFrequency(RecurringFrequency):
-    def __init__(self, day: int) -> None:
-        if not 1 <= day <= 31:
+    day: int
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.day <= 31:
             raise ValueError("Day must be an integer between 1 and 31")
-        self._day = day
 
     def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
         if end_date < start_date:
             raise ValueError("End date must be after the start date")
 
         return [
-            current_date
-            for current_date in self._generate_dates(start_date, end_date)
-            if self._day <= self._last_day_of_month(current_date)
+            current_date for current_date in self._generate_dates(start_date, end_date) if current_date.day == self.day
         ]
 
     @staticmethod
@@ -104,20 +106,17 @@ class MonthlyFrequency(RecurringFrequency):
             yield current_date
             current_date += datetime.timedelta(days=1)
 
-    @staticmethod
-    def _last_day_of_month(date: datetime.date) -> int:
-        next_month = date.replace(day=28) + datetime.timedelta(days=4)
-        return (next_month - datetime.timedelta(days=next_month.day)).day
 
-
+@dataclass(frozen=True)
 class YearlyFrequency(RecurringFrequency):
-    def __init__(self, day: int, month: int) -> None:
-        if not 1 <= day <= 31:
+    day: int
+    month: int
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.day <= 31:
             raise ValueError("Day must be an integer between 1 and 31")
-        if not 1 <= month <= 12:
+        if not 1 <= self.month <= 12:
             raise ValueError("Month must be an integer between 1 and 12")
-        self._day = day
-        self._month = month
 
     def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
         return [
@@ -129,12 +128,7 @@ class YearlyFrequency(RecurringFrequency):
 
     def _list_every_year_dates(self, year: datetime.date.year) -> list[datetime.date]:
         return [
-            datetime.date(year, self._month, self._day)
-            if self._day
-            <= (
-                (calendar.monthrange(year, self._month)[1] if self._month != 2 else 29 if calendar.isleap(year) else 28)
-            )
-            else None
+            datetime.date(year, self.month, self.day) if self.day <= calendar.monthrange(year, self.month)[1] else None
         ]
 
 
@@ -143,7 +137,7 @@ class RecurringTransaction(EntityBase[RecurringTransactionId]):
         self,
         id_: RecurringTransactionId,
         account_id: AccountId,
-        name: str,
+        name: RecurringTransactionName,
         amount: float,
         frequency: RecurringFrequency,
     ) -> None:
@@ -158,7 +152,7 @@ class RecurringTransaction(EntityBase[RecurringTransactionId]):
         return self._account_id
 
     @property
-    def name(self) -> str:
+    def name(self) -> RecurringTransactionName:
         return self._name
 
     @property

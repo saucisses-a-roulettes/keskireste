@@ -19,7 +19,7 @@ import datetime
 import pytest
 
 from src.account.domain.transaction import Transaction
-from src.account.test.mocks import MockId, MockUserId
+from src.account.test.domain.mocks import MockId, MockUserId
 
 
 @pytest.fixture

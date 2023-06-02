@@ -17,7 +17,7 @@
 import pytest
 
 from src.account.domain.account import AccountName, Account
-from src.account.test.mocks import MockUserId, MockAccountId
+from src.account.test.domain.mocks import MockUserId, MockAccountId
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
 
 
