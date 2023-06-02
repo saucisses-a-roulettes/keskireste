@@ -19,16 +19,18 @@ import datetime
 import pytest
 
 from src.account.domain.transaction import Transaction
-from src.account.test.domain.mocks import MockId, MockUserId
+from src.account.test.domain.mocks import MockAccountId, MockTransactionId
 
 
 @pytest.fixture
 def sample_transaction():
-    return Transaction(MockId("1"), MockUserId("1"), datetime.date(2022, 1, 1), "Sample Transaction", 100.0)
+    return Transaction(
+        MockTransactionId("1"), MockAccountId("1"), datetime.date(2022, 1, 1), "Sample Transaction", 100.0
+    )
 
 
 def test_transaction_properties(sample_transaction):
-    assert sample_transaction.user_id == MockUserId("1")
+    assert sample_transaction.account_id == MockAccountId("1")
     assert sample_transaction.date == datetime.date(2022, 1, 1)
     assert sample_transaction.label == "Sample Transaction"
     assert sample_transaction.amount == 100.0

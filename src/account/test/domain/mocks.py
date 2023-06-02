@@ -16,7 +16,12 @@
 #   */
 from src.account.domain.account import AccountId, UserId
 from src.account.domain.recurring_transaction import RecurringTransactionId
+from src.account.domain.transaction import TransactionId
 from src.shared.domain.entity import IdBase
+
+
+class MockId(IdBase[str]):
+    pass
 
 
 class RecurringTransactionMockId(RecurringTransactionId, IdBase[str]):
@@ -31,5 +36,5 @@ class MockUserId(UserId, IdBase[str]):
     pass
 
 
-class MockId(IdBase[str]):
+class MockTransactionId(TransactionId, IdBase[str]):
     pass
