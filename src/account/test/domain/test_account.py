@@ -23,7 +23,9 @@ from src.shared.domain.string import StringTooShort, StringTooLong, StringContai
 
 @pytest.fixture()
 def sample_account():
-    return Account(MockAccountId("1"), MockUserId("1"), AccountName("my_account"))
+    return Account(
+        id_=MockAccountId("1"), user_id=MockUserId("1"), name=AccountName("my_account"), reference_balance=50.0
+    )
 
 
 def test_valid_account_name():
@@ -50,6 +52,7 @@ def test_account_creation(sample_account: Account):
     assert sample_account.id == MockAccountId("1")
     assert sample_account.user_id == MockUserId("1")
     assert sample_account.name == AccountName("my_account")
+    assert sample_account.reference_balance == 50.0
 
 
 def test_rename(sample_account: Account):
@@ -57,3 +60,10 @@ def test_rename(sample_account: Account):
     sample_account.rename(new_name)
 
     assert sample_account.name == new_name
+
+
+def test_modify_reference_balance(sample_account: Account):
+    new_reference_balance = 100.0
+    sample_account.modify_reference_balance(new_reference_balance)
+
+    assert sample_account.reference_balance == new_reference_balance
