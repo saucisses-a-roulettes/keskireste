@@ -14,14 +14,10 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-import datetime
 import re
-from abc import ABC, abstractmethod
-from collections.abc import Iterator
+from abc import ABC
 from dataclasses import dataclass
 from enum import IntEnum
-
-import dateutil.rrule
 
 from src.account.domain.account import AccountId
 from src.shared.domain.entity import EntityBase, Id
@@ -43,18 +39,9 @@ class RecurringTransactionName(StringObject):
             raise StringContainsInvalidCharacters(self.value)
 
 
-class RecurringFrequency(ABC):
-    @abstractmethod
-    def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
-        pass
-
-
 @dataclass(frozen=True)
-class DailyFrequency(RecurringFrequency):
-    def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
-        if end_date < start_date:
-            raise ValueError("End date must be after the start date")
-        return [start_date + datetime.timedelta(days=i) for i in range((end_date - start_date).days + 1)]
+class DailyFrequency:
+    pass
 
 
 class Day(IntEnum):
@@ -68,46 +55,21 @@ class Day(IntEnum):
 
 
 @dataclass(frozen=True)
-class WeeklyFrequency(RecurringFrequency):
+class WeeklyFrequency:
     day: Day
-
-    def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
-        if end_date < start_date:
-            raise ValueError("End date must be after the start date")
-
-        return [
-            dt.date()
-            for dt in dateutil.rrule.rrule(dateutil.rrule.DAILY, dtstart=start_date, until=end_date)
-            if dt.weekday() == self.day
-        ]
 
 
 @dataclass(frozen=True)
-class MonthlyFrequency(RecurringFrequency):
+class MonthlyFrequency:
     day: int
 
     def __post_init__(self) -> None:
         if not 1 <= self.day <= 31:
             raise ValueError("Day must be an integer between 1 and 31")
 
-    def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
-        if end_date < start_date:
-            raise ValueError("End date must be after the start date")
-
-        return [
-            current_date for current_date in self._generate_dates(start_date, end_date) if current_date.day == self.day
-        ]
-
-    @staticmethod
-    def _generate_dates(start_date: datetime.date, end_date: datetime.date) -> Iterator[datetime.date]:
-        current_date = start_date
-        while current_date <= end_date:
-            yield current_date
-            current_date += datetime.timedelta(days=1)
-
 
 @dataclass(frozen=True)
-class YearlyFrequency(RecurringFrequency):
+class YearlyFrequency:
     day: int
     month: int
 
@@ -117,20 +79,8 @@ class YearlyFrequency(RecurringFrequency):
         if not 1 <= self.month <= 12:
             raise ValueError("Month must be an integer between 1 and 12")
 
-    def list_occurring_dates_between(self, start_date: datetime.date, end_date: datetime.date) -> list[datetime.date]:
-        return [
-            date
-            for year in range(start_date.year, end_date.year + 1)
-            for date in self._list_every_year_dates(year)
-            if date.day == self.day and date.month == self.month
-        ]
 
-    @staticmethod
-    def _list_every_year_dates(year: int) -> list[datetime.date]:
-        start_date = datetime.date(year, 1, 1)
-        end_date = datetime.date(year, 12, 31)
-
-        return [date.date() for date in dateutil.rrule.rrule(dateutil.rrule.DAILY, dtstart=start_date, until=end_date)]
+RecurringFrequency = DailyFrequency | WeeklyFrequency | MonthlyFrequency | YearlyFrequency
 
 
 class RecurringTransaction(EntityBase[RecurringTransactionId]):

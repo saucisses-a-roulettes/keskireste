@@ -14,7 +14,6 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-import datetime
 
 import pytest
 
@@ -24,8 +23,6 @@ from src.account.domain.recurring_transaction import (
     RecurringTransactionName,
     WeeklyFrequency,
     Day,
-    MonthlyFrequency,
-    YearlyFrequency,
 )
 from src.account.test.domain.mocks import RecurringTransactionMockId, MockAccountId
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
@@ -43,66 +40,6 @@ class TestRecurringTransactionName:
     def test_invalid_recurring_transaction_name_invalid_characters(self):
         with pytest.raises(StringContainsInvalidCharacters):
             RecurringTransactionName("my_recurring_transaction!")
-
-
-class TestRecurringFrequency:
-    def test_daily_frequency_list_occurring_dates_between(self):
-        start_date = datetime.date(2023, 1, 1)
-        end_date = datetime.date(2023, 1, 3)
-        expected_dates = [
-            datetime.date(2023, 1, 1),
-            datetime.date(2023, 1, 2),
-            datetime.date(2023, 1, 3),
-        ]
-
-        daily_frequency = DailyFrequency()
-        occurring_dates = daily_frequency.list_occurring_dates_between(start_date, end_date)
-
-        assert occurring_dates == expected_dates
-
-    def test_weekly_frequency_list_occurring_dates_between(self):
-        start_date = datetime.date(2023, 1, 1)
-        end_date = datetime.date(2023, 1, 31)
-        expected_dates = [
-            datetime.date(2023, 1, 1),
-            datetime.date(2023, 1, 8),
-            datetime.date(2023, 1, 15),
-            datetime.date(2023, 1, 22),
-            datetime.date(2023, 1, 29),
-        ]
-
-        weekly_frequency = WeeklyFrequency(Day.SUNDAY)
-        occurring_dates = weekly_frequency.list_occurring_dates_between(start_date, end_date)
-
-        assert occurring_dates == expected_dates
-
-    def test_monthly_frequency_list_occurring_dates_between(self):
-        start_date = datetime.date(2023, 1, 1)
-        end_date = datetime.date(2023, 3, 31)
-        expected_dates = [
-            datetime.date(2023, 1, 1),
-            datetime.date(2023, 2, 1),
-            datetime.date(2023, 3, 1),
-        ]
-
-        monthly_frequency = MonthlyFrequency(1)
-        occurring_dates = monthly_frequency.list_occurring_dates_between(start_date, end_date)
-
-        assert occurring_dates == expected_dates
-
-    def test_yearly_frequency_list_occurring_dates_between(self):
-        start_date = datetime.date(2023, 1, 1)
-        end_date = datetime.date(2025, 12, 31)
-        expected_dates = [
-            datetime.date(2023, 1, 1),
-            datetime.date(2024, 1, 1),
-            datetime.date(2025, 1, 1),
-        ]
-
-        yearly_frequency = YearlyFrequency(1, 1)
-        occurring_dates = yearly_frequency.list_occurring_dates_between(start_date, end_date)
-
-        assert occurring_dates == expected_dates
 
 
 @pytest.fixture
