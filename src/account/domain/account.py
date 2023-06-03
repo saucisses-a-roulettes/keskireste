@@ -41,10 +41,11 @@ class AccountName(StringObject):
 
 
 class Account(EntityBase[AccountId]):
-    def __init__(self, id_: AccountId, user_id: UserId, name: AccountName) -> None:
+    def __init__(self, id_: AccountId, user_id: UserId, name: AccountName, reference_balance: float) -> None:
         super().__init__(id_)
         self._user_id = user_id
         self._name = name
+        self._reference_balance = reference_balance
 
     @property
     def user_id(self) -> UserId:
@@ -54,5 +55,12 @@ class Account(EntityBase[AccountId]):
     def name(self) -> AccountName:
         return self._name
 
+    @property
+    def reference_balance(self) -> float:
+        return self._reference_balance
+
     def rename(self, new_name: AccountName) -> None:
         self._name = new_name
+
+    def modify_reference_balance(self, new_reference_balance: float) -> None:
+        self._reference_balance = new_reference_balance
