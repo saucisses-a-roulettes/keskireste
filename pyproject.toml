@@ -13,7 +13,6 @@ packages = [
 python = "~3.11"
 PySide6 = "^6.4.3"
 ofxparse = "^0.21"
-python-dateutil = "^2.8.2"
 
 [tool.poetry.group.dev.dependencies]
 black = { extras = ["d"], version = "^23.3.0" }
