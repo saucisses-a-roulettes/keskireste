@@ -26,9 +26,11 @@ from src.user.domain.user import UserName
 
 
 @pytest.fixture
-def user_update_request():
+def user_update_request(user_creation_request: UserCreationRequest):
     return UserUpdateRequest(
-        id=MockId("1"), email=EmailAddress("john_updated@example.com"), username=UserName("john_doe_updated")
+        id=user_creation_request.id,
+        email=EmailAddress(str(user_creation_request.email).replace("john", "john_updated")),
+        username=UserName(f"{user_creation_request.username}_updated"),
     )
 
 
