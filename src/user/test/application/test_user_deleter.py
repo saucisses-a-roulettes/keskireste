@@ -17,44 +17,34 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from src.shared.domain.email import EmailAddress
-from src.shared.test.domain.mock import MockId
 from src.user.application.creator import UserCreationRequest, UserCreator
+from src.user.application.deleter import UserDeletionRequest, UserDeleter
 from src.user.application.repository import UserRepository, UserNotFound
-from src.user.application.updater import UserUpdateRequest, UserUpdater
-from src.user.domain.user import UserName
 
 
 @pytest.fixture
-def user_update_request():
-    return UserUpdateRequest(
-        id=MockId("1"), email=EmailAddress("john_updated@example.com"), username=UserName("john_doe_updated")
-    )
+def user_deletion_request(user_creation_request: UserCreationRequest):
+    return UserDeletionRequest(id=user_creation_request.id)
 
 
-def test_update_user(
+def test_delete_user(
     mocker: MockerFixture,
     user_creation_request: UserCreationRequest,
-    user_update_request: UserUpdateRequest,
+    user_deletion_request: UserDeletionRequest,
     user_repository: UserRepository,
 ):
-    spy = mocker.spy(user_repository, "update")
+    spy = mocker.spy(user_repository, "delete")
     sample_user_creator = UserCreator(repository=user_repository)
-    sample_user_updater = UserUpdater(repository=user_repository)
+    sample_user_deleter = UserDeleter(repository=user_repository)
     sample_user_creator.create(user_creation_request)
 
-    user = user_repository.retrieve(MockId("1"))
+    sample_user_deleter.delete(user_deletion_request)
 
-    user.rename(user_update_request.username)
-    user.change_email(user_update_request.email)
-
-    sample_user_updater.update(user_update_request)
-
-    spy.assert_called_once_with(user)
+    spy.assert_called_once_with(user_deletion_request.id)
 
 
-def test_update_unexisting_user(user_update_request: UserUpdateRequest, user_repository: UserRepository):
-    sample_user_updater = UserUpdater(repository=user_repository)
+def test_delete_unexisting_user(user_deletion_request: UserDeletionRequest, user_repository: UserRepository):
+    sample_user_deleter = UserDeleter(repository=user_repository)
 
     with pytest.raises(UserNotFound):
-        sample_user_updater.update(user_update_request)
+        sample_user_deleter.delete(user_deletion_request)

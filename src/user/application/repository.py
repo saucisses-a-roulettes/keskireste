@@ -62,4 +62,15 @@ class UserRepository(ABC, Generic[TId]):
 
     @abstractmethod
     def update(self, user: User) -> None:
+        """
+        :param user:
+        :raises EntityNotFound
+        """
         pass
+
+    @abstractmethod
+    def delete(self, id_: TId) -> None:
+        """
+        :param id_:
+        :return: EntityNotFound
+        """
