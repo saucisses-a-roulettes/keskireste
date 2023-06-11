@@ -13,13 +13,13 @@ packages = [
 python = "~3.11"
 PySide6 = "^6.4.3"
 ofxparse = "^0.21"
+ppa = { git = "git@github.com:saucisses-a-roulettes/ppa.git", branch = "main" }
 
 [tool.poetry.group.dev.dependencies]
 black = { extras = ["d"], version = "^23.3.0" }
 mypy = "^1.2.0"
 pytest = "^7.3.1"
 types-python-dateutil = "^2.8.19.13"
-
 
 [tool.poetry.group.build.dependencies]
 pyinstaller = "^5.10.1"
