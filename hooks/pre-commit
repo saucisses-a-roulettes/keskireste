@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#
+# /*
+#  * Copyright (c) 2023 Gael Monachon
+#  *
+#  * This program is free software: you can redistribute it and/or modify
+#  * it under the terms of the GNU General Public License as published by
+#  * the Free Software Foundation, either version 3 of the License, or
+#  * (at your option) any later version.
+#  *
+#  * This program is distributed in the hope that it will be useful,
+#  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  * GNU General Public License for more details.
+#  *
+#  * You should have received a copy of the GNU General Public License
+#  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#  */
+#
+
+# Function to run a command and check its exit code
+run_command() {
+    local message
+    local exit_code
+    message=$(poetry run $1 2>&1)
+    exit_code=$?
+
+    # Check if the command failed
+    if [[ $exit_code -ne 0 ]]; then
+        echo "Pre-commit hooks failed. Aborting commit. Details: $message"
+        exit 1
+    fi
+}
+
+# Run Black silently
+echo "Running Black..."
+run_command "black --check ."
+
+# Run Mypy silently
+echo "Running Mypy..."
+run_command "mypy ."
+
+# Run Pytest silently
+echo "Running Pytest..."
+run_command "pytest"
+
+echo "All pre-commit hooks passed. Committing changes."
+exit 0

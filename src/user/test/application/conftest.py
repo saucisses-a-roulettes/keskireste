@@ -14,11 +14,11 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+import pytest
+
+from src.user.test.application.mock import UserMockRepository
 
 
-class EntityAlreadyExists(Exception):
-    pass
-
-
-class EntityNotFound(Exception):
-    pass
+@pytest.fixture
+def user_repository():
+    return UserMockRepository()
