@@ -24,6 +24,7 @@ types-python-dateutil = "^2.8.19.13"
 [tool.poetry.group.build.dependencies]
 pyinstaller = "^5.10.1"
 
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -34,5 +35,6 @@ target-version = ['py311']
 include = '\.pyi?$'
 
 [tool.mypy]
+
 python_version = 3.11
 files = "src/"

@@ -44,7 +44,6 @@ def test_create_user(user_creation_request: UserCreationRequest, user_repository
 
 def test_create_user_already_exists(user_creation_request: UserCreationRequest, user_repository: UserRepository):
     sample_user_creator = UserCreator(repository=user_repository)
-
     sample_user_creator.create(user_creation_request)
 
     with pytest.raises(UserAlreadyExists):
