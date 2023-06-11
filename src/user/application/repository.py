@@ -14,7 +14,7 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Generic
 
 from src.shared.application.repository import EntityAlreadyExists
@@ -33,6 +33,7 @@ class UserAlreadyExists(EntityAlreadyExists, Generic[TId]):
 
 
 class UserRepository(ABC, Generic[TId]):
+    @abstractmethod
     def add(self, user: User) -> None:
         """
         :param user:
@@ -40,6 +41,7 @@ class UserRepository(ABC, Generic[TId]):
         """
         pass
 
+    @abstractmethod
     def retrieve(self, id_: TId) -> User:
         """
         :param id_:
