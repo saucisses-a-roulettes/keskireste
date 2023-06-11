@@ -19,7 +19,7 @@ import pytest
 
 from src.shared.domain.email import EmailAddress
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.shared.test.domain.test_entity import MockId
+from src.shared.test.domain.mock import MockId
 from src.user.domain.user import UserName, User
 
 
