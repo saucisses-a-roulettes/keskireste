@@ -21,17 +21,11 @@ from src.shared.test.domain.mock import MockId
 from src.user.application.creator import UserCreationRequest, UserCreator
 from src.user.application.repository import UserAlreadyExists, UserRepository
 from src.user.domain.user import UserName
-from src.user.test.application.mock import UserMockRepository
 
 
 @pytest.fixture
 def user_creation_request():
     return UserCreationRequest(id=MockId("1"), email=EmailAddress("john@example.com"), username=UserName("john_doe"))
-
-
-@pytest.fixture
-def user_repository():
-    return UserMockRepository()
 
 
 def test_create_user(user_creation_request: UserCreationRequest, user_repository: UserRepository):

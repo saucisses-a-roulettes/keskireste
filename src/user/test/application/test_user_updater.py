@@ -23,7 +23,6 @@ from src.user.application.creator import UserCreationRequest, UserCreator
 from src.user.application.repository import UserRepository, UserNotFound
 from src.user.application.updater import UserUpdateRequest, UserUpdater
 from src.user.domain.user import UserName
-from src.user.test.application.mock import UserMockRepository
 
 
 @pytest.fixture
@@ -36,11 +35,6 @@ def user_update_request():
     return UserUpdateRequest(
         id=MockId("1"), email=EmailAddress("john_updated@example.com"), username=UserName("john_doe_updated")
     )
-
-
-@pytest.fixture
-def user_repository():
-    return UserMockRepository()
 
 
 def test_update_user(
