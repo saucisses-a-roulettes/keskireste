@@ -14,20 +14,25 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-import pytest
+from dataclasses import dataclass
+from typing import Generic
 
-from src.shared.domain.email import EmailAddress
-from src.shared.test.domain.mock import MockId
-from src.user.application.creator import UserCreationRequest
-from src.user.domain.user import UserName
-from src.user.test.application.mock import UserMockRepository
-
-
-@pytest.fixture
-def user_repository():
-    return UserMockRepository()
+from src.shared.application.repository import EntityNotFound
+from src.shared.domain.entity import TId
+from src.user.application.repository import UserRepository, UserNotFound
 
 
-@pytest.fixture
-def user_creation_request():
-    return UserCreationRequest(id=MockId("1"), email=EmailAddress("john@example.com"), username=UserName("john_doe"))
+@dataclass(frozen=True)
+class UserDeletionRequest(Generic[TId]):
+    id: TId
+
+
+class UserDeleter:
+    def __init__(self, repository: UserRepository) -> None:
+        self._repository = repository
+
+    def delete(self, request: UserDeletionRequest) -> None:
+        try:
+            self._repository.delete(request.id)
+        except EntityNotFound as e:
+            raise UserNotFound(user_id=request.id) from e
