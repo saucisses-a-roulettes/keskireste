@@ -16,15 +16,7 @@
 #   */
 
 
-from src.shared.domain.value_object import ValueObject
-
-
-class MockValueObject(ValueObject[int]):
-    pass
-
-
-class OtherValueObject(ValueObject):
-    pass
+from src.shared.test.domain.mock import MockValueObject, OtherValueObject
 
 
 def test_value_object_equality():

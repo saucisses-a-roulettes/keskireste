@@ -17,7 +17,7 @@
 import pytest
 
 from src.shared.domain.email import EmailAddress
-from src.shared.test.domain.test_entity import MockId
+from src.shared.test.domain.mock import MockId
 from src.user.application.creator import UserCreationRequest, UserCreator
 from src.user.application.repository import UserAlreadyExists, UserRepository
 from src.user.domain.user import UserName

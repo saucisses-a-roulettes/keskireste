@@ -14,28 +14,21 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from src.shared.test.domain.mock import MockId, MockEntity
+from src.shared.domain.entity import IdBase, EntityBase
+from src.shared.domain.value_object import ValueObject
 
 
-def test_entity_base_id():
-    mock_id = MockId("test_id")
-    entity = MockEntity(mock_id)
-    assert entity.id == mock_id
+class MockId(IdBase[str]):
+    pass
 
 
-def test_entity_base_hash():
-    mock_id = MockId("test_id")
-    entity = MockEntity(mock_id)
-    assert hash(entity) == hash(mock_id)
+class MockEntity(EntityBase[MockId]):
+    pass
 
 
-def test_entity_base_eq():
-    mock_id1 = MockId("test_id1")
-    mock_id2 = MockId("test_id2")
-    entity1 = MockEntity(mock_id1)
-    entity2 = MockEntity(mock_id1)
-    entity3 = MockEntity(mock_id2)
+class MockValueObject(ValueObject[int]):
+    pass
 
-    assert entity1 == entity2
-    assert entity1 != entity3
-    assert entity1 != "not_an_entity"
+
+class OtherValueObject(ValueObject):
+    pass
