@@ -17,7 +17,7 @@
 from abc import ABC, abstractmethod
 from typing import Generic
 
-from src.shared.application.repository import EntityAlreadyExists
+from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
 from src.shared.domain.entity import TId
 from src.user.domain.user import User
 
@@ -25,6 +25,16 @@ from src.user.domain.user import User
 class UserAlreadyExists(EntityAlreadyExists, Generic[TId]):
     def __init__(self, user_id: TId) -> None:
         super().__init__(f"User `{user_id}` already exists")
+        self._user_id = user_id
+
+    @property
+    def user_id(self) -> TId:
+        return self._user_id
+
+
+class UserNotFound(EntityNotFound, Generic[TId]):
+    def __init__(self, user_id: TId) -> None:
+        super().__init__(f"User `{user_id}` not found")
         self._user_id = user_id
 
     @property
@@ -48,4 +58,8 @@ class UserRepository(ABC, Generic[TId]):
         :return: User
         :raises EntityNotFound
         """
+        pass
+
+    @abstractmethod
+    def update(self, user: User) -> None:
         pass

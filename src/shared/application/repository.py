@@ -18,3 +18,7 @@
 
 class EntityAlreadyExists(Exception):
     pass
+
+
+class EntityNotFound(Exception):
+    pass

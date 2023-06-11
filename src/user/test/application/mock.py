@@ -17,10 +17,12 @@
 
 import ppa
 
-from src.shared.application.repository import EntityAlreadyExists
+from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
 from src.user.application.repository import UserRepository
 
 
-@ppa.in_memory_repository(entity_already_exists_exception=EntityAlreadyExists, entity_not_found_exception=Exception)
+@ppa.in_memory_repository(
+    entity_already_exists_exception=EntityAlreadyExists, entity_not_found_exception=EntityNotFound
+)
 class UserMockRepository(UserRepository):
     pass
