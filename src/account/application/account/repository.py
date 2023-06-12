@@ -52,7 +52,7 @@ class AccountRepository(ABC):
         pass
 
     @abstractmethod
-    def retrieve(self, id_: AccountId) -> None:
+    def retrieve(self, id_: AccountId) -> Account:
         """
         :param id_:
         :raises AccountNotFound
@@ -63,5 +63,12 @@ class AccountRepository(ABC):
     def delete(self, id_: AccountId) -> None:
         """
         :param id_:
+        :raises AccountNotFound
+        """
+
+    @abstractmethod
+    def update(self, account: Account) -> None:
+        """
+        :param account:
         :raises AccountNotFound
         """
