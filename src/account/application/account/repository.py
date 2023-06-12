@@ -58,3 +58,10 @@ class AccountRepository(ABC):
         :raises AccountNotFound
         """
         pass
+
+    @abstractmethod
+    def delete(self, id_: AccountId) -> None:
+        """
+        :param id_:
+        :raises AccountNotFound
+        """

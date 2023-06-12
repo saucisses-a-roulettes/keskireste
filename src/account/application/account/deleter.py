@@ -14,27 +14,24 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-import pytest
+from dataclasses import dataclass
 
-from src.account.application.account.creator import AccountCreationRequest
-from src.account.application.account.deleter import AccountDeletionRequest
-from src.account.domain.account import AccountName
-from src.account.test.application.mock import AccountMockRepository
-from src.account.test.domain.mocks import MockUserId, MockAccountId
+from src.account.application.account.repository import AccountRepository, AccountNotFound
+from src.account.domain.account import AccountId
+from src.shared.application.repository import EntityNotFound
 
 
-@pytest.fixture
-def account_repository():
-    return AccountMockRepository()
+@dataclass(frozen=True)
+class AccountDeletionRequest:
+    id: AccountId
 
 
-@pytest.fixture
-def account_creation_request():
-    return AccountCreationRequest(
-        id=MockAccountId("1"), user_id=MockUserId("1"), name=AccountName("account_name"), reference_balance=100.0
-    )
+class AccountDeleter:
+    def __init__(self, repository: AccountRepository) -> None:
+        self._repository = repository
 
-
-@pytest.fixture
-def account_deletion_request():
-    return AccountDeletionRequest(id=MockAccountId("1"))
+    def delete(self, request: AccountDeletionRequest) -> None:
+        try:
+            self._repository.delete(request.id)
+        except EntityNotFound as e:
+            raise AccountNotFound(account_id=request.id) from e
