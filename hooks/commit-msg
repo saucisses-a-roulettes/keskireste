@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #  /*
 #   * Copyright (c) 2023 Gael Monachon
 #   *
@@ -14,3 +16,16 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+
+cat .git/COMMIT_EDITMSG
+
+message=$(cat .git/COMMIT_EDITMSG | commitlint)
+exit_code=$?
+
+
+if [[ $exit_code -ne 0 ]]; then
+    echo $1
+    echo $message
+    exit 1
+fi
+exit 0
