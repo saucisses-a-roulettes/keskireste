@@ -806,7 +806,7 @@ pydantic = "^1.10.9"
 type = "git"
 url = "https://github.com/saucisses-a-roulettes/ppa.git"
 reference = "main"
-resolved_reference = "73c6d64dac6ca874acae7fa985da252329ba68b7"
+resolved_reference = "c3ebc0ac01e2dd6dafd0826b7cdb8d79258f279c"
 
 [[package]]
 name = "pydantic"
