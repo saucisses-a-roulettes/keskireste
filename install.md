@@ -6,25 +6,15 @@ This guide will walk you through the installation process of the project.
 
 Before proceeding with the installation, make sure you have the following prerequisites installed:
 
-- Python (version 3.11 or higher): [Download Python](https://www.python.org/)
-- Poetry: [Download Poetry](https://python-poetry.org/)
+- **Python** (version 3.11 or higher): [Download Python](https://www.python.org/)
+- **Poetry**: [Download Poetry](https://python-poetry.org/)
+- **Just** (Command Runner): [Download Just])(https://just.systems/man/en/chapter_4.html)
 
-## Steps
-
-Follow these steps to install and set up the project:
-
-1. Clone the project repository:
-
+## Setup
 ```bash
-git clone git@github.com:saucisses-a-roulettes/keskireste.git
+git clone git@github.com:saucisses-a-roulettes/keskireste.git | cd keskireste | just setup
 ```
 
-Navigate to the project directory:
-cd <project-directory>
+## Just
+Just is a command runner, run `just` command to get a list of available commands.
 
-Run install.sh script:
-```bash
-sh install.sh
-```
-
-Start using the project!

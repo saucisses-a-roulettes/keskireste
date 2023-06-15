@@ -1,39 +1,15 @@
-# KeskiReste
+# KeskiReste [WIP]
 
 KeskiReste is a lightweight budget management application that allows you to visualize the balance between your expenses and income each month. The application is designed with simplicity in mind and is easy to use for anyone looking to keep track of their personal finances.
 
-## Project
-- https://tree.taiga.io/project/saucisse_a_roulettes-keskireste/timeline
-
-## Features
-
-- Easy-to-use interface
-- Balance visualization between expenses and income
-- Monthly budget tracking
-
-## Technologies
-
-This project is built using Python, Pyside6, and Poetry.
-
 ## Installation
-
-KeskiReste provides a PKGBUILD file, allowing you to easily install the project using `makepkg`. Follow the steps below to install KeskiReste:
-
-1. Run this commands :
-```shell
-git clone https://github.com/saucisses-a-roulettes/keskireste.git
-cd KeskiReste
-makepkg -si
-```
+Refer to [install.md](install.md) file documentation.
 
 ## Usage
-
 Documentation and usage examples are coming soon. Please check back for updates.
 
 ## Contributing
-
 Contributions to KeskiReste are welcome! Please see the [Contribution Guide](CONTRIBUTING.md) for more information on how to contribute to the project.
 
 ## License
-
 KeskiReste is licensed under the GNU General Public License (GPL). For more information, see the [LICENSE](LICENSE) file.
