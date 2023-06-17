@@ -15,13 +15,12 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 import pytest
-from pytest_mock import MockerFixture
 
 from src.shared.domain.email import EmailAddress
 from src.user.application.creator import UserCreationRequest, UserCreator
 from src.user.application.repository import UserRepository, UserNotFound
 from src.user.application.updater import UserUpdateRequest, UserUpdater
-from src.user.domain.user import UserName
+from src.user.domain.user import UserName, User
 from src.user.test.domain.mocks import MockUserId
 
 
@@ -35,24 +34,26 @@ def user_update_request(user_creation_request: UserCreationRequest):
 
 
 def test_update_user(
-    mocker: MockerFixture,
     user_creation_request: UserCreationRequest,
     user_update_request: UserUpdateRequest,
     user_repository: UserRepository,
 ):
-    spy = mocker.spy(user_repository, "update")
     sample_user_creator = UserCreator(repository=user_repository)
     sample_user_updater = UserUpdater(repository=user_repository)
     sample_user_creator.create(user_creation_request)
 
     user = user_repository.retrieve(MockUserId("1"))
 
-    user.rename(user_update_request.username)
-    user.change_email(user_update_request.email)
+    reference_user = User(user.id, user.email, user.username)
+
+    reference_user.rename(user_update_request.username)
+    reference_user.change_email(user_update_request.email)
 
     sample_user_updater.update(user_update_request)
 
-    spy.assert_called_once_with(user)
+    user = user_repository.retrieve(user.id)
+
+    assert user.username == reference_user.username and user.email == reference_user.email
 
 
 def test_update_unexisting_user(user_update_request: UserUpdateRequest, user_repository: UserRepository):
