@@ -38,4 +38,7 @@ class AccountUpdater:
         except EntityNotFound as e:
             raise AccountNotFound(account_id=request.id) from e
 
+        account.rename(request.name)
+        account.modify_reference_balance(request.reference_balance)
+
         self._repository.update(account)

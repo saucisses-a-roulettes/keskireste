@@ -15,12 +15,11 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 import pytest
-from pytest_mock import MockerFixture
 
 from src.account.application.account.creator import AccountCreationRequest, AccountCreator
 from src.account.application.account.repository import AccountRepository, AccountNotFound
 from src.account.application.account.updater import AccountUpdateRequest, AccountUpdater
-from src.account.domain.account import AccountName
+from src.account.domain.account import AccountName, Account
 from src.account.test.domain.mocks import MockAccountId
 
 
@@ -34,24 +33,30 @@ def account_update_request(account_creation_request: AccountUpdateRequest):
 
 
 def test_update_account(
-    mocker: MockerFixture,
     account_creation_request: AccountCreationRequest,
     account_update_request: AccountUpdateRequest,
     account_repository: AccountRepository,
 ):
-    spy = mocker.spy(account_repository, "update")
     sample_account_creator = AccountCreator(repository=account_repository)
     sample_account_updater = AccountUpdater(repository=account_repository)
     sample_account_creator.create(account_creation_request)
 
     account = account_repository.retrieve(MockAccountId("1"))
 
-    account.rename(account_update_request.name)
-    account.modify_reference_balance(account_update_request.reference_balance)
+    reference_account = Account(account.id, account.user_id, account.name, account.reference_balance)
+
+    reference_account.rename(account_update_request.name)
+    reference_account.modify_reference_balance(account_update_request.reference_balance)
 
     sample_account_updater.update(account_update_request)
 
-    spy.assert_called_once_with(account)
+    account = account_repository.retrieve(account.id)
+
+    assert (
+        account.name == reference_account.name
+        and account.user_id == reference_account.user_id
+        and account.reference_balance == reference_account.reference_balance
+    )
 
 
 def test_update_unexisting_account(account_update_request: AccountUpdateRequest, account_repository: AccountRepository):
