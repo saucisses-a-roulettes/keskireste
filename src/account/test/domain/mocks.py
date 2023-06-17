@@ -14,7 +14,7 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from src.account.domain.account import AccountId, UserId
+from src.account.domain.account import AccountId
 from src.account.domain.recurring_transaction import RecurringTransactionId
 from src.account.domain.transaction import TransactionId
 from src.shared.domain.entity import IdBase
@@ -29,10 +29,6 @@ class RecurringTransactionMockId(RecurringTransactionId, IdBase[str]):
 
 
 class MockAccountId(AccountId, IdBase[str]):
-    pass
-
-
-class MockUserId(UserId, IdBase[str]):
     pass
 
 

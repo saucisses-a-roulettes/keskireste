@@ -17,8 +17,9 @@
 from dataclasses import dataclass
 
 from src.account.application.account.repository import AccountRepository, AccountAlreadyExists
-from src.account.domain.account import Account, UserId, AccountName, AccountId
+from src.account.domain.account import Account, AccountName, AccountId
 from src.shared.application.repository import EntityAlreadyExists
+from src.user.domain.user import UserId
 
 
 @dataclass(frozen=True)

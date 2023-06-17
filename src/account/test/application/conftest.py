@@ -20,7 +20,8 @@ from src.account.application.account.creator import AccountCreationRequest
 from src.account.application.account.deleter import AccountDeletionRequest
 from src.account.domain.account import AccountName
 from src.account.test.application.mock import AccountMockRepository
-from src.account.test.domain.mocks import MockUserId, MockAccountId
+from src.account.test.domain.mocks import MockAccountId
+from src.user.test.domain.mocks import MockUserId
 
 
 @pytest.fixture
