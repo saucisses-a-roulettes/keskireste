@@ -17,9 +17,10 @@
  *
  */
 
-module.exports ={
+const Configuration= {
     extends: ["@commitlint/config-conventional"],
     rules: {
-        "scope-enum": [2, "always", ["global", "user", "account"]]
+        "type-enum": ["feat", "fix", "docs", "style", "refactor", "test", "revert"],
+        "scope-enum": ["global", "user", "account"]
     }
 }
