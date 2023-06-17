@@ -18,11 +18,11 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.shared.domain.email import EmailAddress
-from src.shared.test.domain.mock import MockId
 from src.user.application.creator import UserCreationRequest, UserCreator
 from src.user.application.repository import UserRepository, UserNotFound
 from src.user.application.updater import UserUpdateRequest, UserUpdater
 from src.user.domain.user import UserName
+from src.user.test.domain.mocks import MockUserId
 
 
 @pytest.fixture
@@ -45,7 +45,7 @@ def test_update_user(
     sample_user_updater = UserUpdater(repository=user_repository)
     sample_user_creator.create(user_creation_request)
 
-    user = user_repository.retrieve(MockId("1"))
+    user = user_repository.retrieve(MockUserId("1"))
 
     user.rename(user_update_request.username)
     user.change_email(user_update_request.email)

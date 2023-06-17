@@ -20,10 +20,7 @@ from abc import ABC
 from src.shared.domain.entity import Id, EntityBase
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
 from src.shared.domain.value_object import StringObject
-
-
-class UserId(Id, ABC):
-    pass
+from src.user.domain.user import UserId
 
 
 class AccountId(Id, ABC):

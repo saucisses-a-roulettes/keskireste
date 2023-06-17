@@ -14,22 +14,9 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-import pytest
-
-from src.shared.domain.email import EmailAddress
-from src.user.application.creator import UserCreationRequest
-from src.user.domain.user import UserName
-from src.user.test.application.mock import UserMockRepository
-from src.user.test.domain.mocks import MockUserId
+from src.shared.domain.entity import IdBase
+from src.user.domain.user import UserId
 
 
-@pytest.fixture
-def user_repository():
-    return UserMockRepository()
-
-
-@pytest.fixture
-def user_creation_request():
-    return UserCreationRequest(
-        id=MockUserId("1"), email=EmailAddress("john@example.com"), username=UserName("john_doe")
-    )
+class MockUserId(UserId, IdBase[str]):
+    pass

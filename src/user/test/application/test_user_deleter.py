@@ -36,8 +36,8 @@ def test_delete_user(
     spy = mocker.spy(user_repository, "delete")
     sample_user_creator = UserCreator(repository=user_repository)
     sample_user_deleter = UserDeleter(repository=user_repository)
-    sample_user_creator.create(user_creation_request)
 
+    sample_user_creator.create(user_creation_request)
     sample_user_deleter.delete(user_deletion_request)
 
     spy.assert_called_once_with(user_deletion_request.id)

@@ -15,12 +15,16 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 import re
-from typing import Generic
+from abc import ABC
 
 from src.shared.domain.email import EmailAddress
-from src.shared.domain.entity import EntityBase, TId
+from src.shared.domain.entity import EntityBase, Id
 from src.shared.domain.string import StringTooLong, StringTooShort, StringContainsInvalidCharacters
 from src.shared.domain.value_object import ValueObject
+
+
+class UserId(Id, ABC):
+    pass
 
 
 class UserName(ValueObject[str]):
@@ -33,8 +37,8 @@ class UserName(ValueObject[str]):
             raise StringContainsInvalidCharacters(self.value)
 
 
-class User(EntityBase, Generic[TId]):
-    def __init__(self, id_: TId, email: EmailAddress, username: UserName) -> None:
+class User(EntityBase[UserId]):
+    def __init__(self, id_: UserId, email: EmailAddress, username: UserName) -> None:
         super().__init__(id_=id_)
         self._email = email
         self._username = username

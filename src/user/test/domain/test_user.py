@@ -19,8 +19,8 @@ import pytest
 
 from src.shared.domain.email import EmailAddress
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.shared.test.domain.mock import MockId
 from src.user.domain.user import UserName, User
+from src.user.test.domain.mocks import MockUserId
 
 
 def test_valid_user_name():
@@ -44,7 +44,7 @@ def test_invalid_user_name_invalid_characters():
 
 
 def test_user_creation():
-    user_id = MockId("1")
+    user_id = MockUserId("1")
     email = EmailAddress("john@example.com")
     username = UserName("john_doe")
     user = User(user_id, email, username)
@@ -55,7 +55,7 @@ def test_user_creation():
 
 
 def test_change_email():
-    user_id = MockId("1")
+    user_id = MockUserId("1")
     email = EmailAddress("john@example.com")
     new_email = EmailAddress("johndoe@example.com")
     username = UserName("john_doe")
@@ -67,7 +67,7 @@ def test_change_email():
 
 
 def test_rename():
-    user_id = MockId("1")
+    user_id = MockUserId("1")
     email = EmailAddress("john@example.com")
     username = UserName("john_doe")
     new_username = UserName("johndoe")
