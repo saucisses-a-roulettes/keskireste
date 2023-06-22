@@ -20,6 +20,7 @@
 module.exports ={
     extends: ["@commitlint/config-conventional"],
     rules: {
-        "scope-enum": [2, "always", ["global", "user", "account"]]
+        "scope-enum": [2, "always", ["global", "user", "account", "transaction", "recurring_transaction"]],
+        "scope-case": [2, "always", "snake-case"]
     }
 }
