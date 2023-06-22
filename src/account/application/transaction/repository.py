@@ -39,7 +39,7 @@ class TransactionRepository(ABC, Generic[TId]):
     def retrieve(self, id_: TransactionId) -> Transaction:
         """
         :param id_:
-        :raises TransactionNotFound
+        :raises EntityNotFound
         """
         pass
 
@@ -47,12 +47,12 @@ class TransactionRepository(ABC, Generic[TId]):
     def delete(self, id_: TransactionId) -> None:
         """
         :param id_:
-        :raises TransactionNotFound
+        :raises EntityNotFound
         """
 
     @abstractmethod
     def update(self, transaction: Transaction) -> None:
         """
         :param transaction:
-        :raises TransactionNotFound
+        :raises EntityNotFound
         """
