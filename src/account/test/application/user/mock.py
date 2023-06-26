@@ -14,3 +14,15 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+
+import ppa
+
+from src.account.application.user.repository import UserRepository
+from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
+
+
+@ppa.in_memory_repository(
+    entity_already_exists_exception=EntityAlreadyExists, entity_not_found_exception=EntityNotFound
+)
+class UserMockRepository(UserRepository):
+    pass

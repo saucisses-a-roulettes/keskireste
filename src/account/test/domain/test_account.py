@@ -17,9 +17,8 @@
 import pytest
 
 from src.account.domain.account import AccountName, Account
-from src.account.test.domain.mocks import MockAccountId
+from src.account.test.domain.mocks import MockAccountId, MockUserId
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.user.test.domain.mocks import MockUserId
 
 
 @pytest.fixture()

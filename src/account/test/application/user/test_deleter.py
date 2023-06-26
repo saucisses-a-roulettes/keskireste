@@ -17,9 +17,9 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from src.user.application.creator import UserCreationRequest, UserCreator
-from src.user.application.deleter import UserDeletionRequest, UserDeleter
-from src.user.application.repository import UserRepository, UserNotFound
+from src.account.application.user.creator import UserCreationRequest, UserCreator
+from src.account.application.user.deleter import UserDeletionRequest, UserDeleter
+from src.account.application.user.repository import UserRepository, UserNotFound
 
 
 @pytest.fixture

@@ -16,9 +16,9 @@
 #   */
 import pytest
 
-from src.user.application.creator import UserCreationRequest, UserCreator
-from src.user.application.repository import UserAlreadyExists, UserRepository
-from src.user.test.domain.mocks import MockUserId
+from src.account.application.user.creator import UserCreationRequest, UserCreator
+from src.account.application.user.repository import UserAlreadyExists, UserRepository
+from src.account.test.domain.mocks import MockUserId
 
 
 def test_create_user(user_creation_request: UserCreationRequest, user_repository: UserRepository):
