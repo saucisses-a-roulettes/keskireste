@@ -16,25 +16,9 @@
 #   */
 import pytest
 
-from src.account.application.account.creator import AccountCreationRequest
-from src.account.application.account.deleter import AccountDeletionRequest
-from src.account.domain.account import AccountName
 from src.account.infrastructure.containers.in_memory import InMemoryContainer
-from src.account.test.domain.mocks import MockAccountId, MockUserId
 
 
-@pytest.fixture
-def account_repository(container: InMemoryContainer):
-    return container.account_repository()
-
-
-@pytest.fixture
-def account_creation_request():
-    return AccountCreationRequest(
-        id=MockAccountId("1"), user_id=MockUserId("1"), name=AccountName("account_name"), reference_balance=100.0
-    )
-
-
-@pytest.fixture
-def account_deletion_request():
-    return AccountDeletionRequest(id=MockAccountId("1"))
+@pytest.fixture(scope="package")
+def container():
+    return InMemoryContainer()
