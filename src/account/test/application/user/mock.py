@@ -14,22 +14,15 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-import pytest
 
-from src.shared.domain.email import EmailAddress
-from src.user.application.creator import UserCreationRequest
-from src.user.domain.user import UserName
-from src.user.test.application.mock import UserMockRepository
-from src.user.test.domain.mocks import MockUserId
+import ppa
+
+from src.account.application.user.repository import UserRepository
+from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
 
 
-@pytest.fixture
-def user_repository():
-    return UserMockRepository()
-
-
-@pytest.fixture
-def user_creation_request():
-    return UserCreationRequest(
-        id=MockUserId("1"), email=EmailAddress("john@example.com"), username=UserName("john_doe")
-    )
+@ppa.in_memory_repository(
+    entity_already_exists_exception=EntityAlreadyExists, entity_not_found_exception=EntityNotFound
+)
+class UserMockRepository(UserRepository):
+    pass

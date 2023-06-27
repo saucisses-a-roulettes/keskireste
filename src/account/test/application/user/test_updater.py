@@ -16,12 +16,12 @@
 #   */
 import pytest
 
+from src.account.application.user.creator import UserCreationRequest, UserCreator
+from src.account.application.user.repository import UserRepository, UserNotFound
+from src.account.application.user.updater import UserUpdateRequest, UserUpdater
+from src.account.domain.user import UserName, User
+from src.account.test.domain.mocks import MockUserId
 from src.shared.domain.email import EmailAddress
-from src.user.application.creator import UserCreationRequest, UserCreator
-from src.user.application.repository import UserRepository, UserNotFound
-from src.user.application.updater import UserUpdateRequest, UserUpdater
-from src.user.domain.user import UserName, User
-from src.user.test.domain.mocks import MockUserId
 
 
 @pytest.fixture

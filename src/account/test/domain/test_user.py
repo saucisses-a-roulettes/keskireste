@@ -17,10 +17,10 @@
 
 import pytest
 
+from src.account.domain.user import UserName, User
+from src.account.test.domain.mocks import MockUserId
 from src.shared.domain.email import EmailAddress
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
-from src.user.domain.user import UserName, User
-from src.user.test.domain.mocks import MockUserId
 
 
 def test_valid_user_name():

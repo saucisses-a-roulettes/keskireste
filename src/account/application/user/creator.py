@@ -17,29 +17,28 @@
 from dataclasses import dataclass
 from typing import Generic
 
-from src.shared.application.repository import EntityNotFound
+from src.account.application.user.repository import UserRepository, UserAlreadyExists
+from src.account.domain.user import UserName, User
+from src.shared.application.repository import EntityAlreadyExists
 from src.shared.domain.email import EmailAddress
 from src.shared.domain.entity import TId
-from src.user.application.repository import UserRepository, UserNotFound
-from src.user.domain.user import UserName
 
 
 @dataclass(frozen=True)
-class UserUpdateRequest(Generic[TId]):
+class UserCreationRequest(Generic[TId]):
     id: TId
     email: EmailAddress
     username: UserName
 
 
-class UserUpdater:
+class UserCreator:
     def __init__(self, repository: UserRepository) -> None:
         self._repository = repository
 
-    def update(self, request: UserUpdateRequest) -> None:
+    def create(self, request: UserCreationRequest) -> None:
+        user = User(id_=request.id, email=request.email, username=request.username)
+
         try:
-            user = self._repository.retrieve(request.id)
-            user.change_email(request.email)
-            user.rename(request.username)
-            self._repository.update(user)
-        except EntityNotFound as e:
-            raise UserNotFound(user_id=request.id) from e
+            self._repository.add(user)
+        except EntityAlreadyExists as e:
+            raise UserAlreadyExists(user_id=request.id) from e

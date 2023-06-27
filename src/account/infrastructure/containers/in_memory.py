@@ -14,9 +14,17 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from src.shared.domain.entity import IdBase
-from src.user.domain.user import UserId
+from dependency_injector.containers import DeclarativeContainer
+from dependency_injector.providers import Factory
+
+from src.account.test.application.account.mock import AccountMockRepository
+from src.account.test.application.transaction.mock import TransactionMockRepository
+from src.account.test.application.user.mock import UserMockRepository
 
 
-class MockUserId(UserId, IdBase[str]):
-    pass
+class InMemoryContainer(DeclarativeContainer):
+    user_repository = Factory(UserMockRepository)
+
+    account_repository = Factory(AccountMockRepository)
+
+    transaction_repository = Factory(TransactionMockRepository)

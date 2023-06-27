@@ -14,3 +14,25 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from dataclasses import dataclass
+from typing import Generic
+
+from src.account.application.user.repository import UserRepository, UserNotFound
+from src.shared.application.repository import EntityNotFound
+from src.shared.domain.entity import TId
+
+
+@dataclass(frozen=True)
+class UserDeletionRequest(Generic[TId]):
+    id: TId
+
+
+class UserDeleter:
+    def __init__(self, repository: UserRepository) -> None:
+        self._repository = repository
+
+    def delete(self, request: UserDeletionRequest) -> None:
+        try:
+            self._repository.delete(request.id)
+        except EntityNotFound as e:
+            raise UserNotFound(user_id=request.id) from e

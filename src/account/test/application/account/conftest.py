@@ -19,14 +19,13 @@ import pytest
 from src.account.application.account.creator import AccountCreationRequest
 from src.account.application.account.deleter import AccountDeletionRequest
 from src.account.domain.account import AccountName
-from src.account.test.application.account.mock import AccountMockRepository
-from src.account.test.domain.mocks import MockAccountId
-from src.user.test.domain.mocks import MockUserId
+from src.account.infrastructure.containers.in_memory import InMemoryContainer
+from src.account.test.domain.mocks import MockAccountId, MockUserId
 
 
 @pytest.fixture
-def account_repository():
-    return AccountMockRepository()
+def account_repository(container: InMemoryContainer):
+    return container.account_repository()
 
 
 @pytest.fixture

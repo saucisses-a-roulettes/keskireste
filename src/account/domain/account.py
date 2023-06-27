@@ -17,10 +17,10 @@
 import re
 from abc import ABC
 
+from src.account.domain.user import UserId
 from src.shared.domain.entity import Id, EntityBase
 from src.shared.domain.string import StringTooShort, StringTooLong, StringContainsInvalidCharacters
 from src.shared.domain.value_object import StringObject
-from src.user.domain.user import UserId
 
 
 class AccountId(Id, ABC):

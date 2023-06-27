@@ -17,9 +17,9 @@
 from abc import ABC, abstractmethod
 from typing import Generic
 
+from src.account.domain.user import User
 from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
 from src.shared.domain.entity import TId
-from src.user.domain.user import User
 
 
 class UserAlreadyExists(EntityAlreadyExists, Generic[TId]):
