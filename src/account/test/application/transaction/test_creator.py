@@ -1,6 +1,5 @@
 import pytest
 
-from src.account.application.account.repository import AccountAlreadyExists
 from src.account.application.transaction.creator import TransactionCreationRequest, TransactionCreator
 from src.account.application.transaction.repository import TransactionRepository, TransactionAlreadyExists
 from src.account.test.domain.mocks import MockTransactionId
