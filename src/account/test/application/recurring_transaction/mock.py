@@ -17,9 +17,11 @@
 import ppa
 
 from src.account.application.reccurring_transaction.repository import RecurringTransactionRepository
-from src.shared.application.repository import EntityAlreadyExists
+from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
 
 
-@ppa.in_memory_repository(entity_already_exists_exception=EntityAlreadyExists)
+@ppa.in_memory_repository(
+    entity_already_exists_exception=EntityAlreadyExists, entity_not_found_exception=EntityNotFound
+)
 class RecurringTransactionMockRepository(RecurringTransactionRepository):
     pass
