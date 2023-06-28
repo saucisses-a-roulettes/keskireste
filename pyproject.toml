@@ -15,6 +15,8 @@ PySide6 = "^6.4.3"
 ofxparse = "^0.21"
 ppa = { git = "https://github.com/saucisses-a-roulettes/ppa.git", branch = "main" }
 dependency-injector = "^4.41.0"
+fastapi = "^0.98.0"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
 
 [tool.poetry.group.dev.dependencies]
 black = { extras = ["d"], version = "^23.3.0" }

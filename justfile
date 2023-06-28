@@ -15,3 +15,6 @@ setup:
     cp hooks/* .git/hooks/
     chmod +x .git/hooks/*
     poetry install
+
+fastapi:
+    uvicorn src.account.infrastructure.fastapi:app --reload
