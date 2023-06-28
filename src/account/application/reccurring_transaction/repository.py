@@ -65,3 +65,10 @@ class RecurringTransactionRepository(ABC, Generic[TId]):
         :param id_:
         :raises EntityNotFound
         """
+
+    @abstractmethod
+    def update(self, recurring_transaction: RecurringTransaction) -> None:
+        """
+        :param recurring_transaction:
+        :raises EntityNotFound
+        """
