@@ -1,6 +1,7 @@
 import pytest
 
 from src.account.application.reccurring_transaction.creator import RecurringTransactionCreationRequest
+from src.account.application.reccurring_transaction.deleter import RecurringTransactionDeletionRequest
 from src.account.domain.recurring_transaction import RecurringTransactionName, DailyFrequency
 from src.account.infrastructure.containers.in_memory import InMemoryContainer
 from src.account.test.domain.mocks import RecurringTransactionMockId, MockAccountId
@@ -20,3 +21,8 @@ def recurring_transaction_creation_request():
         amount=1.0,
         frequency=DailyFrequency,
     )
+
+
+@pytest.fixture
+def recurring_transaction_deletion_request():
+    return RecurringTransactionDeletionRequest(id=RecurringTransactionMockId("1"))
