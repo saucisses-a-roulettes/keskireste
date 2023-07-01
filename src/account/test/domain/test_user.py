@@ -45,33 +45,33 @@ def test_invalid_user_name_invalid_characters():
 
 def test_user_creation():
     user_id = MockUserId("1")
-    email = EmailAddress("john@example.com")
+    email_address = EmailAddress("john@example.com")
     username = UserName("john_doe")
-    user = User(user_id, email, username)
+    user = User(user_id, email_address, username)
 
     assert user.id == user_id
-    assert user.email == email
+    assert user.email_address == email_address
     assert user.username == username
 
 
 def test_change_email():
     user_id = MockUserId("1")
-    email = EmailAddress("john@example.com")
-    new_email = EmailAddress("johndoe@example.com")
+    email_address = EmailAddress("john@example.com")
+    new_email_address = EmailAddress("johndoe@example.com")
     username = UserName("john_doe")
-    user = User(user_id, email, username)
+    user = User(user_id, email_address, username)
 
-    user.change_email(new_email)
+    user.change_email_address(new_email_address)
 
-    assert user.email == new_email
+    assert user.email_address == new_email_address
 
 
 def test_rename():
     user_id = MockUserId("1")
-    email = EmailAddress("john@example.com")
+    email_address = EmailAddress("john@example.com")
     username = UserName("john_doe")
     new_username = UserName("johndoe")
-    user = User(user_id, email, username)
+    user = User(user_id, email_address, username)
 
     user.rename(new_username)
 

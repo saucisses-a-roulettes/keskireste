@@ -38,21 +38,21 @@ class UserName(ValueObject[str]):
 
 
 class User(EntityBase[UserId]):
-    def __init__(self, id_: UserId, email: EmailAddress, username: UserName) -> None:
+    def __init__(self, id_: UserId, email_address: EmailAddress, username: UserName) -> None:
         super().__init__(id_=id_)
-        self._email = email
+        self._email_address = email_address
         self._username = username
 
     @property
-    def email(self) -> EmailAddress:
-        return self._email
+    def email_address(self) -> EmailAddress:
+        return self._email_address
 
     @property
     def username(self) -> UserName:
         return self._username
 
-    def change_email(self, new_email: EmailAddress) -> None:
-        self._email = new_email
+    def change_email_address(self, new_email: EmailAddress) -> None:
+        self._email_address = new_email
 
     def rename(self, new_username: UserName) -> None:
         self._username = new_username

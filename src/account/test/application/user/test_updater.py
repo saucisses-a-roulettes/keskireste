@@ -28,7 +28,7 @@ from src.shared.domain.email import EmailAddress
 def user_update_request(user_creation_request: UserCreationRequest):
     return UserUpdateRequest(
         id=user_creation_request.id,
-        email=EmailAddress(str(user_creation_request.email).replace("john", "john_updated")),
+        email_address=EmailAddress(str(user_creation_request.email_address).replace("john", "john_updated")),
         username=UserName(f"{user_creation_request.username}_updated"),
     )
 
@@ -44,16 +44,16 @@ def test_update_user(
 
     user = user_repository.retrieve(MockUserId("1"))
 
-    reference_user = User(user.id, user.email, user.username)
+    reference_user = User(user.id, user.email_address, user.username)
 
     reference_user.rename(user_update_request.username)
-    reference_user.change_email(user_update_request.email)
+    reference_user.change_email_address(user_update_request.email_address)
 
     sample_user_updater.update(user_update_request)
 
     user = user_repository.retrieve(user.id)
 
-    assert user.username == reference_user.username and user.email == reference_user.email
+    assert user.username == reference_user.username and user.email_address == reference_user.email_address
 
 
 def test_update_unexisting_user(user_update_request: UserUpdateRequest, user_repository: UserRepository):

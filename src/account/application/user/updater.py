@@ -27,7 +27,7 @@ from src.shared.domain.entity import TId
 @dataclass(frozen=True)
 class UserUpdateRequest(Generic[TId]):
     id: TId
-    email: EmailAddress
+    email_address: EmailAddress
     username: UserName
 
 
@@ -38,7 +38,7 @@ class UserUpdater:
     def update(self, request: UserUpdateRequest) -> None:
         try:
             user = self._repository.retrieve(request.id)
-            user.change_email(request.email)
+            user.change_email_address(request.email_address)
             user.rename(request.username)
             self._repository.update(user)
         except EntityNotFound as e:

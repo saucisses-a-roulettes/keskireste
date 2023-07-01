@@ -27,7 +27,7 @@ from src.shared.domain.entity import TId
 @dataclass(frozen=True)
 class UserCreationRequest(Generic[TId]):
     id: TId
-    email: EmailAddress
+    email_address: EmailAddress
     username: UserName
 
 
@@ -36,7 +36,7 @@ class UserCreator:
         self._repository = repository
 
     def create(self, request: UserCreationRequest) -> None:
-        user = User(id_=request.id, email=request.email, username=request.username)
+        user = User(id_=request.id, email_address=request.email_address, username=request.username)
 
         try:
             self._repository.add(user)

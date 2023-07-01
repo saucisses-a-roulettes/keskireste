@@ -31,5 +31,5 @@ def user_repository(container: InMemoryContainer):
 @pytest.fixture
 def user_creation_request():
     return UserCreationRequest(
-        id=MockUserId("1"), email=EmailAddress("john@example.com"), username=UserName("john_doe")
+        id=MockUserId("1"), email_address=EmailAddress("john@example.com"), username=UserName("john_doe")
     )
