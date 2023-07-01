@@ -16,16 +16,16 @@
 #   */
 
 
-class StringContainsInvalidCharacters(Exception):
+class StringContainsInvalidCharacters(ValueError):
     def __init__(self, string: str) -> None:
         super().__init__(f"`{string}` contains invalid characters")
 
 
-class StringTooLong(Exception):
+class StringTooLong(ValueError):
     def __init__(self, string: str) -> None:
         super().__init__(f"`{string}` length is too long")
 
 
-class StringTooShort(Exception):
+class StringTooShort(ValueError):
     def __init__(self, string: str) -> None:
         super().__init__(f"`{string}` length is too short")
