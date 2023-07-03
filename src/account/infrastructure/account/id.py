@@ -14,21 +14,17 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from uuid import uuid4
 
-from fastapi import FastAPI
-
-from .account.fastapi.post import router as account_post_router
-from .containers.in_memory import InMemoryContainer
-
-
-def create_app() -> FastAPI:
-    new_app = FastAPI()
-    container = InMemoryContainer()
-    container.init_resources()
-    container.wire(modules=["src.account.infrastructure.account.fastapi.post"])
-    new_app.container = container  # type: ignore
-    new_app.include_router(account_post_router, prefix="/account")
-    return new_app
+from src.account.domain.account import AccountId
+from src.shared.application.id import IdFactory
+from src.shared.domain.entity import IdBase, TId
 
 
-app = create_app()
+class AccountUUID(AccountId, IdBase[str]):
+    pass
+
+
+class AccountUUIDFactory(IdFactory[AccountId]):
+    def generate_id(self) -> AccountId:
+        return AccountUUID(str(uuid4()))
