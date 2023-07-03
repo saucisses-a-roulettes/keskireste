@@ -14,32 +14,37 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from abc import abstractmethod, ABC
 from dataclasses import dataclass
 
 from src.account.application.account.repository import AccountRepository, AccountAlreadyExists
 from src.account.domain.account import Account, AccountName, AccountId
 from src.account.domain.user import UserId
+from src.shared.application.id import IdFactory
 from src.shared.application.repository import EntityAlreadyExists
 
 
 @dataclass(frozen=True)
 class AccountCreationRequest:
-    id: AccountId
     user_id: UserId
     name: AccountName
     reference_balance: float
 
 
 class AccountCreator:
-    def __init__(self, repository: AccountRepository) -> None:
+    def __init__(self, repository: AccountRepository, account_id_factory: IdFactory[AccountId]) -> None:
         self._repository = repository
+        self._account_id_factory = account_id_factory
 
     def create(self, request: AccountCreationRequest) -> None:
         account = Account(
-            id_=request.id, user_id=request.user_id, name=request.name, reference_balance=request.reference_balance
+            id_=self._account_id_factory.generate_id(),
+            user_id=request.user_id,
+            name=request.name,
+            reference_balance=request.reference_balance,
         )
 
         try:
             self._repository.add(account)
         except EntityAlreadyExists as e:
-            raise AccountAlreadyExists(account_id=request.id) from e
+            raise AccountAlreadyExists(account_id=account.id) from e

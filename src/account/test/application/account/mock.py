@@ -14,10 +14,12 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-
 import ppa
 
 from src.account.application.account.repository import AccountRepository
+from src.account.domain.account import AccountId
+from src.account.test.domain.mocks import MockAccountId
+from src.shared.application.id import IdFactory
 from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
 
 
@@ -26,3 +28,19 @@ from src.shared.application.repository import EntityAlreadyExists, EntityNotFoun
 )
 class AccountMockRepository(AccountRepository):
     pass
+
+
+class MockAccountIdFactory(IdFactory[AccountId]):
+    def __init__(self) -> None:
+        self._id_template = MockAccountId("mock_id")
+
+    def generate_id(self) -> MockAccountId:
+        return self.id_template
+
+    @property
+    def id_template(self) -> MockAccountId:
+        return self._id_template
+
+    @id_template.setter
+    def id_template(self, id_template: MockAccountId) -> None:
+        self._id_template = id_template

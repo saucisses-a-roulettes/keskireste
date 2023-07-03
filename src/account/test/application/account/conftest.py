@@ -20,6 +20,7 @@ from src.account.application.account.creator import AccountCreationRequest
 from src.account.application.account.deleter import AccountDeletionRequest
 from src.account.domain.account import AccountName
 from src.account.infrastructure.containers.in_memory import InMemoryContainer
+from src.account.test.application.account.mock import MockAccountIdFactory
 from src.account.test.domain.mocks import MockAccountId, MockUserId
 
 
@@ -29,12 +30,15 @@ def account_repository(container: InMemoryContainer):
 
 
 @pytest.fixture
-def account_creation_request():
-    return AccountCreationRequest(
-        id=MockAccountId("1"), user_id=MockUserId("1"), name=AccountName("account_name"), reference_balance=100.0
-    )
+def account_id_factory(container: InMemoryContainer):
+    return container.id_factory()
 
 
 @pytest.fixture
-def account_deletion_request():
-    return AccountDeletionRequest(id=MockAccountId("1"))
+def account_creation_request():
+    return AccountCreationRequest(user_id=MockUserId("1"), name=AccountName("account_name"), reference_balance=100.0)
+
+
+@pytest.fixture
+def account_deletion_request(account_id_factory: MockAccountIdFactory):
+    return AccountDeletionRequest(id=account_id_factory.id_template)

@@ -20,13 +20,17 @@ from src.account.application.account.creator import AccountCreationRequest, Acco
 from src.account.application.account.repository import AccountRepository, AccountNotFound
 from src.account.application.account.updater import AccountUpdateRequest, AccountUpdater
 from src.account.domain.account import AccountName, Account
+from src.account.test.application.account.mock import MockAccountIdFactory
 from src.account.test.domain.mocks import MockAccountId
 
 
 @pytest.fixture
-def account_update_request(account_creation_request: AccountUpdateRequest):
+def account_update_request(
+    account_creation_request: AccountUpdateRequest,
+    account_id_factory: MockAccountIdFactory,
+):
     return AccountUpdateRequest(
-        id=account_creation_request.id,
+        id=account_id_factory.id_template,
         name=AccountName(f"{account_creation_request.name}_updated"),
         reference_balance=account_creation_request.reference_balance + 10,
     )
@@ -36,12 +40,13 @@ def test_update_account(
     account_creation_request: AccountCreationRequest,
     account_update_request: AccountUpdateRequest,
     account_repository: AccountRepository,
+    account_id_factory: MockAccountIdFactory,
 ):
-    sample_account_creator = AccountCreator(repository=account_repository)
+    sample_account_creator = AccountCreator(repository=account_repository, account_id_factory=account_id_factory)
     sample_account_updater = AccountUpdater(repository=account_repository)
     sample_account_creator.create(account_creation_request)
 
-    account = account_repository.retrieve(MockAccountId("1"))
+    account = account_repository.retrieve(account_id_factory.id_template)
 
     reference_account = Account(account.id, account.user_id, account.name, account.reference_balance)
 
