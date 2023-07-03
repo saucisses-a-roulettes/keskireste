@@ -32,7 +32,7 @@ def test_delete_account(
     account_id_factory: MockAccountIdFactory,
 ):
     spy = mocker.spy(account_repository, "delete")
-    sample_account_creator = AccountCreator(repository=account_repository, account_id_factory=account_id_factory)
+    sample_account_creator = AccountCreator(repository=account_repository, id_factory=account_id_factory)
     sample_account_deleter = AccountDeleter(repository=account_repository)
     sample_account_creator.create(account_creation_request)
 

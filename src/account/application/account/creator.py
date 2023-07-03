@@ -14,7 +14,6 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from abc import abstractmethod, ABC
 from dataclasses import dataclass
 
 from src.account.application.account.repository import AccountRepository, AccountAlreadyExists
@@ -32,13 +31,13 @@ class AccountCreationRequest:
 
 
 class AccountCreator:
-    def __init__(self, repository: AccountRepository, account_id_factory: IdFactory[AccountId]) -> None:
+    def __init__(self, repository: AccountRepository, id_factory: IdFactory[AccountId]) -> None:
         self._repository = repository
-        self._account_id_factory = account_id_factory
+        self._id_factory = id_factory
 
     def create(self, request: AccountCreationRequest) -> None:
         account = Account(
-            id_=self._account_id_factory.generate_id(),
+            id_=self._id_factory.generate_id(),
             user_id=request.user_id,
             name=request.name,
             reference_balance=request.reference_balance,

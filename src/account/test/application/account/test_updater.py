@@ -42,7 +42,7 @@ def test_update_account(
     account_repository: AccountRepository,
     account_id_factory: MockAccountIdFactory,
 ):
-    sample_account_creator = AccountCreator(repository=account_repository, account_id_factory=account_id_factory)
+    sample_account_creator = AccountCreator(repository=account_repository, id_factory=account_id_factory)
     sample_account_updater = AccountUpdater(repository=account_repository)
     sample_account_creator.create(account_creation_request)
 

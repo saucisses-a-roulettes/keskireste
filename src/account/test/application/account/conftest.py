@@ -31,7 +31,7 @@ def account_repository(container: InMemoryContainer):
 
 @pytest.fixture
 def account_id_factory(container: InMemoryContainer):
-    return container.id_factory()
+    return container.account_id_factory()
 
 
 @pytest.fixture
