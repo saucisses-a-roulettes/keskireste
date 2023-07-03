@@ -18,21 +18,27 @@ import pytest
 
 from src.account.application.account.creator import AccountCreationRequest, AccountCreator
 from src.account.application.account.repository import AccountRepository, AccountAlreadyExists
-from src.account.test.domain.mocks import MockAccountId
+from src.account.test.application.account.mock import MockAccountIdFactory
 
 
-def test_create_account(account_creation_request: AccountCreationRequest, account_repository: AccountRepository):
-    sample_account_creator = AccountCreator(repository=account_repository)
+def test_create_account(
+    account_creation_request: AccountCreationRequest,
+    account_repository: AccountRepository,
+    account_id_factory: MockAccountIdFactory,
+):
+    sample_account_creator = AccountCreator(repository=account_repository, account_id_factory=account_id_factory)
 
     sample_account_creator.create(account_creation_request)
 
-    assert account_repository.retrieve(MockAccountId("1"))
+    assert account_repository.retrieve(account_id_factory.id_template)
 
 
 def test_create_account_already_exists(
-    account_creation_request: AccountCreationRequest, account_repository: AccountRepository
+    account_creation_request: AccountCreationRequest,
+    account_repository: AccountRepository,
+    account_id_factory: MockAccountIdFactory,
 ):
-    sample_account_creator = AccountCreator(repository=account_repository)
+    sample_account_creator = AccountCreator(repository=account_repository, account_id_factory=account_id_factory)
     sample_account_creator.create(account_creation_request)
 
     with pytest.raises(AccountAlreadyExists):

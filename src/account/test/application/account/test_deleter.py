@@ -21,6 +21,7 @@ from pytest_mock import MockFixture
 from src.account.application.account.creator import AccountCreator, AccountCreationRequest
 from src.account.application.account.deleter import AccountDeletionRequest, AccountDeleter
 from src.account.application.account.repository import AccountRepository, AccountNotFound
+from src.account.test.application.account.mock import MockAccountIdFactory
 
 
 def test_delete_account(
@@ -28,9 +29,10 @@ def test_delete_account(
     account_creation_request: AccountCreationRequest,
     account_deletion_request: AccountDeletionRequest,
     account_repository: AccountRepository,
+    account_id_factory: MockAccountIdFactory,
 ):
     spy = mocker.spy(account_repository, "delete")
-    sample_account_creator = AccountCreator(repository=account_repository)
+    sample_account_creator = AccountCreator(repository=account_repository, account_id_factory=account_id_factory)
     sample_account_deleter = AccountDeleter(repository=account_repository)
     sample_account_creator.create(account_creation_request)
 
