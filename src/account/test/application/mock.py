@@ -15,24 +15,37 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from abc import ABC, abstractmethod
+from typing import Type
 
-from src.shared.domain.email import EmailAddress
-
-
-class InvalidToken(ValueError):
-    def __init__(self):
-        super().__init__("Invalid token")
+from src.shared.application.id import IdFactory
+from src.shared.domain.entity import TId
+from src.shared.test.domain.mock import MockId
 
 
-class ValidationEmailSender(ABC):
+class MockIdFactory(IdFactory[TId], ABC):
+    @property
     @abstractmethod
-    def send(self, email_address: EmailAddress) -> None:
+    def id_template(self) -> TId:
         pass
 
-    @abstractmethod
-    def check_validation_token(self, email_address: EmailAddress, token: str) -> None:
-        """
-        Check if the token is valid for the email address
-        :raises: InvalidToken
-        """
+    @id_template.setter
+    def id_template(self, id_template: TId) -> None:
         pass
+
+
+def mock_id_factory(mock_id_class: Type[MockId]):
+    def decorator(cls) -> Type:
+        class MockIdFactoryBase(cls):
+            def __init__(self) -> None:
+                self._id_template = mock_id_class("mock_id")
+
+            @property
+            def id_template(self) -> MockId:
+                return self._id_template
+
+            def generate_id(self) -> MockId:
+                return self.id_template
+
+        return MockIdFactoryBase
+
+    return decorator

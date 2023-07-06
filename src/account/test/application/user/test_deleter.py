@@ -20,11 +20,15 @@ from pytest_mock import MockerFixture
 from src.account.application.user.creator import UserCreationRequest, UserCreator
 from src.account.application.user.deleter import UserDeletionRequest, UserDeleter
 from src.account.application.user.repository import UserRepository, UserNotFound
+from src.account.domain.user import UserId
+from src.account.test.application.mock import MockIdFactory
 
 
 @pytest.fixture
-def user_deletion_request(user_creation_request: UserCreationRequest):
-    return UserDeletionRequest(id=user_creation_request.id)
+def user_deletion_request(
+    user_id_factory: MockIdFactory[UserId],
+):
+    return UserDeletionRequest(id=user_id_factory.generate_id())
 
 
 def test_delete_user(
@@ -32,9 +36,10 @@ def test_delete_user(
     user_creation_request: UserCreationRequest,
     user_deletion_request: UserDeletionRequest,
     user_repository: UserRepository,
+    user_id_factory: MockIdFactory[UserId],
 ):
     spy = mocker.spy(user_repository, "delete")
-    sample_user_creator = UserCreator(repository=user_repository)
+    sample_user_creator = UserCreator(repository=user_repository, id_factory=user_id_factory)
     sample_user_deleter = UserDeleter(repository=user_repository)
 
     sample_user_creator.create(user_creation_request)

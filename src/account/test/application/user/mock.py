@@ -18,7 +18,12 @@
 import ppa
 
 from src.account.application.user.repository import UserRepository
+from src.account.domain.user import UserId
+from src.account.infrastructure.user.password.vault import UserPasswordVault, InvalidPassword
+from src.account.test.application.mock import mock_id_factory, MockIdFactory
+from src.account.test.domain.mocks import MockUserId
 from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
+from src.shared.domain.email import EmailAddress
 
 
 @ppa.in_memory_repository(
@@ -26,3 +31,20 @@ from src.shared.application.repository import EntityAlreadyExists, EntityNotFoun
 )
 class UserMockRepository(UserRepository):
     pass
+
+
+@mock_id_factory(MockUserId)
+class MockUserIdFactory(MockIdFactory[UserId]):
+    pass
+
+
+class UserPasswordVaultMock(UserPasswordVault):
+    def __init__(self) -> None:
+        self._passwords: dict[EmailAddress, str] = {}
+
+    def save(self, email_address: EmailAddress, password: str) -> None:
+        self._passwords[email_address] = password
+
+    def check(self, email_address: EmailAddress, password: str) -> None:
+        if self._passwords.get(email_address) != password:
+            raise InvalidPassword()

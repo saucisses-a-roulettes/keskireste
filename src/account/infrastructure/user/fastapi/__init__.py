@@ -14,24 +14,3 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from src.account.domain.account import AccountId
-from src.account.domain.recurring_transaction import RecurringTransactionId
-from src.account.domain.transaction import TransactionId
-from src.account.domain.user import UserId
-from src.shared.test.domain.mock import MockId
-
-
-class MockUserId(UserId, MockId):
-    pass
-
-
-class RecurringTransactionMockId(RecurringTransactionId, MockId):
-    pass
-
-
-class MockAccountId(AccountId, MockId):
-    pass
-
-
-class MockTransactionId(TransactionId, MockId):
-    pass

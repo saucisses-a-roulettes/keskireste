@@ -25,7 +25,6 @@ mypy = "^1.2.0"
 pytest = "^7.3.1"
 types-python-dateutil = "^2.8.19.13"
 pytest-mock = "^3.10.0"
-pytest-asyncio = "^0.17.0"
 
 [tool.poetry.group.build.dependencies]
 pyinstaller = "^5.10.1"
@@ -41,9 +40,5 @@ target-version = ['py311']
 include = '\.pyi?$'
 
 [tool.mypy]
-
 python_version = 3.11
 files = "src/"
-
-[tool.pytest.ini_options]
-asyncio_mode = "auto"

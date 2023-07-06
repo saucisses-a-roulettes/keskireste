@@ -50,3 +50,6 @@ class StringObject(ValueObject[str]):
             return self.value == other
 
         return False
+
+    def __hash__(self):
+        return self.value.__hash__()
