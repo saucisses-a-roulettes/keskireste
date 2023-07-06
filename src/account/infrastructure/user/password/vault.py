@@ -14,24 +14,24 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
-from src.account.domain.account import AccountId
-from src.account.domain.recurring_transaction import RecurringTransactionId
-from src.account.domain.transaction import TransactionId
-from src.account.domain.user import UserId
-from src.shared.test.domain.mock import MockId
+from abc import ABC, abstractmethod
+
+from src.shared.domain.email import EmailAddress
 
 
-class MockUserId(UserId, MockId):
-    pass
+class InvalidPassword(ValueError):
+    def __init__(self):
+        super().__init__("Invalid password")
 
 
-class RecurringTransactionMockId(RecurringTransactionId, MockId):
-    pass
+class UserPasswordVault(ABC):
+    @abstractmethod
+    def save(self, email_address: EmailAddress, password: str) -> None:
+        pass
 
-
-class MockAccountId(AccountId, MockId):
-    pass
-
-
-class MockTransactionId(TransactionId, MockId):
-    pass
+    @abstractmethod
+    def check(self, email_address: EmailAddress, password: str) -> None:
+        """
+        :raises: InvalidPassword
+        """
+        pass

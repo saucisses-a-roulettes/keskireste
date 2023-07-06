@@ -18,19 +18,28 @@ import pytest
 
 from src.account.application.user.creator import UserCreationRequest, UserCreator
 from src.account.application.user.repository import UserAlreadyExists, UserRepository
-from src.account.test.domain.mocks import MockUserId
+from src.account.domain.user import UserId
+from src.account.test.application.mock import MockIdFactory
 
 
-def test_create_user(user_creation_request: UserCreationRequest, user_repository: UserRepository):
-    sample_user_creator = UserCreator(repository=user_repository)
+def test_create_user(
+    user_creation_request: UserCreationRequest,
+    user_repository: UserRepository,
+    user_id_factory: MockIdFactory[UserId],
+):
+    sample_user_creator = UserCreator(repository=user_repository, id_factory=user_id_factory)
 
     sample_user_creator.create(user_creation_request)
 
-    assert user_repository.retrieve(MockUserId("1"))
+    assert user_repository.retrieve(user_id_factory.id_template)
 
 
-def test_create_user_already_exists(user_creation_request: UserCreationRequest, user_repository: UserRepository):
-    sample_user_creator = UserCreator(repository=user_repository)
+def test_create_user_already_exists(
+    user_creation_request: UserCreationRequest,
+    user_repository: UserRepository,
+    user_id_factory: MockIdFactory[UserId],
+):
+    sample_user_creator = UserCreator(repository=user_repository, id_factory=user_id_factory)
     sample_user_creator.create(user_creation_request)
 
     with pytest.raises(UserAlreadyExists):

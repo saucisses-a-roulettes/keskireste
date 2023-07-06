@@ -17,10 +17,10 @@
 import re
 
 from src.shared.domain.string import StringContainsInvalidCharacters
-from src.shared.domain.value_object import ValueObject
+from src.shared.domain.value_object import StringObject
 
 
-class EmailAddress(ValueObject[str]):
+class EmailAddress(StringObject):
     def __post_init__(self):
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(pattern, self.value):

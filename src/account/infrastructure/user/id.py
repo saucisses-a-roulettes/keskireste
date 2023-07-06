@@ -14,9 +14,17 @@
 #   * You should have received a copy of the GNU General Public License
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
+from uuid import uuid4
+
 from src.account.domain.user import UserId
+from src.shared.application.id import IdFactory
 from src.shared.domain.entity import IdBase
 
 
 class UserUUID(UserId, IdBase[str]):
     pass
+
+
+class UserUUIDFactory(IdFactory[UserId]):
+    def generate_id(self) -> UserId:
+        return UserUUID(str(uuid4()))
