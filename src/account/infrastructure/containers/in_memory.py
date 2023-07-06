@@ -18,28 +18,30 @@ from dependency_injector.containers import DeclarativeContainer
 from dependency_injector.providers import Factory
 
 from src.account.application.account.creator import AccountCreator
-from src.account.test.application.account.mock import AccountMockRepository, MockAccountIdFactory
+from src.account.application.user.creator import UserCreator
 from src.account.application.user.subscription.email_address.validator import EmailAddressValidator
+from src.account.test.application.account.mock import AccountMockRepository, MockAccountIdFactory
 from src.account.test.application.recurring_transaction.mock import RecurringTransactionMockRepository
 from src.account.test.application.transaction.mock import TransactionMockRepository
 from src.account.test.application.user.email_address.mock import ValidationEmailMockSender, EmailAddressCheckerMock
-from src.account.test.application.user.mock import UserMockRepository
+from src.account.test.application.user.mock import UserMockRepository, MockUserIdFactory, UserPasswordVaultMock
 
 
 class InMemoryContainer(DeclarativeContainer):
     user_repository = Factory(UserMockRepository)
+    user_id_factory = Factory(MockUserIdFactory)
+    user_creator = Factory(UserCreator, repository=user_repository, id_factory=user_id_factory)
+    user_password_vault = Factory(UserPasswordVaultMock)
+
     account_repository = Factory(AccountMockRepository)
+    account_id_factory = Factory(MockAccountIdFactory)
+    account_creator = Factory(AccountCreator, repository=account_repository, id_factory=account_id_factory)
+
     transaction_repository = Factory(TransactionMockRepository)
     recurring_transaction_repository = Factory(RecurringTransactionMockRepository)
 
-    account_id_factory = Factory(MockAccountIdFactory)
-
-    account_creator = Factory(AccountCreator, repository=account_repository, id_factory=account_id_factory)
-
     email_address_checker = Factory(EmailAddressCheckerMock)
-
     validation_email_sender = Factory(ValidationEmailMockSender)
-
     email_address_validator = Factory(
         EmailAddressValidator,
         email_address_checker=email_address_checker,

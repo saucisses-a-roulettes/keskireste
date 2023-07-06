@@ -15,30 +15,29 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from dataclasses import dataclass
-from typing import Generic
 
 from src.account.application.user.repository import UserRepository, UserAlreadyExists
-from src.account.domain.user import UserName, User
+from src.account.domain.user import UserName, User, UserId
+from src.shared.application.id import IdFactory
 from src.shared.application.repository import EntityAlreadyExists
 from src.shared.domain.email import EmailAddress
-from src.shared.domain.entity import TId
 
 
 @dataclass(frozen=True)
-class UserCreationRequest(Generic[TId]):
-    id: TId
+class UserCreationRequest:
     email_address: EmailAddress
     username: UserName
 
 
 class UserCreator:
-    def __init__(self, repository: UserRepository) -> None:
+    def __init__(self, repository: UserRepository, id_factory: IdFactory[UserId]) -> None:
+        self._id_factory = id_factory
         self._repository = repository
 
     def create(self, request: UserCreationRequest) -> None:
-        user = User(id_=request.id, email_address=request.email_address, username=request.username)
+        user = User(id_=self._id_factory.generate_id(), email_address=request.email_address, username=request.username)
 
         try:
             self._repository.add(user)
         except EntityAlreadyExists as e:
-            raise UserAlreadyExists(user_id=request.id) from e
+            raise UserAlreadyExists(user_id=user.id) from e

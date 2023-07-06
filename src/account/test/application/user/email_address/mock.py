@@ -15,7 +15,7 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from src.account.application.user.subscription.email_address.checker import EmailAddressChecker
-from src.account.application.user.subscription.emailer import ValidationEmailSender
+from src.account.application.user.subscription.emailer import ValidationEmailSender, InvalidToken
 from src.shared.domain.email import EmailAddress
 
 
@@ -29,6 +29,10 @@ class ValidationEmailMockSender(ValidationEmailSender):
     @property
     def email_sent_to(self) -> list[EmailAddress]:
         return self._email_sent_to
+
+    def check_validation_token(self, email_address: EmailAddress, token: str) -> None:
+        if email_address != token:
+            raise InvalidToken()
 
 
 class EmailAddressCheckerMock(EmailAddressChecker):
