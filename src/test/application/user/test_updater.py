@@ -21,14 +21,12 @@ from src.application.user.repository import UserRepository, UserNotFound
 from src.application.user.updater import UserUpdateRequest, UserUpdater
 from src.domain.user import UserName, User, UserId
 from src.test.application.mock import MockIdFactory
-from src.shared.domain.email import EmailAddress
 
 
 @pytest.fixture
 def user_update_request(user_id_factory: MockIdFactory[UserId], user_creation_request: UserCreationRequest):
     return UserUpdateRequest(
         id=user_id_factory.generate_id(),
-        email_address=EmailAddress(str(user_creation_request.email_address).replace("john", "john_updated")),
         username=UserName(f"{user_creation_request.username}_updated"),
     )
 
@@ -48,7 +46,6 @@ def test_update_user(
     reference_user = User(user.id, user.email_address, user.username)
 
     reference_user.rename(user_update_request.username)
-    reference_user.change_email_address(user_update_request.email_address)
 
     sample_user_updater.update(user_update_request)
 
