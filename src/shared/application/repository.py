@@ -16,9 +16,9 @@
 #   */
 
 
-class EntityAlreadyExists(Exception):
+class EntityAlreadyExists(ValueError):
     pass
 
 
-class EntityNotFound(Exception):
+class EntityNotFound(ValueError):
     pass
