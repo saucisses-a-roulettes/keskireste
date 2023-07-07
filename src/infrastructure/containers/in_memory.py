@@ -19,6 +19,7 @@ from dependency_injector.providers import Factory
 
 from src.application.account.creator import AccountCreator
 from src.application.user.creator import UserCreator
+from src.application.user.email_address.modifier import UserEmailAddressModifier
 from src.application.user.subscription.email_address.validator import EmailAddressValidator
 from src.application.user.updater import UserUpdater
 from src.test.application.account.mock import AccountMockRepository, MockAccountIdFactory
@@ -34,6 +35,7 @@ class InMemoryContainer(DeclarativeContainer):
     user_creator = Factory(UserCreator, repository=user_repository, id_factory=user_id_factory)
     user_updater = Factory(UserUpdater, repository=user_repository)
     user_password_vault = Factory(UserPasswordVaultMock)
+    user_email_address_modifier = Factory(UserEmailAddressModifier, repository=user_repository)
 
     account_repository = Factory(AccountMockRepository)
     account_id_factory = Factory(MockAccountIdFactory)
