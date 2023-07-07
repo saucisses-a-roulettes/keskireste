@@ -22,7 +22,6 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, validator, root_validator
 
 from src.application.user.creator import UserCreationRequest, UserCreator
-from src.application.user.subscription.email_address.validator import EmailAddressValidator
 from src.application.user.subscription.emailer import ValidationEmailSender
 from src.domain.user import UserName
 from src.infrastructure.containers.in_memory import InMemoryContainer
@@ -30,24 +29,6 @@ from src.infrastructure.user.password.vault import UserPasswordVault
 from src.shared.domain.email import EmailAddress
 
 router = APIRouter()
-
-
-class _SubscriptionQueryBody(BaseModel):
-    email_address: str
-
-    @validator("email_address")
-    def email_address_validator(cls, email_address: str) -> str:
-        EmailAddress(email_address)
-        return email_address
-
-
-@router.post("/query", status_code=201)
-@inject
-async def submit_user_email_address(
-    subscription_body: _SubscriptionQueryBody,
-    email_address_validator: EmailAddressValidator = Depends(Provide[InMemoryContainer.email_address_validator]),
-) -> None:
-    email_address_validator.query(EmailAddress(subscription_body.email_address))
 
 
 class PasswordNotStrongEnough(ValueError):
@@ -103,7 +84,7 @@ class _SubscriptionValidationBody(BaseModel):
         validation_email_sender.check_validation_token(EmailAddress(email_address), validation_token)
 
 
-@router.post("/validation", status_code=201)
+@router.post("", status_code=201)
 @inject
 async def confirm_user_email_address(
     subscription_validation_body: _SubscriptionValidationBody,
