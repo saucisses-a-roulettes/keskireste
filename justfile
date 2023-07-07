@@ -17,4 +17,4 @@ setup:
     poetry install
 
 fastapi:
-    uvicorn src.account.infrastructure.fastapi:app --reload
+    uvicorn src.infrastructure.fastapi:app --reload
