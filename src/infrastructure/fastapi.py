@@ -36,7 +36,7 @@ def create_app() -> FastAPI:
     new_app.include_router(account_post_router, prefix="/account")
     new_app.include_router(user_put_router, prefix="/user")
     new_app.include_router(user_subscription_router, prefix="/user/subscription")
-    new_app.include_router(user_email_address_router, prefix="/user/email_address")
+    new_app.include_router(user_email_address_router)
     return new_app
 
 
