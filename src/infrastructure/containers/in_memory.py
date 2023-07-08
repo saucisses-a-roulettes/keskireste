@@ -19,6 +19,7 @@ from dependency_injector.providers import Factory
 
 from src.application.account.creator import AccountCreator
 from src.application.account.deleter import AccountDeleter
+from src.application.account.reader import AccountReader
 from src.application.account.updater import AccountUpdater
 from src.application.user.creator import UserCreator
 from src.application.user.deleter import UserDeleter
@@ -48,6 +49,7 @@ class InMemoryContainer(DeclarativeContainer):
     account_creator = Factory(AccountCreator, repository=account_repository, id_factory=account_id_factory)
     account_updater = Factory(AccountUpdater, repository=account_repository)
     account_deleter = Factory(AccountDeleter, repository=account_repository)
+    account_reader = Factory(AccountReader, repository=account_repository)
 
     transaction_repository = Factory(TransactionMockRepository)
     recurring_transaction_repository = Factory(RecurringTransactionMockRepository)
