@@ -15,27 +15,18 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter
-from fastapi import Depends
-from pydantic import BaseModel
+from fastapi import Depends, APIRouter
 
-from src.application.user.updater import UserUpdater, UserUpdateRequest
-from src.domain.user import UserName
+from src.application.user.deleter import UserDeleter, UserDeletionRequest
 from src.infrastructure.containers.in_memory import InMemoryContainer
 from src.infrastructure.user.id import UserUUID
 
 router = APIRouter()
 
 
-class UserUpdateBody(BaseModel):
-    username: str
-
-
-@router.put("/user/{user_id}", status_code=200)
+@router.delete("/user/{user_id}", status_code=200)
 @inject
-async def update_user(
-    user_id: str, body: UserUpdateBody, user_updater: UserUpdater = Depends(Provide[InMemoryContainer.user_updater])
+async def delete_user(
+    user_id: str, user_deleter: UserDeleter = Depends(Provide[InMemoryContainer.user_deleter])
 ) -> None:
-    user_update_request = UserUpdateRequest(id=UserUUID(user_id), username=UserName(body.username))
-
-    user_updater.update(user_update_request)
+    user_deleter.delete(UserDeletionRequest(id=UserUUID(user_id)))
