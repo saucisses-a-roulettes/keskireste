@@ -26,6 +26,7 @@ from src.infrastructure.user.fastapi.subscription import router as user_subscrip
 from src.infrastructure.account.fastapi.post import router as account_post_router
 from src.infrastructure.account.fastapi.put import router as account_put_router
 from src.infrastructure.account.fastapi.delete import router as account_delete_router
+from src.infrastructure.account.fastapi.read import router as account_read_router
 
 
 def create_app() -> FastAPI:
@@ -40,6 +41,7 @@ def create_app() -> FastAPI:
     container.wire(modules=["src.infrastructure.account.fastapi.post"])
     container.wire(modules=["src.infrastructure.account.fastapi.put"])
     container.wire(modules=["src.infrastructure.account.fastapi.delete"])
+    container.wire(modules=["src.infrastructure.account.fastapi.read"])
     new_app.container = container  # type: ignore
     new_app.include_router(user_put_router)
     new_app.include_router(user_delete_router)
@@ -49,6 +51,7 @@ def create_app() -> FastAPI:
     new_app.include_router(account_post_router, prefix="/account")
     new_app.include_router(account_put_router)
     new_app.include_router(account_delete_router)
+    new_app.include_router(account_read_router)
     return new_app
 
 
