@@ -25,8 +25,10 @@ class TransactionId(Id, ABC):
     pass
 
 
-class Transaction(EntityBase[TId]):
-    def __init__(self, id_: TId, account_id: AccountId, date: datetime.date, label: str, amount: float) -> None:
+class Transaction(EntityBase[TransactionId]):
+    def __init__(
+        self, id_: TransactionId, account_id: AccountId, date: datetime.date, label: str, amount: float
+    ) -> None:
         super().__init__(id_)
         self._account_id = account_id
         self._date = date
