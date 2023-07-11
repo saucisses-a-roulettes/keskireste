@@ -56,7 +56,7 @@ class InMemoryContainer(DeclarativeContainer):
     transaction_repository = Factory(TransactionMockRepository)
     transaction_id_factory = Factory(MockTransactionIdFactory)
     transaction_creator = Factory(
-        TransactionCreator, repository=transaction_repository, transaction_id_factory=transaction_id_factory
+        TransactionCreator, repository=transaction_repository, id_factory=transaction_id_factory
     )
     transaction_deleter = Factory(TransactionDeleter, repository=transaction_repository)
 
