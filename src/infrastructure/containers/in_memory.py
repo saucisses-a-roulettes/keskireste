@@ -21,6 +21,7 @@ from src.application.account.creator import AccountCreator
 from src.application.account.deleter import AccountDeleter
 from src.application.account.reader import AccountReader
 from src.application.account.updater import AccountUpdater
+from src.application.transaction.creator import TransactionCreator
 from src.application.user.creator import UserCreator
 from src.application.user.deleter import UserDeleter
 from src.application.user.email_address.modifier import UserEmailAddressModifier
@@ -29,7 +30,7 @@ from src.application.user.subscription.email_address.validator import EmailAddre
 from src.application.user.updater import UserUpdater
 from src.test.application.account.mock import AccountMockRepository, MockAccountIdFactory
 from src.test.application.recurring_transaction.mock import RecurringTransactionMockRepository
-from src.test.application.transaction.mock import TransactionMockRepository
+from src.test.application.transaction.mock import TransactionMockRepository, MockTransactionIdFactory
 from src.test.application.user.email_address.mock import ValidationEmailMockSender, EmailAddressCheckerMock
 from src.test.application.user.mock import UserMockRepository, MockUserIdFactory, UserPasswordVaultMock
 
@@ -52,6 +53,10 @@ class InMemoryContainer(DeclarativeContainer):
     account_reader = Factory(AccountReader, repository=account_repository)
 
     transaction_repository = Factory(TransactionMockRepository)
+    transaction_id_factory = Factory(MockTransactionIdFactory)
+    transaction_creator = Factory(
+        TransactionCreator, repository=transaction_repository, transaction_id_factory=transaction_id_factory
+    )
     recurring_transaction_repository = Factory(RecurringTransactionMockRepository)
 
     email_address_checker = Factory(EmailAddressCheckerMock)
