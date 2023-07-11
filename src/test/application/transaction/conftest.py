@@ -22,6 +22,7 @@ import pytest
 from src.application.transaction.creator import TransactionCreationRequest
 from src.application.transaction.deleter import TransactionDeletionRequest
 from src.infrastructure.containers.in_memory import InMemoryContainer
+from src.test.application.transaction.mock import MockTransactionIdFactory
 from src.test.domain.mocks import MockTransactionId, MockAccountId
 
 
@@ -31,12 +32,17 @@ def transaction_repository(container: InMemoryContainer):
 
 
 @pytest.fixture
+def transaction_id_factory(container: InMemoryContainer):
+    return container.transaction_id_factory()
+
+
+@pytest.fixture
 def transaction_creation_request():
     return TransactionCreationRequest(
-        id=MockTransactionId("1"), account_id=MockAccountId("1"), date=datetime.date.today(), label="label", amount=1.0
+        account_id=MockAccountId("1"), date=datetime.date.today(), label="label", amount=1.0
     )
 
 
 @pytest.fixture
-def transaction_deletion_request():
-    return TransactionDeletionRequest(id=MockTransactionId("1"))
+def transaction_deletion_request(transaction_id_factory: MockTransactionIdFactory):
+    return TransactionDeletionRequest(id=transaction_id_factory.id_template)
