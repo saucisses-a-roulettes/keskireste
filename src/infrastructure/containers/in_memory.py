@@ -22,6 +22,7 @@ from src.application.account.deleter import AccountDeleter
 from src.application.account.reader import AccountReader
 from src.application.account.updater import AccountUpdater
 from src.application.transaction.creator import TransactionCreator
+from src.application.transaction.deleter import TransactionDeleter
 from src.application.user.creator import UserCreator
 from src.application.user.deleter import UserDeleter
 from src.application.user.email_address.modifier import UserEmailAddressModifier
@@ -57,6 +58,8 @@ class InMemoryContainer(DeclarativeContainer):
     transaction_creator = Factory(
         TransactionCreator, repository=transaction_repository, transaction_id_factory=transaction_id_factory
     )
+    transaction_deleter = Factory(TransactionDeleter, repository=transaction_repository)
+
     recurring_transaction_repository = Factory(RecurringTransactionMockRepository)
 
     email_address_checker = Factory(EmailAddressCheckerMock)
