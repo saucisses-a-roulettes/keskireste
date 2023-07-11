@@ -15,16 +15,15 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from dataclasses import dataclass
-from typing import Generic
 
 from src.application.user.repository import UserRepository, UserNotFound
+from src.domain.user import UserId
 from src.shared.application.repository import EntityNotFound
-from src.shared.domain.entity import TId
 
 
 @dataclass(frozen=True)
-class UserDeletionRequest(Generic[TId]):
-    id: TId
+class UserDeletionRequest:
+    id: UserId
 
 
 class UserDeleter:

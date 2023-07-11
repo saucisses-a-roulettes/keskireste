@@ -15,34 +15,32 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from abc import ABC, abstractmethod
-from typing import Generic
 
-from src.domain.user import User
+from src.domain.user import User, UserId
 from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
-from src.shared.domain.entity import TId
 
 
-class UserAlreadyExists(EntityAlreadyExists, Generic[TId]):
-    def __init__(self, user_id: TId) -> None:
+class UserAlreadyExists(EntityAlreadyExists):
+    def __init__(self, user_id: UserId) -> None:
         super().__init__(f"User `{user_id}` already exists")
         self._user_id = user_id
 
     @property
-    def user_id(self) -> TId:
+    def user_id(self) -> UserId:
         return self._user_id
 
 
-class UserNotFound(EntityNotFound, Generic[TId]):
-    def __init__(self, user_id: TId) -> None:
+class UserNotFound(EntityNotFound):
+    def __init__(self, user_id: UserId) -> None:
         super().__init__(f"User `{user_id}` not found")
         self._user_id = user_id
 
     @property
-    def user_id(self) -> TId:
+    def user_id(self) -> UserId:
         return self._user_id
 
 
-class UserRepository(ABC, Generic[TId]):
+class UserRepository(ABC):
     @abstractmethod
     def add(self, user: User) -> None:
         """
@@ -52,7 +50,7 @@ class UserRepository(ABC, Generic[TId]):
         pass
 
     @abstractmethod
-    def retrieve(self, id_: TId) -> User:
+    def retrieve(self, id_: UserId) -> User:
         """
         :param id_:
         :return: User
@@ -69,7 +67,7 @@ class UserRepository(ABC, Generic[TId]):
         pass
 
     @abstractmethod
-    def delete(self, id_: TId) -> None:
+    def delete(self, id_: UserId) -> None:
         """
         :param id_:
         :return: EntityNotFound

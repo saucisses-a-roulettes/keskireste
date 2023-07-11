@@ -15,17 +15,15 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from dataclasses import dataclass
-from typing import Generic
 
 from src.application.user.repository import UserRepository, UserNotFound
-from src.domain.user import UserName
+from src.domain.user import UserName, UserId
 from src.shared.application.repository import EntityNotFound
-from src.shared.domain.entity import TId
 
 
 @dataclass(frozen=True)
-class UserUpdateRequest(Generic[TId]):
-    id: TId
+class UserUpdateRequest:
+    id: UserId
     username: UserName
 
 

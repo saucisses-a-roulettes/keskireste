@@ -19,30 +19,29 @@ from typing import Generic
 
 from src.domain.recurring_transaction import RecurringTransaction, RecurringTransactionId
 from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
-from src.shared.domain.entity import TId
 
 
-class RecurringTransactionAlreadyExists(EntityAlreadyExists, Generic[TId]):
-    def __init__(self, recurring_transaction_id: TId) -> None:
+class RecurringTransactionAlreadyExists(EntityAlreadyExists):
+    def __init__(self, recurring_transaction_id: RecurringTransactionId) -> None:
         super().__init__(f"Recurring Transaction `{recurring_transaction_id}` already exists")
         self._recurring_transaction_id = recurring_transaction_id
 
     @property
-    def recurring_transaction_id(self) -> TId:
+    def recurring_transaction_id(self) -> RecurringTransactionId:
         return self._recurring_transaction_id
 
 
-class RecurringTransactionNotFound(EntityNotFound, Generic[TId]):
-    def __init__(self, recurring_transaction_id: TId) -> None:
+class RecurringTransactionNotFound(EntityNotFound):
+    def __init__(self, recurring_transaction_id: RecurringTransactionId) -> None:
         super().__init__(f"Recurring Transaction `{recurring_transaction_id}` not found")
         self._recurring_transaction_id = recurring_transaction_id
 
     @property
-    def recurring_transaction_id(self) -> TId:
+    def recurring_transaction_id(self) -> RecurringTransactionId:
         return self._recurring_transaction_id
 
 
-class RecurringTransactionRepository(ABC, Generic[TId]):
+class RecurringTransactionRepository(ABC):
     @abstractmethod
     def add(self, recurring_transaction: RecurringTransaction) -> None:
         """

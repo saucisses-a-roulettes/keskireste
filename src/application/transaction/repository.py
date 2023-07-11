@@ -1,32 +1,30 @@
 from abc import ABC, abstractmethod
-from typing import Generic
 
 from src.domain.transaction import Transaction, TransactionId
 from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
-from src.shared.domain.entity import TId
 
 
-class TransactionAlreadyExists(EntityAlreadyExists, Generic[TId]):
-    def __init__(self, transaction_id: TId) -> None:
+class TransactionAlreadyExists(EntityAlreadyExists):
+    def __init__(self, transaction_id: TransactionId) -> None:
         super().__init__(f"Transaction `{transaction_id}` already exists")
         self._transaction_id = transaction_id
 
     @property
-    def transaction_id(self) -> TId:
+    def transaction_id(self) -> TransactionId:
         return self._transaction_id
 
 
-class TransactionNotFound(EntityNotFound, Generic[TId]):
-    def __init__(self, transaction_id: TId) -> None:
+class TransactionNotFound(EntityNotFound):
+    def __init__(self, transaction_id: TransactionId) -> None:
         super().__init__(f"Transaction `{transaction_id}` not found")
         self._transaction_id = transaction_id
 
     @property
-    def transaction_id(self) -> TId:
+    def transaction_id(self) -> TransactionId:
         return self._transaction_id
 
 
-class TransactionRepository(ABC, Generic[TId]):
+class TransactionRepository(ABC):
     @abstractmethod
     def add(self, transaction: Transaction) -> None:
         """

@@ -15,30 +15,28 @@
 #   * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #   */
 from abc import ABC, abstractmethod
-from typing import Generic
 
 from src.domain.account import Account, AccountId
 from src.shared.application.repository import EntityAlreadyExists, EntityNotFound
-from src.shared.domain.entity import TId
 
 
-class AccountAlreadyExists(EntityAlreadyExists, Generic[TId]):
-    def __init__(self, account_id: TId) -> None:
+class AccountAlreadyExists(EntityAlreadyExists):
+    def __init__(self, account_id: AccountId) -> None:
         super().__init__(f"Account `{account_id}` already exists")
         self._account_id = account_id
 
     @property
-    def account_id(self) -> TId:
+    def account_id(self) -> AccountId:
         return self._account_id
 
 
-class AccountNotFound(EntityNotFound, Generic[TId]):
-    def __init__(self, account_id: TId) -> None:
+class AccountNotFound(EntityNotFound):
+    def __init__(self, account_id: AccountId) -> None:
         super().__init__(f"Account `{account_id}` not found")
         self._account_id = account_id
 
     @property
-    def account_id(self) -> TId:
+    def account_id(self) -> AccountId:
         return self._account_id
 
 
