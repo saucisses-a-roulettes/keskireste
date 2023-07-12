@@ -10,7 +10,7 @@ from src.shared.application.repository import EntityNotFound
 @dataclass(frozen=True)
 class TransactionUpdateRequest:
     id: TransactionId
-    account_id: AccountId
+    # account_id: AccountId
     date: datetime.date
     label: str
     amount: float

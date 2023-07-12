@@ -16,7 +16,7 @@ def transaction_update_request(
 ):
     return TransactionUpdateRequest(
         id=transaction_id_factory.id_template,
-        account_id=transaction_creation_request.account_id,
+        # account_id=transaction_creation_request.account_id,
         amount=transaction_creation_request.amount + 10,
         date=datetime.date.today(),
         label=f"{transaction_creation_request.label}_updated",
