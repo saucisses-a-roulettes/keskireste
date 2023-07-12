@@ -27,6 +27,9 @@ from src.infrastructure.account.fastapi.post import router as account_post_route
 from src.infrastructure.account.fastapi.put import router as account_put_router
 from src.infrastructure.account.fastapi.delete import router as account_delete_router
 from src.infrastructure.account.fastapi.read import router as account_read_router
+from src.infrastructure.transaction.fastapi.post import router as transaction_post_router
+from src.infrastructure.transaction.fastapi.delete import router as transaction_delete_router
+from src.infrastructure.transaction.fastapi.put import router as transaction_put_router
 
 
 def create_app() -> FastAPI:
@@ -42,6 +45,9 @@ def create_app() -> FastAPI:
     container.wire(modules=["src.infrastructure.account.fastapi.put"])
     container.wire(modules=["src.infrastructure.account.fastapi.delete"])
     container.wire(modules=["src.infrastructure.account.fastapi.read"])
+    container.wire(modules=["src.infrastructure.transaction.fastapi.post"])
+    container.wire(modules=["src.infrastructure.transaction.fastapi.delete"])
+    container.wire(modules=["src.infrastructure.transaction.fastapi.put"])
     new_app.container = container  # type: ignore
     new_app.include_router(user_put_router)
     new_app.include_router(user_delete_router)
@@ -52,6 +58,9 @@ def create_app() -> FastAPI:
     new_app.include_router(account_put_router)
     new_app.include_router(account_delete_router)
     new_app.include_router(account_read_router)
+    new_app.include_router(transaction_post_router, prefix="/transaction")
+    new_app.include_router(transaction_delete_router)
+    new_app.include_router(transaction_put_router)
     return new_app
 
 

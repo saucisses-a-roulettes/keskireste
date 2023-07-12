@@ -4,6 +4,7 @@ from pytest_mock import MockFixture
 from src.application.transaction.creator import TransactionCreationRequest, TransactionCreator
 from src.application.transaction.deleter import TransactionDeletionRequest, TransactionDeleter
 from src.application.transaction.repository import TransactionRepository, TransactionNotFound
+from src.test.application.transaction.mock import MockTransactionIdFactory
 
 
 def test_delete_transaction(
@@ -11,9 +12,12 @@ def test_delete_transaction(
     transaction_creation_request: TransactionCreationRequest,
     transaction_deletion_request: TransactionDeletionRequest,
     transaction_repository: TransactionRepository,
+    transaction_id_factory: MockTransactionIdFactory,
 ):
     spy = mocker.spy(transaction_repository, "delete")
-    sample_transaction_creator = TransactionCreator(repository=transaction_repository)
+    sample_transaction_creator = TransactionCreator(
+        repository=transaction_repository, id_factory=transaction_id_factory
+    )
     sample_transaction_deleter = TransactionDeleter(repository=transaction_repository)
     sample_transaction_creator.create(transaction_creation_request)
 
